@@ -1,89 +1,26 @@
-import React from "react";
-import { createRoot } from "react-dom/client";
-import { CheckCircle2, Home, MessageCircle, ShieldCheck, Sparkles, MapPin, HandCoins } from "lucide-react";
-import "./styles.css";
+import React, { FormEvent, useEffect, useMemo, useState } from 'react';
+import { createRoot } from 'react-dom/client';
+import { createClient, Session, User } from '@supabase/supabase-js';
+import { Bath, BedDouble, CalendarClock, CheckCircle2, FileText, HandCoins, Home, ImagePlus, Loader2, LogOut, MapPin, MessageCircle, Pencil, Plus, ShieldCheck, Trash2 } from 'lucide-react';
+import './styles.css';
 
-const whatsappNumber = "5519992250701";
-const whatsappText = "Ola Vanessa, quero saber se posso comprar meu imovel pelo Minha Casa Minha Vida.";
-const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappText)}`;
+type Property = { id: string; title: string; city: string; address: string | null; description: string | null; price: number | null; subsidy_estimate: number | null; monthly_parcel: number | null; down_payment: number | null; show_parcel: boolean; show_down_payment: boolean; bedrooms: number | null; bathrooms: number | null; area_m2: number | null; tag: string | null; images: string[]; pdfs: string[]; plans: { name: string; area_m2: number | null }[]; construction_status: 'pronto' | 'na_planta'; launch_date: string | null; published: boolean };
+const BRAND = { name: 'Vanessa Simoni', role: 'Corretora de Imóveis — Especialista Minha Casa Minha Vida', whatsappNumber: '5519992250701', whatsappDisplay: '(19) 99225-0701', instagramHandle: '@corretora_vanessasimoni', cities: ['Campinas', 'Sumaré', 'Hortolândia', 'Paulínia'] };
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://fxeuzdjygpfsdhvsffnj.supabase.co';
+const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_O8rj6szdA-LRSdb3Lrq0GA_zsk1n7AT';
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: true, autoRefreshToken: true } });
+const waUrl = (text: string) => `https://wa.me/${BRAND.whatsappNumber}?text=${encodeURIComponent(text)}`;
+const empty: Omit<Property, 'id'> = { title: '', city: 'Campinas', address: '', description: '', price: null, subsidy_estimate: null, monthly_parcel: null, down_payment: null, show_parcel: true, show_down_payment: false, bedrooms: 2, bathrooms: 1, area_m2: null, tag: 'Enquadrado MCMV', images: [], pdfs: [], plans: [], construction_status: 'pronto', launch_date: null, published: true };
+const money = (v: number | null) => v == null ? '—' : v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+const num = (v: string) => v === '' ? null : Number(v);
 
-const cities = ["Campinas", "Sumare", "Hortolandia", "Paulinia"];
+function App() { const [route, setRoute] = useState(location.pathname); useEffect(() => { const on = () => setRoute(location.pathname); addEventListener('popstate', on); return () => removeEventListener('popstate', on); }, []); if (route === '/login') return <Login />; if (route === '/admin') return <Admin />; return <Site />; }
+function go(path: string) { history.pushState(null, '', path); dispatchEvent(new PopStateEvent('popstate')); scrollTo({ top: 0, behavior: 'smooth' }); }
+function Site() { const [properties, setProperties] = useState<Property[]>([]); const [loading, setLoading] = useState(true); const [city, setCity] = useState('Todas'); useEffect(() => { supabase.from('properties').select('*').eq('published', true).order('created_at', { ascending: false }).then(({ data }) => { setProperties((data || []) as Property[]); setLoading(false); }); }, []); const cities = ['Todas', ...Array.from(new Set(properties.map(p => p.city)))]; const list = city === 'Todas' ? properties : properties.filter(p => p.city === city); return <><header className="siteHeader"><button className="logo" onClick={() => go('/')}>Vanessa Simoni</button><nav><a href="#imoveis">Imóveis</a><a href="#analise">Pré-análise</a><button onClick={() => go('/login')}>Admin</button><a className="miniCta" href={waUrl('Olá Vanessa, quero saber se posso comprar meu imóvel pelo Minha Casa Minha Vida.')} target="_blank">WhatsApp</a></nav></header><main><section className="hero"><div><p className="eyebrow"><MapPin />{BRAND.cities.join(' · ')}</p><h1>Descubra se você pode comprar seu imóvel pelo <span>Minha Casa Minha Vida</span> em São Paulo</h1><p>Faça uma pré-análise gratuita e veja se sua renda pode se enquadrar nas condições do programa habitacional.</p><div className="actions"><a className="primary" href="#analise">Começar análise gratuita</a><a className="secondary" href={waUrl('Olá Vanessa, quero saber se posso comprar meu imóvel pelo Minha Casa Minha Vida.')} target="_blank"><MessageCircle />WhatsApp direto</a></div><ul>{['Atendimento com corretora especializada', 'Possibilidade de subsídio', 'Orientação até a aprovação', 'Simulação sem compromisso'].map(t => <li key={t}><CheckCircle2 />{t}</li>)}</ul></div><aside><div className="portrait">VS</div><strong>{BRAND.name}</strong><span>{BRAND.role}</span></aside></section><section className="benefits"><h2>O caminho para sair do aluguel com orientação do começo ao fim.</h2><div>{['Análise do perfil', 'Busca por imóveis elegíveis', 'Simulação do financiamento', 'Acompanhamento até aprovação'].map(x => <article key={x}><ShieldCheck /><h3>{x}</h3><p>Processo explicado em linguagem simples, com próximos passos claros e atendimento próximo.</p></article>)}</div></section><section id="analise" className="analysis"><h2>Pré-análise gratuita</h2><p>Envie uma mensagem com renda, cidade desejada e se possui FGTS. A Vanessa retorna com o caminho mais indicado.</p><a className="primary" href={waUrl('Olá Vanessa, quero fazer minha pré-análise gratuita para o Minha Casa Minha Vida. Minha renda é: ')} target="_blank"><MessageCircle />Fazer pré-análise no WhatsApp</a></section><section id="imoveis" className="properties"><h2>Imóveis em São Paulo</h2><p>Empreendimentos em {BRAND.cities.join(', ')} enquadrados no Minha Casa Minha Vida.</p>{properties.length > 0 && <div className="filters">{cities.map(c => <button className={c === city ? 'active' : ''} onClick={() => setCity(c)} key={c}>{c}</button>)}</div>}{loading ? <Loader /> : list.length === 0 ? <EmptyProperties /> : <div className="grid">{list.map(p => <PropertyCard key={p.id} property={p} />)}</div>}<small>Valores sujeitos a disponibilidade, análise de crédito e condições da instituição financeira.</small></section><section className="faq"><h2>Perguntas frequentes</h2>{['A pré-análise garante aprovação?|Não. Ela ajuda a entender o caminho mais provável antes da análise oficial.', 'Preciso ter entrada?|Depende do imóvel, renda, subsídio e uso de FGTS.', 'Atende quais cidades?|Campinas, Sumaré, Hortolândia, Paulínia e região.'].map(x => { const [q,a] = x.split('|'); return <details key={q}><summary>{q}</summary><p>{a}</p></details>; })}</section><section className="final"><h2>Vamos encontrar seu lar feliz?</h2><a className="primary" href={waUrl('Olá Vanessa, quero encontrar meu Lar Feliz.')} target="_blank">Chamar Vanessa no WhatsApp</a></section></main><footer><strong>{BRAND.name}</strong><span>{BRAND.role}</span><span>WhatsApp {BRAND.whatsappDisplay}</span></footer><a className="float" href={waUrl('Olá Vanessa, quero atendimento pelo site.')} target="_blank"><MessageCircle /></a></>; }
+function PropertyCard({ property: p }: { property: Property }) { const cover = p.images?.[0]; return <article className="property"><div className="cover">{cover ? <img src={cover} alt={p.title}/> : <ImagePlus />}<span>{p.construction_status === 'na_planta' ? 'Lançamento' : 'Pronto p/ morar'}</span></div><div className="body"><p className="city"><MapPin />{p.city}</p><h3>{p.title}</h3><div className="specs"><span><BedDouble />{p.bedrooms} dorm.</span><span><Bath />{p.bathrooms} banh.</span>{p.area_m2 && <span>{p.area_m2}m²</span>}</div>{p.launch_date && <p className="launch"><CalendarClock />Lançamento {p.launch_date}</p>}{p.description && <p>{p.description}</p>}<div className="price">{p.show_parcel && p.monthly_parcel ? <strong>Parcela {money(p.monthly_parcel)}/mês</strong> : p.down_payment ? <strong>Renda mínima {money(p.down_payment)}</strong> : null}{p.subsidy_estimate && <span><HandCoins />Subsídio até {money(p.subsidy_estimate)}</span>}</div>{p.pdfs?.length > 0 && <a className="pdf" href={p.pdfs[0]} target="_blank"><FileText />Ver PDF</a>}<a className="primary" href={waUrl(`Olá Vanessa, tenho interesse no imóvel "${p.title}" em ${p.city}.`)} target="_blank"><MessageCircle />Tenho interesse</a></div></article>; }
+function EmptyProperties() { return <div className="empty"><Home /><h3>Novos imóveis em breve</h3><p>Fale conosco no WhatsApp e receba lançamentos em primeira mão.</p><a className="primary" href={waUrl('Olá Vanessa, quero receber imóveis MCMV assim que estiverem disponíveis.')} target="_blank">Receber novidades</a></div>; }
+function Login() { const [email,setEmail]=useState(''); const [password,setPassword]=useState(''); const [loading,setLoading]=useState(false); async function submit(e: FormEvent){e.preventDefault();setLoading(true);const { error } = await supabase.auth.signInWithPassword({ email, password });setLoading(false);if(error) alert(error.message); else go('/admin');} return <main className="login"><form onSubmit={submit}><button type="button" onClick={()=>go('/')} className="back">← Voltar ao site</button><h1>Área da Corretora</h1><p>Entre para gerenciar imóveis.</p><label>E-mail<input type="email" value={email} onChange={e=>setEmail(e.target.value)} required/></label><label>Senha<input type="password" value={password} onChange={e=>setPassword(e.target.value)} required minLength={6}/></label><button className="primary" disabled={loading}>{loading ? 'Entrando...' : 'Entrar'}</button></form></main>; }
+function Admin() { const [session,setSession]=useState<Session|null>(null); const [user,setUser]=useState<User|null>(null); const [properties,setProperties]=useState<Property[]>([]); const [form,setForm]=useState<Omit<Property,'id'>>(empty); const [edit,setEdit]=useState<string|null>(null); const [loading,setLoading]=useState(true); useEffect(()=>{ supabase.auth.getSession().then(({data})=>{setSession(data.session);setUser(data.session?.user||null); if(!data.session) go('/login'); else load();}); const { data } = supabase.auth.onAuthStateChange((_e,s)=>{setSession(s);setUser(s?.user||null); if(!s) go('/login');}); return ()=>data.subscription.unsubscribe();},[]); async function load(){setLoading(true); const { data, error } = await supabase.from('properties').select('*').order('created_at',{ascending:false}); if(error) alert(error.message); setProperties((data||[]) as Property[]); setLoading(false);} async function save(e: FormEvent){e.preventDefault(); if(!user) return; const payload = { ...form, created_by: user.id }; const res = edit ? await supabase.from('properties').update(payload).eq('id', edit) : await supabase.from('properties').insert(payload); if(res.error) alert(res.error.message); else {setForm(empty); setEdit(null); load();}} async function del(id:string){ if(confirm('Excluir imóvel?')){const {error}=await supabase.from('properties').delete().eq('id',id); if(error) alert(error.message); else load();}} async function signOut(){await supabase.auth.signOut();go('/login');} if(!session) return <Loader />; return <main className="admin"><header><h1>Painel Admin</h1><div><button onClick={()=>go('/')}>Site</button><button onClick={signOut}><LogOut/>Sair</button></div></header><section className="adminGrid"><form onSubmit={save} className="editor"><h2>{edit ? 'Editar imóvel' : 'Novo imóvel'}</h2><input placeholder="Título" value={form.title} onChange={e=>setForm({...form,title:e.target.value})} required/><select value={form.city} onChange={e=>setForm({...form,city:e.target.value})}>{BRAND.cities.map(c=><option key={c}>{c}</option>)}</select><input placeholder="Endereço" value={form.address||''} onChange={e=>setForm({...form,address:e.target.value})}/><textarea placeholder="Descrição" value={form.description||''} onChange={e=>setForm({...form,description:e.target.value})}/><div className="cols"><input type="number" placeholder="Valor" value={form.price||''} onChange={e=>setForm({...form,price:num(e.target.value)})}/><input type="number" placeholder="Subsídio" value={form.subsidy_estimate||''} onChange={e=>setForm({...form,subsidy_estimate:num(e.target.value)})}/><input type="number" placeholder="Parcela" value={form.monthly_parcel||''} onChange={e=>setForm({...form,monthly_parcel:num(e.target.value)})}/><input type="number" placeholder="Renda mínima" value={form.down_payment||''} onChange={e=>setForm({...form,down_payment:num(e.target.value)})}/><input type="number" placeholder="Dormitórios" value={form.bedrooms||''} onChange={e=>setForm({...form,bedrooms:num(e.target.value)})}/><input type="number" placeholder="Banheiros" value={form.bathrooms||''} onChange={e=>setForm({...form,bathrooms:num(e.target.value)})}/><input type="number" placeholder="Área m²" value={form.area_m2||''} onChange={e=>setForm({...form,area_m2:num(e.target.value)})}/><select value={form.construction_status} onChange={e=>setForm({...form,construction_status:e.target.value as 'pronto'|'na_planta'})}><option value="pronto">Pronto</option><option value="na_planta">Na planta</option></select></div><input placeholder="URLs de imagens separadas por vírgula" value={form.images.join(', ')} onChange={e=>setForm({...form,images:e.target.value.split(',').map(x=>x.trim()).filter(Boolean)})}/><input placeholder="URLs de PDFs separadas por vírgula" value={form.pdfs.join(', ')} onChange={e=>setForm({...form,pdfs:e.target.value.split(',').map(x=>x.trim()).filter(Boolean)})}/><label><input type="checkbox" checked={form.published} onChange={e=>setForm({...form,published:e.target.checked})}/> Publicado</label><button className="primary">Salvar imóvel</button>{edit && <button type="button" onClick={()=>{setEdit(null);setForm(empty)}}>Cancelar edição</button>}</form><div className="adminList"><h2>Imóveis cadastrados</h2>{loading ? <Loader /> : properties.map(p=><article key={p.id}><h3>{p.title}</h3><p>{p.city} · {money(p.price)}</p><button onClick={()=>{setEdit(p.id);setForm({...p, plans:Array.isArray(p.plans)?p.plans:[]})}}><Pencil/>Editar</button><button onClick={()=>del(p.id)}><Trash2/>Excluir</button></article>)}</div></section></main>; }
+function Loader(){return <div className="loader"><Loader2 className="spin"/>Carregando...</div>}
 
-const benefits = [
-  [ShieldCheck, "Pre-analise gratuita", "Entenda se sua renda pode se enquadrar antes de visitar os imoveis."],
-  [HandCoins, "Possibilidade de subsidio", "Orientacao sobre entrada, parcelas e caminhos para financiamento."],
-  [Home, "Imoveis para familia", "Opcoes pensadas para quem quer sair do aluguel com seguranca."],
-  [Sparkles, "Acompanhamento humano", "Atendimento direto com Vanessa Simoni pelo WhatsApp."],
-] as const;
-
-const steps = [
-  "Voce envia seus dados basicos pelo WhatsApp.",
-  "A corretora avalia renda, perfil e possibilidades do MCMV.",
-  "Voce recebe orientacao clara sobre proximos passos.",
-  "Se fizer sentido, a visita e a proposta seguem com acompanhamento.",
-];
-
-function App() {
-  return (
-    <main>
-      <section className="hero">
-        <nav className="nav">
-          <strong>Lar Feliz Imoveis</strong>
-          <a href={whatsappUrl} target="_blank" rel="noreferrer">WhatsApp</a>
-        </nav>
-
-        <div className="heroGrid">
-          <div>
-            <p className="eyebrow"><MapPin size={16} /> {cities.join(" · ")}</p>
-            <h1>Descubra se voce pode comprar seu imovel pelo Minha Casa Minha Vida</h1>
-            <p className="lead">Faca uma pre-analise gratuita com Vanessa Simoni e veja se sua renda pode se enquadrar nas condicoes do programa habitacional.</p>
-            <p className="support">Em poucos minutos, a equipe entende seu perfil, sua renda e sua possibilidade de financiamento. A pre-analise nao garante aprovacao, mas ajuda a indicar o melhor caminho para sair do aluguel.</p>
-            <div className="actions">
-              <a className="button primary" href={whatsappUrl} target="_blank" rel="noreferrer"><MessageCircle size={20} /> Comecar analise gratuita</a>
-              <a className="button secondary" href="#como-funciona">Ver como funciona</a>
-            </div>
-          </div>
-          <aside className="profileCard">
-            <div className="portrait">VS</div>
-            <h2>Vanessa Simoni</h2>
-            <p>Corretora especialista Minha Casa Minha Vida</p>
-            <ul>
-              <li><CheckCircle2 size={18} /> Atendimento consultivo</li>
-              <li><CheckCircle2 size={18} /> Simulacao sem compromisso</li>
-              <li><CheckCircle2 size={18} /> Foco em Campinas e regiao</li>
-            </ul>
-          </aside>
-        </div>
-      </section>
-
-      <section className="section benefits">
-        {benefits.map(([Icon, title, text]) => (
-          <article className="card" key={title}>
-            <Icon />
-            <h3>{title}</h3>
-            <p>{text}</p>
-          </article>
-        ))}
-      </section>
-
-      <section className="section split" id="como-funciona">
-        <div>
-          <p className="eyebrow">Processo simples</p>
-          <h2>Do primeiro contato ate a proxima decisao</h2>
-          <p>O objetivo e tirar a duvida principal com clareza: se vale seguir para simulacao, escolha de imovel e proposta.</p>
-        </div>
-        <ol className="steps">
-          {steps.map((step) => <li key={step}>{step}</li>)}
-        </ol>
-      </section>
-
-      <section className="section cta">
-        <h2>Quer saber se voce se enquadra?</h2>
-        <p>Chame a Vanessa no WhatsApp e envie as informacoes basicas para a pre-analise.</p>
-        <a className="button primary" href={whatsappUrl} target="_blank" rel="noreferrer"><MessageCircle size={20} /> Falar com Vanessa</a>
-      </section>
-    </main>
-  );
-}
-
-createRoot(document.getElementById("root")!).render(<React.StrictMode><App /></React.StrictMode>);
+createRoot(document.getElementById('root')!).render(<App />);

@@ -1,25 +1,20 @@
 # Lar Feliz Imoveis
 
-Migracao inicial do projeto Lovable **Lar Feliz Imoveis** para GitHub.
+Site independente da corretora Vanessa Simoni com catalogo de imoveis, painel administrativo e integracao Supabase.
 
-Projeto original Lovable: https://lovable.dev/projects/d5d57a2d-b4c0-4882-9927-6dd7ce4bf742
+## Rodar localmente
 
-## Status
-
-- Primeira versao funcional em React + Vite.
-- Publicacao preparada via GitHub Pages workflow.
-- Conteudo principal, regioes atendidas e CTA de WhatsApp preservados a partir do projeto Lovable.
-- Assets binarios originais e painel administrativo/Supabase ficam para a proxima etapa de refinamento, porque a exportacao direta do preview publico retornou bloqueio.
-
-## Desenvolvimento
-
-```sh
+```bash
 npm install
 npm run dev
 ```
 
+## Variaveis
+
+A aplicacao usa `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY`. Ha fallback para o projeto publico configurado na migracao para manter o GitHub Pages funcional.
+
 ## Build
 
-```sh
+```bash
 npm run build
 ```
