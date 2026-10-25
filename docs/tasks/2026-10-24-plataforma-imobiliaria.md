@@ -71,3 +71,29 @@ navegador por instrucao expressa do usuario.
 - Teste do servidor passou antes da retomada do build; healthcheck agora exige
   index.html do build e o processo atende SIGTERM.
 - Arquivos originais e backend preservados; nenhuma escrita no banco nesta etapa.
+
+## Publicacao e descoberta operacional
+
+- Codigo enviado ao GitHub: ffce2e4, PR #1.
+- Railway projeto Lar Feliz Imoveis aefc3cb7-5f83-421e-9398-5c07f639b4bc,
+  servico lar-feliz-web a39e93c9-0c05-4c02-afa8-72674f4a24e6,
+  production 36fae760-1f90-42b6-a092-ea67fd75141a.
+- Dominio gerado: https://lar-feliz-web-production.up.railway.app.
+- Fonte conectada ao GitHub na branch de trabalho; primeiro build remoto iniciado.
+- Typecheck e build locais aprovados; servidor e validacao de chaves publicas
+  aprovados (2 testes). Auditoria de build confirmou hashes de imagens originais
+  e ausencia de endpoints/assets Lovable. Teste exemplo herdado passa, mas nao
+  constitui validacao funcional do painel.
+- Checagem real: Auth HTTP 200, catalogo HTTP 401/42501, causado por falta de
+  EXECUTE anon em has_role. Politica SELECT antiga era TO public e chamava
+  has_role mesmo na consulta publica. Mantida a protecao da funcao: restringir
+  a politica existente a authenticated e criar leitura anon apenas de published.
+- Snapshot anterior: politica "Anyone can view published properties",
+  TO public, USING (published = true OR has_role(auth.uid(), 'admin'::app_role)).
+  Nenhuma outra politica de imoveis ou fichas e alterada. Rollback: remover
+  "Visitors can view published properties" e voltar a politica antiga TO public.
+- Migration gerada pela CLI oficial em 20261025000157_lar_feliz_public_catalog.sql.
+- Migration aplicada pela ponte SQL: Auth e catalogo HTTP 200. Leitura anonima
+  de fichas retorna [] (sem exposicao). Nenhum registro de negocio gravado/apagado.
+- Fixture/config Playwright herdados apontavam para pacote Lovable inexistente;
+  agora usam apenas @playwright/test existente. Nenhum navegador executado.
