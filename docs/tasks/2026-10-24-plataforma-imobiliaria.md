@@ -97,3 +97,16 @@ navegador por instrucao expressa do usuario.
   de fichas retorna [] (sem exposicao). Nenhum registro de negocio gravado/apagado.
 - Fixture/config Playwright herdados apontavam para pacote Lovable inexistente;
   agora usam apenas @playwright/test existente. Nenhum navegador executado.
+- Primeiro deploy ffce2e4 SUCCESS. HTTPS /, /login, /admin e /healthz HTTP 200;
+  bundle e imagens remotas conferidos pelo script check-live, sem navegador.
+- Ajustado o carregamento de permissoes: login espera user_roles e respostas de
+  sessoes antigas nao reativam admin depois de sair. Painel espera isAdmin.
+- Regressao local: dois testes de corrida de autenticacao e dois de preservacao
+  do site passaram. Sao testes de componente/transporte controlado, nao login
+  real com a senha da Vanessa. O teste exemplo herdado tambem passou.
+- Atualizado somente o lockfile com correcoes compativeis (npm audit fix sem
+  force); npm ci concluido. Nao houve inclusao de dependencia de producao.
+  Auditoria ainda aponta itens que exigem upgrades de major (Vite/Vitest,
+  roteador e Zod); nao aplicados para evitar migracao de framework neste corte.
+- Tentativa de testar durante npm ci falhou por modulos em substituicao;
+  apos terminar a instalacao, testes repetidos e aprovados.

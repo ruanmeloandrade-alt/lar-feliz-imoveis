@@ -25,40 +25,44 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
+    let active = true;
+    let revision = 0;
+
+    const resolveRole = async (s: Session | null, current: number) => {
+      if (!active || current !== revision) return;
+      let admin = false;
+      try {
+        if (s?.user) {
+          const { data, error } = await supabase.from("user_roles")
+            .select("role").eq("user_id", s.user.id).eq("role", "admin").maybeSingle();
+          admin = !error && !!data;
+        }
+      } finally {
+        if (active && current === revision) {
+          setIsAdmin(admin);
+          setLoading(false);
+        }
+      }
+    };
+
+    const applySession = (s: Session | null) => {
+      const current = ++revision;
+      setLoading(true);
+      setIsAdmin(false);
       setSession(s);
       setUser(s?.user ?? null);
-      if (s?.user) {
-        setTimeout(async () => {
-          const { data } = await supabase
-            .from("user_roles")
-            .select("role")
-            .eq("user_id", s.user.id)
-            .eq("role", "admin")
-            .maybeSingle();
-          setIsAdmin(!!data);
-        }, 0);
-      } else {
-        setIsAdmin(false);
-      }
+      // Resolve outside the auth callback; ignore replies from older sessions.
+      setTimeout(() => { void resolveRole(s, current).catch(() => {}); }, 0);
+    };
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => applySession(s));
+    supabase.auth.getSession().then(({ data: { session: s } }) => {
+      if (active && revision === 0) applySession(s);
+    }).catch(() => {
+      if (active && revision === 0) applySession(null);
     });
 
-    supabase.auth.getSession().then(async ({ data: { session: s } }) => {
-      setSession(s);
-      setUser(s?.user ?? null);
-      if (s?.user) {
-        const { data } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", s.user.id)
-          .eq("role", "admin")
-          .maybeSingle();
-        setIsAdmin(!!data);
-      }
-      setLoading(false);
-    });
-
-    return () => sub.subscription.unsubscribe();
+    return () => { active = false; revision++; sub.subscription.unsubscribe(); };
   }, []);
 
   const signOut = async () => {

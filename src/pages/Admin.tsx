@@ -200,7 +200,7 @@ const Admin = () => {
   const money = (v: number | null) =>
     v == null ? "—" : v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
 
-  if (authLoading || (!user && !authLoading)) {
+  if (authLoading || !user || !isAdmin) {
     return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-6 h-6 animate-spin" /></div>;
   }
 
