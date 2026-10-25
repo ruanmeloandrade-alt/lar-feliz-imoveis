@@ -1,0 +1,94 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Bandeira do Estado de São Paulo — Branco, Preto #212125, Vermelho #C40008, Ouro #FFEC00 */
+    --background: 0 0% 100%;
+    --foreground: 240 6% 14%; /* #212125 */
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 6% 14%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 6% 14%;
+
+    /* Vermelho institucional da bandeira */
+    --primary: 358 100% 39%; /* #C40008 */
+    --primary-foreground: 0 0% 100%;
+
+    /* Ouro / Amarelo estrela */
+    --secondary: 55 100% 50%; /* #FFEC00 */
+    --secondary-foreground: 240 6% 14%;
+
+    --muted: 240 5% 96%;
+    --muted-foreground: 240 4% 40%;
+
+    /* Verde discreto para subsídio */
+    --accent: 145 55% 34%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 240 5% 90%;
+    --input: 240 5% 88%;
+    --ring: 358 100% 39%;
+
+    --radius: 0.625rem;
+
+    /* Hero: preto profundo com ondulação vermelha (referência à bandeira) */
+    --hero-gradient: linear-gradient(120deg, hsl(240 6% 10%) 0%, hsl(240 6% 14%) 50%, hsl(358 90% 28%) 100%);
+    --gold-gradient: linear-gradient(135deg, hsl(55 100% 50%) 0%, hsl(46 100% 55%) 100%);
+    --sp-flag-stripe: repeating-linear-gradient(90deg, hsl(55 100% 50%) 0 22px, hsl(240 6% 14%) 22px 44px);
+
+    --card-shadow: 0 4px 24px -6px hsl(240 6% 10% / 0.08);
+    --card-shadow-hover: 0 16px 44px -10px hsl(240 6% 10% / 0.2);
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  * { @apply border-border; }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading tracking-tight;
+  }
+
+  ::selection { background: hsl(var(--secondary)); color: hsl(var(--foreground)); }
+}
+
+@layer utilities {
+  .text-gradient-gold {
+    @apply bg-clip-text text-transparent;
+    background-image: var(--gold-gradient);
+  }
+  .bg-hero { background: var(--hero-gradient); }
+  .bg-gold { background: var(--gold-gradient); }
+  .bg-sp-stripe { background: var(--sp-flag-stripe); }
+  .shadow-card { box-shadow: var(--card-shadow); }
+  .shadow-card-hover { box-shadow: var(--card-shadow-hover); }
+  .divider-sp {
+    height: 6px;
+    background: linear-gradient(90deg,
+      hsl(358 100% 39%) 0 33.33%,
+      hsl(55 100% 50%) 33.33% 66.66%,
+      hsl(240 6% 14%) 66.66% 100%);
+  }
+}
+

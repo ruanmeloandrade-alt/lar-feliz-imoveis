@@ -1,3 +1,4 @@
+-- Reference only: earlier reconstruction. Use the original migrations instead.
 CREATE TYPE IF NOT EXISTS public.app_role AS ENUM ('admin', 'user');
 
 CREATE TABLE IF NOT EXISTS public.user_roles (
