@@ -31,9 +31,6 @@ const Header = () => {
               {l.label}
             </a>
           ))}
-          <a href="/login" className="text-xs font-medium text-muted-foreground hover:text-primary transition-colors">
-            Login
-          </a>
           <a href={waUrl("Olá, quero fazer minha pré-análise do Minha Casa Minha Vida.")} target="_blank" rel="noopener noreferrer">
             <Button variant="default" size="sm">Falar no WhatsApp</Button>
           </a>
