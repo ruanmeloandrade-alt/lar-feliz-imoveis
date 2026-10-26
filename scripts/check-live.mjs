@@ -5,7 +5,7 @@ const origin = new URL(process.argv[2]);
 assert.equal(origin.protocol, 'https:');
 const get = path => fetch(new URL(path, origin), { signal: AbortSignal.timeout(20000), cache: 'no-store' });
 let html;
-for (const path of ['/', '/login', '/admin', '/healthz']) {
+for (const path of ['/', '/healthz']) {
   const response = await get(path);
   assert.equal(response.status, 200, `Rota indisponivel: ${path}`);
   if (path === '/') html = await response.text();
@@ -19,6 +19,7 @@ assert.ok(script, 'Bundle nao referenciado.');
 const bundleResponse = await get(script);
 assert.equal(bundleResponse.status, 200);
 const bundle = await bundleResponse.text();
+assert.doesNotMatch(bundle, /Painel Admin|Meus im\u00f3veis|Fichas de clientes|Calend\u00e1rio de leads/, 'Painel antigo ainda incluido na publicacao.');
 assert.ok(!/lovable\.(dev|app)|__l5e\/|gpt-engineer-file-uploads/i.test(bundle), 'Bundle depende da Lovable.');
 const assets = [...new Set(bundle.match(/\/assets\/[a-zA-Z0-9_.-]+\.(?:jpg|svg)/g) ?? [])];
 for (const name of ['vanessa-', 'condominio-bg-', 'bandeira-sp-']) {
@@ -30,6 +31,9 @@ for (const name of ['vanessa-', 'condominio-bg-', 'bandeira-sp-']) {
   assert.ok(contentType?.startsWith('image/'), `Resposta nao e uma imagem: ${name}`);
   assert.ok((await response.arrayBuffer()).byteLength > 100);
 }
-for (const path of ['/.env', '/assets/missing.js']) assert.equal((await get(path)).status, 404);
+for (const path of ['/.env', '/assets/missing.js', '/login', '/admin', '/admin/imoveis']) {
+  assert.equal((await get(path)).status, 404, `Rota retirada ainda acessivel: ${path}`);
+  console.log(`HTTPS ${path}: 404`);
+}
 dom.window.close();
 console.log('Publicacao HTTPS, rotas e imagens originais verificadas sem navegador.');

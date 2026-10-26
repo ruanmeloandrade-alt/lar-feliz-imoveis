@@ -2,6 +2,25 @@
 
 Status: retomado pelo usuario; migracao em andamento, sem desligamento da hospedagem atual.
 
+## Redefinicao de escopo em 26/10/2026
+
+- Usuario determinou manter o site externo e substituir o painel interno antigo
+  pelos motores reais da Saude Slim, adaptados ao negocio imobiliario.
+- Vanessa deve ter projeto/banco independente. Nao compartilhar bancos de outros clientes.
+- Retirada nesta entrega: link Login do site, rotas React /login e /admin e
+  AuthProvider global. Servidor devolve 404 para essas rotas e subrotas.
+- Codigo antigo permanece recuperavel no repositorio, mas nao e importado pelo
+  aplicativo publico. Nenhuma tabela, usuario, ficha ou arquivo de negocio apagado.
+- Catalogo e formulario publico continuam utilizando o backend original ate a
+  substituicao independente validada. Retirar painel nao significa retirar backend.
+- Medicao real do storage: 114 arquivos, 1.431.115.865 bytes; 78 referenciados
+  pelos imoveis publicados (1.042.630.430 bytes), 36 sem referencia encontrada no
+  catalogo publicado (388.485.435 bytes). Sem referencia nao prova descarte seguro.
+- Composicao: JPEG 936.781.563 bytes, PNG 207.208.426 bytes, PDF 191.736.123 bytes,
+  MP4 95.389.753 bytes. Esse volume e midia, nao codigo do painel interno.
+- Substituicao completa pelo sistema adaptado da Saude Slim permanece pendente.
+  Nao anunciar CRM, Inbox ou automacoes como entregues por retirar o painel antigo.
+
 ## Objetivo
 
 Preservar o site original da Vanessa Simoni e integrar os motores reais da

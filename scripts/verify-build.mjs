@@ -7,6 +7,7 @@ const assets = await readdir('dist/assets');
 for (const file of assets.filter(file => /\.(js|css)$/.test(file))) {
   const source = await readFile(join('dist/assets', file), 'utf8');
   assert.ok(!/(?:lovable\.(?:dev|app)|__l5e\/|gpt-engineer-file-uploads|sb_secret_[a-z0-9_-]{20,})/i.test(source), `Dependencia indevida em ${file}`);
+  assert.doesNotMatch(source, /Painel Admin|Meus im\u00f3veis|Fichas de clientes|Calend\u00e1rio de leads/, `Painel antigo incluido em ${file}`);
 }
 for (const name of ['vanessa', 'condominio-bg', 'bandeira-sp']) {
   const original = name === 'bandeira-sp' ? `${name}.svg` : `${name}.jpg`;
