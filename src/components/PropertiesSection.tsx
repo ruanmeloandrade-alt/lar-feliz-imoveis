@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { MapPin, BedDouble, Bath, Ruler, MessageCircle, ImagePlus, Search, ArrowRight, HandCoins, Home as HomeIcon, Play, FileText, Building2, CheckCircle2, CalendarClock } from "lucide-react";
 import { BRAND, waUrl } from "@/lib/brand";
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/lib/api-client";
 import { isVideoUrl } from "@/lib/media";
 import type { Property } from "@/types/property";
 import PropertyDetailDialog from "./PropertyDetailDialog";
@@ -29,7 +29,7 @@ const PropertiesSection = () => {
   const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
-    supabase
+    apiClient
       .from("properties")
       .select("*")
       .eq("published", true)

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, MessageCircle, CheckCircle2, AlertCircle, Sparkles, Home, Wallet, TrendingUp, Calendar, Coins, Briefcase, ShieldCheck, KeyRound, MapPin, PiggyBank, UserRound, Trophy, Zap } from "lucide-react";
 import { waUrl } from "@/lib/brand";
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/lib/api-client";
 
 const money = (v: number) =>
   v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
@@ -213,7 +213,7 @@ const AnaliseSection = () => {
     try {
       const rendaVal = parseFloat(data.renda.replace(/\D/g, "")) || null;
       const entradaVal = parseFloat(data.entrada.replace(/\D/g, "")) || null;
-      const { error } = await supabase
+      const { error } = await apiClient
         .from("leads")
         .insert({
           nome: data.nome.trim(),

@@ -31,6 +31,7 @@ const Header = () => {
               {l.label}
             </a>
           ))}
+          <a href="/plataforma" className="text-xs font-medium text-muted-foreground hover:text-primary transition-colors">Area da corretora</a>
           <a href={waUrl("Olá, quero fazer minha pré-análise do Minha Casa Minha Vida.")} target="_blank" rel="noopener noreferrer">
             <Button variant="default" size="sm">Falar no WhatsApp</Button>
           </a>
@@ -50,6 +51,7 @@ const Header = () => {
                   {l.label}
                 </a>
               ))}
+              <a href="/plataforma" className="text-sm font-medium text-muted-foreground py-2">Area da corretora</a>
               <a href={waUrl("Olá, quero fazer minha pré-análise do Minha Casa Minha Vida.")} target="_blank" rel="noopener noreferrer">
                 <Button variant="default" className="w-full">Falar no WhatsApp</Button>
               </a>

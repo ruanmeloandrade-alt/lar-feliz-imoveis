@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { apiClient } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,24 +14,33 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [setup, setSetup] = useState<boolean | null>(null);
+  const [setupToken, setSetupToken] = useState(() => new URLSearchParams(window.location.hash.slice(1)).get('token') ?? '');
+
+  useEffect(() => { apiClient.auth.status().then(data => setSetup(data.setupRequired)).catch(() => setSetup(false)); }, []);
 
   useEffect(() => {
-    if (!authLoading && user) nav("/admin", { replace: true });
+    if (!authLoading && user) nav("/plataforma", { replace: true });
   }, [user, authLoading, nav]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      if (setup) {
+        await apiClient.auth.setup({ email: email.trim(), password, token: setupToken });
+        window.history.replaceState({}, '', window.location.pathname);
+      } else {
+        const { error } = await apiClient.auth.signInWithPassword({
         email: email.trim(),
         password,
       });
       if (error) throw error;
+      }
       toast.success("Bem-vinda!");
-      nav("/admin");
-    } catch (err: any) {
-      toast.error(err.message ?? "Erro ao processar.");
+      nav("/plataforma");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao processar.");
     } finally {
       setLoading(false);
     }
@@ -50,7 +59,7 @@ const Login = () => {
           <Home className="w-4 h-4" /> Voltar ao site
         </Link>
 
-        <div className="bg-card rounded-xl shadow-2xl p-8 border border-border">
+        <div className="bg-card rounded-lg shadow-2xl p-8 border border-border">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-11 h-11 rounded-lg bg-primary text-primary-foreground flex items-center justify-center">
               <Lock className="w-5 h-5" />
@@ -60,7 +69,7 @@ const Login = () => {
                 Área da Corretora
               </h1>
               <p className="text-xs text-muted-foreground">
-                Entre para gerenciar imóveis
+                {setup ? 'Primeiro acesso' : 'Vanessa Simoni'}
               </p>
             </div>
           </div>
@@ -87,13 +96,14 @@ const Login = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
-                minLength={6}
+                minLength={setup ? 12 : 6}
                 maxLength={100}
               />
             </div>
-            <Button type="submit" className="w-full" size="lg" disabled={loading}>
+            {setup && !new URLSearchParams(window.location.hash.slice(1)).has('token') && <div><Label htmlFor="setup-token">Chave de configuracao</Label><Input id="setup-token" type="password" value={setupToken} onChange={event => setSetupToken(event.target.value)} required /></div>}
+            <Button type="submit" className="w-full" size="lg" disabled={loading || setup === null}>
               {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-              Entrar
+              {setup ? 'Criar acesso' : 'Entrar'}
             </Button>
           </form>
         </div>
