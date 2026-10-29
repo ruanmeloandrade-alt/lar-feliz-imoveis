@@ -1,1 +1,0 @@
-UPDATE public.properties SET price = 219000 WHERE id = 'c9c868aa-b49e-4494-a315-fecbf162e71e' AND price = 219;

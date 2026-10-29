@@ -1,6 +1,6 @@
 import { act, cleanup, renderHook, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { Session } from '@supabase/supabase-js';
+import type { Session } from '@/lib/api-client';
 import { AuthProvider, useAuth } from '@/hooks/useAuth';
 
 type RoleResult = { data: { role: string } | null; error: unknown };
@@ -10,8 +10,8 @@ const state = vi.hoisted(() => ({
 }));
 
 // Deferred transport replies exercise session races without touching production.
-vi.mock('@/integrations/supabase/client', () => ({
-  supabase: {
+vi.mock('@/lib/api-client', () => ({
+  apiClient: {
     auth: {
       onAuthStateChange: (callback: typeof state.callback) => {
         state.callback = callback;

@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import type { Session, User } from "@supabase/supabase-js";
+import { apiClient } from "@/lib/api-client";
+import type { Session, User } from "@/lib/api-client";
 
 interface AuthCtx {
   user: User | null;
@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       let admin = false;
       try {
         if (s?.user) {
-          const { data, error } = await supabase.from("user_roles")
+          const { data, error } = await apiClient.from("user_roles")
             .select("role").eq("user_id", s.user.id).eq("role", "admin").maybeSingle();
           admin = !error && !!data;
         }
@@ -55,8 +55,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setTimeout(() => { void resolveRole(s, current).catch(() => {}); }, 0);
     };
 
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => applySession(s));
-    supabase.auth.getSession().then(({ data: { session: s } }) => {
+    const { data: sub } = apiClient.auth.onAuthStateChange((_e, s) => applySession(s));
+    apiClient.auth.getSession().then(({ data: { session: s } }) => {
       if (active && revision === 0) applySession(s);
     }).catch(() => {
       if (active && revision === 0) applySession(null);
@@ -66,7 +66,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    await apiClient.auth.signOut();
   };
 
   return (

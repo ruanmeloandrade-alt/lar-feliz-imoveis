@@ -4,16 +4,6 @@ import { mkdtemp, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createAppServer } from './index.mjs';
-import { validateBackendConfig } from '../scripts/backend-config.mjs';
-
-test('frontend configuration rejects secret and service-role credentials', () => {
-  assert.doesNotThrow(() => validateBackendConfig('https://example.supabase.co', 'sb_publishable_example'));
-  assert.throws(() => validateBackendConfig(undefined, undefined));
-  assert.throws(() => validateBackendConfig('http://example.supabase.co', 'sb_publishable_example'));
-  assert.throws(() => validateBackendConfig('https://example.supabase.co', 'sb_secret_example'));
-  const privileged = `header.${Buffer.from(JSON.stringify({ role: 'service_role' })).toString('base64url')}.signature`;
-  assert.throws(() => validateBackendConfig('https://example.supabase.co', privileged));
-});
 
 test('SPA routes, missing assets and private files have distinct responses', async () => {
   const root = await mkdtemp(join(tmpdir(), 'lar-feliz-'));
@@ -23,7 +13,7 @@ test('SPA routes, missing assets and private files have distinct responses', asy
   await new Promise(done => server.listen(0, '127.0.0.1', done));
   const base = `http://127.0.0.1:${server.address().port}`;
   try {
-    for (const route of ['/']) {
+    for (const route of ['/', '/plataforma', '/plataforma/clientes', '/plataforma/propostas']) {
       const response = await fetch(base + route);
       assert.equal(response.status, 200);
       assert.match(await response.text(), /Vanessa Simoni/);

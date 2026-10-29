@@ -3,14 +3,20 @@ import { createReadStream } from 'node:fs';
 import { stat, realpath } from 'node:fs/promises';
 import { resolve, extname, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { Store } from './store.mjs';
+import { createApi } from './api.mjs';
 
 const defaultRoot = fileURLToPath(new URL('../dist/', import.meta.url));
 const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.ico': 'image/x-icon', '.woff2': 'font/woff2', '.txt': 'text/plain; charset=utf-8' };
 
-export function createAppServer(root = defaultRoot) {
+export function createAppServer(root = defaultRoot, options = {}) {
+  const api = options.store ? createApi(options.store, options) : null;
   return createServer(async (req, res) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; connect-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; frame-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; base-uri 'self'; form-action 'self'; frame-ancestors 'self'");
+    const url = new URL(req.url, 'http://localhost');
+    if (api && await api(req, res, url)) return;
     if (!['GET', 'HEAD'].includes(req.method)) {
       res.writeHead(405, { Allow: 'GET, HEAD' }).end();
       return;
@@ -22,7 +28,7 @@ export function createAppServer(root = defaultRoot) {
       const built = await stat(resolve(root, 'index.html')).catch(() => null);
       if (!built?.isFile()) { res.writeHead(503).end(); return; }
       res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
-      res.end(req.method === 'HEAD' ? undefined : JSON.stringify({ status: 'ok', service: 'lar-feliz-imoveis' }));
+      res.end(req.method === 'HEAD' ? undefined : JSON.stringify({ status: 'ok', service: 'lar-feliz-imoveis', backend: options.store ? 'independent' : 'static' }));
       return;
     }
     if (path.split(/[\\/]/).some(part => part.startsWith('.')) || path.includes('\0')) {
@@ -59,7 +65,9 @@ export function createAppServer(root = defaultRoot) {
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const port = Number(process.env.PORT || 8080);
-  const server = createAppServer();
+  if (process.env.RAILWAY_PROJECT_ID && process.env.RAILWAY_VOLUME_MOUNT_PATH !== '/data') throw new Error('Volume persistente /data obrigatorio. Publicacao interrompida para proteger os dados.');
+  const store = new Store(process.env.RAILWAY_VOLUME_MOUNT_PATH || process.env.VANESSA_DATA_DIR || resolve('.local-data'));
+  const server = createAppServer(defaultRoot, { store, bootstrapToken: process.env.BOOTSTRAP_TOKEN || '' });
   server.listen(port, '0.0.0.0', () => console.log(`Lar Feliz Imoveis: http://localhost:${port}`));
-  process.on('SIGTERM', () => server.close(() => process.exit(0)));
+  process.on('SIGTERM', () => server.close(() => { store.close(); process.exit(0); }));
 }

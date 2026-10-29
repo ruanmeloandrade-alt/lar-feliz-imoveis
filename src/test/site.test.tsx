@@ -9,6 +9,7 @@ describe('Site original da Vanessa', () => {
   it('preserva a navegacao e o destino do atendimento', async () => {
     render(<Header />);
     expect(screen.queryByRole('link', { name: 'Login' })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Area da corretora' })).toHaveAttribute('href', '/plataforma');
     expect(screen.getByRole('link', { name: 'Falar no WhatsApp' }).getAttribute('href')).toMatch(/^https:\/\/wa.me\/5519992250701\?/);
     expect(screen.getAllByRole('navigation')).toHaveLength(1);
     fireEvent.click(screen.getByRole('button', { name: 'Menu' }));

@@ -2,6 +2,86 @@
 
 Status: retomado pelo usuario; migracao em andamento, sem desligamento da hospedagem atual.
 
+## Backend independente - 28/10/2026 (estado mais recente)
+
+- Confirmados Railway, GitHub e Hostinger. Usuario autorizou expressamente o
+  disco persistente e seu custo por uso. Volume criado apenas em Lar Feliz
+  Imoveis: 1615e35c-13fc-47e1-9731-17c4142c48ab, mount /data, servico lar-feliz-web.
+- Substituida a integracao antiga por API propria same-origin, SQLite nativo do
+  Node 24 e arquivos no volume. SDK externo removido, nenhuma dependencia nova.
+- Login proprio com scrypt, cookie HttpOnly/Secure/SameSite Strict, limitacao
+  de tentativas, bloqueio de origem para escrita e bootstrap de uso unico.
+- Registros privados exigem sessao no servidor. Somente catalogo publicado e
+  envio de ficha sao publicos. PDFs privados usam link assinado de ate 5 minutos.
+- Captacao, contato, negociacao, eventos e regras de tarefas sao transacionais.
+  Recibos idempotentes preservados no motor adaptado da Saude Slim.
+- Recuperacao somente da copia local criptografada: 12 imoveis, 2 fichas,
+  78 referencias de midia e 74 arquivos unicos. Hashes validados e todas as URLs
+  convertidas para a API propria. Nenhum usuario, senha ou sessao antiga copiado.
+- Dados/midias de negocio fora do Git; importacao privada no volume. Nenhuma
+  chamada Lovable nem acesso indireto ao backend proibido nesta retomada.
+- Removidos adaptador, configuracoes e migrations executaveis antigas. O
+  historico anterior abaixo e apenas registro, nao instrucao para reutiliza-los.
+- Verificacao independente HTTP LOCAL passou: bootstrap, login real, cookies,
+  CRM, repeticoes, selecao invalida sem escrita parcial, automacoes com prazo,
+  propostas, upload/download, assinatura expirada/adulterada, acesso anonimo,
+  CSRF, logout e persistencia apos reinicio. Sem banco/servico remoto nesses testes.
+- Build, typecheck, 22 testes de interface/motor e verificacao de bundle sem
+  SDK/URLs antigos passaram. Nenhum teste visual em navegador realizado.
+- Dominio exato da Hostinger solicitado; nao inventar nome nem alterar MX/TXT.
+- Exclusao remota da publicacao e conta QA antigas NAO executada. Nao contornar
+  a proibicao para faze-la nem declarar retirada remota completa.
+- Inbox WhatsApp bidirecional, SalesBots completos e assinatura eletronica
+  continuam pendentes. Regras atuais criam tarefas; status de contrato e manual.
+
+## Implementacao local de 28/10/2026
+
+### Instrucao mais recente e obrigatoria
+
+- Correcao expressa mais recente do usuario: exclusivamente Railway, GitHub e
+  Hostinger. Heroku e HostGator foram corrigidos e nao sao o destino.
+- Usuario RECUSOU publicacao provisoria dependente do backend antigo. Nao
+  publicar esta implementacao enquanto a integracao antiga nao for substituida.
+- Nenhum acesso Lovable, nem diretamente nem por outra ferramenta. Pedido de
+  exclusao remota nao foi executado: nao ha operacao de exclusao disponivel
+  dentre as ferramentas autorizadas. Nao declarar exclusao confirmada.
+- Verificacao local: nao foi encontrado CLI Heroku, sessao netrc ou conector
+  Heroku disponivel. Nome do app Heroku de destino ainda nao foi confirmado.
+- Nao foram criados recursos, assumidas cobrancas ou alterados DNS nesta retomada.
+
+- Branch codex/vanessa-platform. Nova area /plataforma, acesso administrativo,
+  clientes, negociacoes em funil, carteira de imoveis, agenda, regras de tarefas,
+  propostas, documentos PDF privados e visualizacao/impressao de proposta.
+- Motor atomico adaptado de saude-slim@b4b3df96, arquivo
+  src/lib/slim-funnel-mutations.core.ts. Recibos, idempotencia, selecao exata,
+  timeout e validacao mantidos; somente RPCs vanessa_* sao utilizados.
+- Nenhum dado, credencial ou banco da clinica utilizado. Nenhuma dependencia
+  de producao adicionada. Site publico, imagens e captacao preservados.
+- Foram aplicadas migrations no backend original pela ponte SQL ANTES da
+  interrupcao expressa do usuario. Isso contrariou a proibicao de usar Lovable.
+  Nova regra: nenhuma chamada Lovable nem acesso indireto para contornar a regra.
+- As duas fichas reais anteriores foram vinculadas a dois clientes/negociacoes.
+  Testes SQL com rollback passaram para recibos, repeticoes, duplicidade,
+  movimentacao, eventos, tarefas, captacao e protecao anon/nonadmin.
+- Conta Auth administrativa e workspace QA temporarios foram criados. Nao
+  constam nas migrations do repo. O teste HTTP NAO executou: importacao do SDK
+  falhou antes do login. Nenhum e-mail enviado e nenhuma senha real alterada.
+  Remocao dessas fixtures permanece pendente de acesso autorizado; nao fazer
+  novas chamadas Lovable para limpa-las sem autorizacao expressa.
+- Checkers remotos foram bloqueados contra o projeto antigo para impedir
+  repeticao acidental. Validacao atual limitada a arquivos locais/GitHub/Railway.
+- Persistencia implementada usa o contrato do backend original; a publicacao
+  provisoria com ele foi submetida a confirmacao explicita do usuario.
+- Ainda pendentes: backend independente, limpeza QA autorizada, Inbox WhatsApp
+  bidirecional com sessao exclusiva, SalesBots completos, envio externo de
+  mensagens, assinatura eletronica e homologacao visual/autenticada real.
+- Regras de automacao entregues aqui CRIAM TAREFAS com prazo persistido. Nao
+  significam mensagens enviadas nem prova de horas/dias transcorridos.
+- Status de proposta "Contrato firmado" e manual; nao e assinatura eletronica.
+- Validacao local anterior: typecheck/build, 22 testes Vitest, 2 testes de
+  servidor e lint dos novos modulos passaram. Testes visuais em navegador nao
+  foram feitos, por proibicao do usuario.
+
 ## Redefinicao de escopo em 26/10/2026
 
 - Usuario determinou manter o site externo e substituir o painel interno antigo

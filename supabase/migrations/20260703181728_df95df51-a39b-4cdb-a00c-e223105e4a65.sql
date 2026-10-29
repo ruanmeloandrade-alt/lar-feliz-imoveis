@@ -1,1 +1,0 @@
-ALTER TABLE public.properties ADD COLUMN IF NOT EXISTS plans jsonb NOT NULL DEFAULT '[]'::jsonb;
