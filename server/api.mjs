@@ -9,7 +9,24 @@ const cookieToken = req => String(req.headers.cookie??'').split(';').map(p=>p.tr
 const digest = (store,bucket,path,expires) => createHmac('sha256',store.secret).update(JSON.stringify([bucket,path,expires])).digest('hex');
 const equal = (a,b) => { const x=Buffer.from(String(a)),y=Buffer.from(String(b)); return x.length===y.length&&timingSafeEqual(x,y); };
 async function body(req,limit=512*1024) { const chunks=[]; let size=0; for await(const chunk of req) { size+=chunk.length; if(size>limit) fail('Arquivo ou requisicao muito grande.',413); chunks.push(chunk); } return Buffer.concat(chunks); }
-async function json(req) { if(!/^application\/json(?:;|$)/i.test(req.headers['content-type']??'')) fail('Formato invalido.',415); try { return JSON.parse((await body(req)).toString('utf8')); } catch(error) { if(error.status) throw error; fail('JSON invalido.'); } }
+async function json(req) {
+  if(!/^application\/json(?:;|$)/i.test(req.headers['content-type']??'')) fail('Formato invalido.',415);
+  try {
+    const value=JSON.parse((await body(req)).toString('utf8'));
+    if(!value||typeof value!=='object'||Array.isArray(value)) fail('JSON invalido.');
+    const pending=[[value,0]]; let count=0;
+    // Bound collection sizes before schema validation allocates error objects.
+    while(pending.length) {
+      const [item,depth]=pending.pop();
+      if(++count>5000||depth>8) fail('Estrutura muito grande.',413);
+      if(item&&typeof item==='object') {
+        if(Array.isArray(item)?item.length>500:Object.keys(item).length>60) fail('Colecao muito grande.',413);
+        for(const child of Object.values(item)) pending.push([child,depth+1]);
+      }
+    }
+    return value;
+  } catch(error) { if(error.status) throw error; fail('JSON invalido.'); }
+}
 function cleanPath(path) { if(typeof path!=='string'||path.length>500||path.split('/').some(p=>!p||p==='.'||p==='..'||!/^[a-zA-Z0-9_.-]+$/.test(p))) fail('Caminho invalido.'); return path; }
 
 export function createApi(store,{bootstrapToken='',secureCookies=process.env.NODE_ENV==='production'}={}) {

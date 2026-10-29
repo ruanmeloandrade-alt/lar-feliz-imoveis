@@ -25,6 +25,7 @@ test('independent API: actual auth, CRM, automation, storage, access control and
     cookie=created.cookie.split(';')[0]; const user=created.json.user;
     assert.equal((await call('/api/auth/setup',{token:'test-only-configuration-token-123456789',email:'another@example.invalid',password:'local-test-password'})).status,403);
     assert.equal((await call('/api/records/vanessa_contacts',{name:'CSRF'},'POST',{Origin:'https://attacker.invalid'})).status,403);
+    assert.equal((await call('/api/records/properties',{images:Array.from({length:501},()=>[])})).status,413);
     const records=async name=>(await call('/api/records/'+name)).json.data;
     const workspace=(await records('vanessa_workspaces'))[0],pipeline=(await records('vanessa_pipelines'))[0],stages=await records('vanessa_stages');
     const first=stages.find(s=>s.position===0),target=stages.find(s=>s.position===1);
