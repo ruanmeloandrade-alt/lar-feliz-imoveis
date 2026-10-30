@@ -90,3 +90,10 @@ the old remote provider or source backups before parity is verified.
 - Apex ALIAS remains configured correctly, but authoritative Hostinger nodes have temporarily returned mixed old/new A answers. Its Railway certificate was still provisioning during validation.
 - Primary PUBLIC_APP_URL is therefore https://www.corretoravanessasimoni.com. The app redirects apex requests to www and accepts both owned origins plus the Railway compatibility URL.
 - A real HTTP test proves the primary www host serves the public page and apex redirects preserve /admin paths and query strings. All three server tests pass; native build passes.
+
+## Column ACL parity
+
+- Inbox validation detected missing column-level grants on whatsapp_web_sessions. Table ACLs alone did not preserve these source permissions.
+- Read pg_attribute.attacl from the canonical source, without customer rows or secrets. Restored eight exact grant statements for sessions, document delivery, team read markers and tracking writes.
+- Verified authenticated owner metadata read: 200 with one own session. Selecting token_encrypted stays denied (403); anonymous session reads stay denied (401).
+- Baseline and forward migration now include the same column permissions, with RLS unchanged.
