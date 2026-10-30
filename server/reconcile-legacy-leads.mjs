@@ -23,7 +23,7 @@ export async function reconcileLegacyLeads(store){
   const stages=await call('pipeline_stages?select=id&workspace_id=eq.'+workspace+'&pipeline_id=eq.'+pipeline.id+'&order=position.asc&limit=1');
   if(!stages[0])throw Error('Etapa de destino ausente.');
   const known=new Set(existing.map(l=>l.id));const missing=rows.filter(l=>!known.has(l.id));
-  if(missing.length)await call('leads?on_conflict=id','POST',missing.map(l=>({id:l.id,workspace_id:workspace,crm_source_id:pipeline.crm_source_id,pipeline_id:pipeline.id,stage_id:stages[0].id,name:l.nome,email:l.email??null,phone:l.whatsapp,phone_normalized:String(l.whatsapp??'').replace(/\D/g,''),value:0,status:'open',source:'site',custom_data:{vanessa_original:l},created_at:l.created_at})));
+  if(missing.length)await call('leads?on_conflict=id','POST',missing.map(l=>({id:l.id,workspace_id:workspace,crm_source_id:pipeline.crm_source_id,pipeline_id:pipeline.id,stage_id:stages[0].id,name:l.nome,email:l.email??null,phone:l.whatsapp,phone_normalized:String(l.whatsapp??'').replace(/\D/g,''),value:0,status:'active',source:'site',custom_data:{vanessa_original:l},created_at:l.created_at})));
   await call('crm_form_submissions?on_conflict=id','POST',rows.map(l=>({id:l.id,workspace_id:workspace,form_id:form.id,lead_id:l.id,values:Object.fromEntries(Object.entries(l).filter(([k])=>!['id','created_at'].includes(k))),created_at:l.created_at})));
   const values=[];
   for(const lead of rows)for(const field of form.campos??[])if(field.customFieldId&&lead[field.id]!=null)values.push({workspace_id:workspace,lead_id:lead.id,field_id:field.customFieldId,value:{display:String(lead[field.id]),raw:[String(lead[field.id])],source:'form',form_id:form.id}});
