@@ -30,7 +30,7 @@ export const Route = createFileRoute("/integracoes")({
   component: IntegracoesPage,
 });
 
-const RETIRED_IDS = new Set(["microsoft-office"]);
+const RETIRED_IDS = new Set(["microsoft-office", "claude-code"]);
 const SAUDE_SLIM_INTEGRATIONS = new Set(["meta", "whatsapp-web", "openai", "claude-code", "gemini", "webhooks", "conta-google"]);
 type CatalogStatus = Record<string, { status: Integration["status"]; technicalStatus?: Integration["technicalStatus"] }>;
 
