@@ -12,7 +12,8 @@ export const Route=createFileRoute('/api/public/vanessa-lead')({server:{handlers
     const {supabaseAdmin}=await import('@/integrations/supabase/client.server');
     const {ingestFormSubmission}=await import('@/lib/forms-ingest.server');
     const origin=request.headers.get('origin');
-    if(origin&&new URL(origin).host!==new URL(process.env.PUBLIC_APP_URL??request.url).host)return Response.json({error:{message:'Origem nao autorizada.'}},{status:403});
+    const allowedOrigins=new Set([process.env.PUBLIC_APP_URL,process.env.APP_PUBLIC_URL,'https://www.corretoravanessasimoni.com'].filter(Boolean).map(value=>new URL(value!).origin));
+    if(origin&&!allowedOrigins.has(new URL(origin).origin))return Response.json({error:{message:'Origem nao autorizada.'}},{status:403});
     if(!/^application\/json(?:;|$)/i.test(request.headers.get('content-type')??''))return Response.json({error:{message:'Formato invalido.'}},{status:415});
     const raw=await request.text();if(raw.length>65536)return Response.json({error:{message:'Requisicao muito grande.'}},{status:413});
     const payload=schema.parse(JSON.parse(raw));

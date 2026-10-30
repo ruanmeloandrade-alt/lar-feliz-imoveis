@@ -70,3 +70,16 @@ the old remote provider or source backups before parity is verified.
 - Real WhatsApp pairing and send/receive depend on the owner handset.
 - Real AI inference depends on a Vanessa-owned provider key.
 - Hostinger domain cutover requires the exact paid domain to be established; no domain was guessed or DNS changed.
+
+## Production and domain evidence
+
+- PR #6 merged as 3313d6c; Railway 6c31ef1e-a854-47bd-a081-f9393b4e70d2 reached SUCCESS.
+- PR #7 identity cleanup merged as 33fc121; Railway 83b9c4b7-f19b-435a-83e0-7f20dd9036b7 reached SUCCESS.
+- Production owner login opened the complete runtime; Produtos showed 12 properties.
+- Production public form returned 201 and created a native active lead in the intended pipeline. Only the fixture was removed.
+- Production SalesBot editor opened and persisted an inactive test draft; that draft was removed.
+- Broad compiled output scan found no inherited provider gateway or source Supabase URLs.
+- Temporary Railway SSH key codex-vanessa-transfer was revoked. Local test servers were stopped.
+- Hostinger authenticated domain inventory confirmed corretoravanessasimoni.com active through 2027-07-03. Existing DNS has only two website A records and two obsolete provider-verification TXT records; no email records are present in that zone. Nameservers remain unchanged.
+- Railway registered apex and www for this service; target CNAMEs are p33g7q13.up.railway.app and rerwq3gx.up.railway.app. DNS originals are retained in the local delivery outputs.
+- The domain cutover update permits both owned application origins, redirects www to the apex, and keeps the Railway URL for compatibility. DNS/HTTPS completion is verified separately after deployment.
