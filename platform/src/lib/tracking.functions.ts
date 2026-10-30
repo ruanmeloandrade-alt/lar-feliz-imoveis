@@ -250,7 +250,7 @@ export const listTrackingSources = createServerFn({ method: "POST" })
         kind: "whatsapp",
         name: s.phone_number ? `WhatsApp ${s.phone_number}` : "WhatsApp",
         detail: `${s.provider} · ${s.status}`,
-        status: s.status === "conectado" ? "ok" : "pending",
+        status: ["conectado","connected","open"].includes(s.status) ? "ok" : "pending",
         metrics: [
           { label: "Cliques WhatsApp 24h", value: w24.toLocaleString("pt-BR") },
           { label: "Cliques WhatsApp 7d", value: w7.toLocaleString("pt-BR") },

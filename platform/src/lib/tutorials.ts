@@ -1,4 +1,4 @@
-export const TUTORIAL_EDITOR_ID = "e8f2252b-c0bc-4336-9912-2e62e73ddd2e";
+export const TUTORIAL_EDITOR_ID = "b6bf8bde-340c-4a98-9fb4-179e2fcf3464";
 
 export function canEditTutorials(userId: string | null | undefined) {
   return userId === TUTORIAL_EDITOR_ID;

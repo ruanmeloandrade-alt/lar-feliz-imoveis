@@ -1,3 +1,4 @@
+import {vanessaPropertySchema} from "./vanessa-property";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -52,6 +53,7 @@ export interface DbCatalog {
 }
 
 const productInput = z.object({
+  property: vanessaPropertySchema.optional(),
   id: z.string().uuid().optional(),
   catalogId: z.string().uuid(),
   sku: z.string().default(""),
@@ -83,7 +85,7 @@ export const listProductCatalogs = createServerFn({ method: "GET" })
       .order("created_at");
     const { data: prods } = await sb
       .from("products")
-      .select("id, catalog_id, sku, name, description, image, price, promo_price, stock, category, active, cost_price, minimum_stock, unit, stock_known, import_snapshot")
+      .select("id, catalog_id, sku, name, description, image, price, promo_price, stock, category, active, cost_price, minimum_stock, unit, stock_known, import_snapshot, public_property")
       .eq("workspace_id", wsId)
       .order("created_at");
 

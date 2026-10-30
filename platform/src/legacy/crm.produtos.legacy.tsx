@@ -1,3 +1,5 @@
+import {vanessaPropertySchema} from "@/lib/vanessa-property";
+import {VanessaPropertyFields} from "@/components/VanessaPropertyFields";
 // SLIM_APPROVED_UI_COMMERCE_V1
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -20,7 +22,7 @@ import {
   Box,
   Plus,
   Search,
-  
+
   Download,
   Upload,
   Pencil,
@@ -319,6 +321,7 @@ function CrmProdutosPage() {
     try {
       await saveProductFn({
         data: {
+          property: p.property,
           costPrice: p.costPrice,
           minStock: p.minStock,
           unit: p.unit,
@@ -984,10 +987,7 @@ function ProductCard({
               <div className="text-base font-semibold tabular-nums">{formatBRL(product.price)}</div>
             )}
           </div>
-          <div className="text-right text-[10px] text-muted-foreground">
-            estoque
-            <div className="text-sm font-semibold tabular-nums text-foreground">{product.stockKnown === false ? "Não informado" : product.stock}</div>
-          </div>
+
         </div>
       </div>
       <div className="flex items-center justify-end gap-1 border-t border-border bg-muted/20 px-2.5 py-1.5">
@@ -1189,9 +1189,6 @@ function CategoriesPanel({
           <div className="grid grid-cols-2 gap-2 text-xs">
             <MiniStat label="Produtos" value={String(c.products)} />
             <MiniStat label="Ativos" value={`${c.active}/${c.products}`} />
-            <MiniStat label="Estoque" value={String(c.stock)} />
-            <MiniStat label="Sem estoque" value={String(c.outOfStock)} />
-            <MiniStat label="Valor em estoque" value={formatBRL(c.stockValue)} />
             <MiniStat label="Ticket médio" value={formatBRL(c.avgPrice)} />
           </div>
 
@@ -1294,12 +1291,13 @@ function ProductDialog({
   onSave: (p: Product) => void | Promise<void>;
 }) {
 
-  const [form, setForm] = useState<Product>(product);
+  const [form, setForm] = useState<Product>({...product,property:product.property??vanessaPropertySchema.parse({})});
   const [priceDraft,setPriceDraft]=useState(String(product.price).replace(".",","));
   const [promoDraft,setPromoDraft]=useState(product.promoPrice==null?"":String(product.promoPrice).replace(".",","));
   const money=useMemo(()=>validateProductMoney(priceDraft,promoDraft),[priceDraft,promoDraft]);
   const [saving,setSaving]=useState(false);
-  async function saveValidated(){if(saving||money.error)return;setSaving(true);try{await onSave({...form,price:money.price,promoPrice:money.promoPrice});}finally{setSaving(false);}}
+  const [mediaBusy,setMediaBusy]=useState(false);
+  async function saveValidated(){if(saving||mediaBusy||money.error)return;setSaving(true);try{await onSave({...form,price:money.price,promoPrice:money.promoPrice});}finally{setSaving(false);}}
   const update = <K extends keyof Product>(k: K, v: Product[K]) =>
     setForm((f) => ({ ...f, [k]: v }));
 
@@ -1410,23 +1408,10 @@ function ProductDialog({
                 className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:ring-2 focus:ring-primary/30 tabular-nums"
               />
             </FormField>
-            <FormField label="Estoque">
-              <input
-                type="number"
-                step={1}
-                value={form.stockKnown === false ? "" : form.stock}
-                placeholder="Não informado"
-                onChange={(e) => setForm((f) => ({ ...f, stock: e.target.value === "" ? 0 : Number(e.target.value), stockKnown: e.target.value !== "" }))}
-                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:ring-2 focus:ring-primary/30 tabular-nums"
-              />
-            </FormField>
+
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
-            <FormField label="Preço de custo"><input type="number" min={0} step="0.01" value={form.costPrice ?? ""} onChange={(e) => update("costPrice", e.target.value === "" ? null : Number(e.target.value))} className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm" /></FormField>
-            <FormField label="Estoque mínimo"><input type="number" min={0} step={1} value={form.minStock ?? ""} onChange={(e) => update("minStock", e.target.value === "" ? null : Number(e.target.value))} className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm" /></FormField>
-            <FormField label="Unidade"><input value={form.unit ?? ""} onChange={(e) => update("unit", e.target.value)} className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm" /></FormField>
-          </div>
+          <VanessaPropertyFields value={form.property} onChange={v=>update('property',v)} onCoverChange={v=>update('image',v||PLACEHOLDER_IMG)} onBusy={setMediaBusy}/>
           {form.importSnapshot && <section className="rounded-lg border border-border p-3 text-xs"><h3 className="font-semibold">Histórico importado</h3><p className="mt-1 text-muted-foreground">Valores da planilha de origem. Não representam novos pedidos.</p><dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2">{Object.entries((form.importSnapshot.raw ?? {}) as Record<string, string>).map(([label, value]) => <div key={label}><dt className="text-muted-foreground">{label}</dt><dd className="font-medium break-words">{value === "" ? "Não informado" : value}</dd></div>)}</dl></section>}
 
           <label className="flex items-center gap-2 text-xs">
@@ -1436,7 +1421,7 @@ function ProductDialog({
               onChange={(e) => update("active", e.target.checked)}
               className="h-4 w-4 accent-[var(--primary)]"
             />
-            Produto ativo (visível e disponível no CRM)
+            Imóvel ativo (disponível na plataforma)
           </label>
 
           {money.error && (
@@ -1451,7 +1436,7 @@ function ProductDialog({
             Cancelar
           </button>
           <button
-            disabled={saving || !form.name.trim() || !!money.error}
+            disabled={saving || mediaBusy || !form.name.trim() || !!money.error}
             onClick={saveValidated}
             className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
           >

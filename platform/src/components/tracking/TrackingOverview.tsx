@@ -124,11 +124,11 @@ export function TrackingOverview() {
 
         <ModuleSection title="Alertas" description="O que precisa de atenção agora.">
           {(data?.sitesTotal ?? 0) === 0 ? (
-            <div className="text-xs text-warning py-2">Nenhum site cadastrado ainda. Adicione um site na aba Fontes.</div>
+            <div className="text-xs text-warning py-2">O cadastro do site oficial está indisponível. Consulte a fonte do site para verificar a conexão.</div>
           ) : (data?.sitesActive ?? 0) === 0 ? (
-            <div className="text-xs text-warning py-2">Nenhum site foi verificado ainda. Abra Diagnóstico para validar a instalação e confirmar o recebimento de eventos.</div>
+            <div className="text-xs text-warning py-2">Aguardando o primeiro evento real do site oficial.</div>
           ) : (data?.events24h ?? 0) === 0 ? (
-            <div className="text-xs text-warning py-2">Há site verificado, mas nenhum evento chegou nas últimas 24 horas. Confira a aba Diagnóstico.</div>
+            <div className="text-xs text-warning py-2">Nenhum evento do site oficial chegou nas últimas 24 horas. Consulte a aba Eventos.</div>
           ) : (
             <div className="text-xs text-success py-2">Tracking recebendo eventos nas últimas 24 horas.</div>
           )}

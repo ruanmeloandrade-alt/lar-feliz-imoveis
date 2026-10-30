@@ -1,3 +1,5 @@
+import {VanessaIcons,type VanessaIconProps} from "./VanessaIcons";
+import type {ComponentType} from "react";
 import {
   BarChart3, Bot, ChevronDown, ClipboardList, History, Inbox,
   LogOut, Mail, Megaphone, Menu, MessageSquareText, Package, PanelLeftClose,
@@ -11,34 +13,33 @@ import { useSessionHeartbeat } from "@/hooks/use-session-heartbeat";
 import { readSidebarPreference, writeSidebarPreference, parseSidebarStorageEvent } from "@/lib/slim-sidebar-state";
 import "@/styles/slim-shell.css";
 
-interface NavItem { label: string; icon: LucideIcon; to?: string; href?: string; disabled?: boolean; activeWhen?: (path: string) => boolean; }
-interface NavGroup { label: string; icon: LucideIcon; to?: string; defaultOpen?: boolean; children: NavItem[]; }
+interface NavItem { label: string; icon: ComponentType<VanessaIconProps>; to?: string; href?: string; disabled?: boolean; activeWhen?: (path: string) => boolean; }
+interface NavGroup { label: string; icon: ComponentType<VanessaIconProps>; to?: string; defaultOpen?: boolean; children: NavItem[]; }
 const OPERATION_GROUPS: NavGroup[] = [
-  { label: "Home", icon: BarChart3, defaultOpen: true, children: [
-    { label: "Histórico de Vendas", icon: BarChart3, to: "/saude-slim", activeWhen: p => p === "/saude-slim" },
-    { label: "Dashboard detalhada", icon: History, to: "/painel" },
+  { label: "Home", icon: VanessaIcons.home, defaultOpen: true, children: [
+    { label: "Histórico de Vendas", icon: VanessaIcons.history, to: "/saude-slim", activeWhen: p => p === "/saude-slim" },
+    { label: "Dashboard detalhada", icon: VanessaIcons.dashboard, to: "/painel" },
   ] },
-  { label: "Gestão ERP", icon: ClipboardList, to: "/pedidos", defaultOpen: true, children: [
-    { label: "Pedidos", icon: ClipboardList, to: "/pedidos" },
-    { label: "Fornecedores", icon: Truck, to: "/crm/empresas" },
-    { label: "Estoque", icon: Package, to: "/crm/estoque" },
-    { label: "Produtos", icon: ShoppingCart, to: "/crm/produtos" },
+  { label: "CRM", icon: VanessaIcons.crm, defaultOpen: false, children: [
+    { label: "Funil de vendas", icon: VanessaIcons.funnel, to: "/crm/funis-de-venda" },
+    { label: "Clientes", icon: VanessaIcons.clients, to: "/crm/leads" },
+    { label: "Inbox", icon: VanessaIcons.inbox, to: "/inbox/leads", activeWhen: p => p === "/inbox" || p.startsWith("/inbox/") },
+    { label: "Automações", icon: VanessaIcons.automation, to: "/crm/automacoes" },
+    { label: "Cérebro IA", icon: VanessaIcons.brain, to: "/crm/agente-ia" },
+    { label: "Públicos", icon: VanessaIcons.audience, to: "/crm/publicos" },
   ] },
-  { label: "CRM", icon: Tags, defaultOpen: false, children: [
-    { label: "Funil de vendas", icon: Tags, to: "/crm/funis-de-venda" },
-    { label: "Clientes", icon: Users, to: "/crm/leads" },
-    { label: "Inbox", icon: Inbox, to: "/inbox/leads", activeWhen: p => p === "/inbox" || p.startsWith("/inbox/") },
-    { label: "Automações", icon: RotateCcw, to: "/crm/automacoes" },
-    { label: "Cérebro IA", icon: Bot, to: "/crm/agente-ia" },
-    { label: "Públicos", icon: Users, to: "/crm/publicos" },
+  { label: "Gestão imobiliária", icon: VanessaIcons.estate, to: "/pedidos", defaultOpen: true, children: [
+    { label: "Negociações", icon: VanessaIcons.orders, to: "/pedidos" },
+    { label: "Parceiros", icon: VanessaIcons.suppliers, to: "/crm/empresas" },
+    { label: "Produtos", icon: VanessaIcons.products, to: "/crm/produtos" },
   ] },
-  { label: "Configurações", icon: Settings, defaultOpen: false, children: [
-    { label: "Geral", icon: Settings, to: "/configuracoes" },
-    { label: "Integrações", icon: Plug, to: "/integracoes" },
-    { label: "Tutoriais", icon: PlayCircle, to: "/tutoriais" },
+  { label: "Configurações", icon: VanessaIcons.settings, defaultOpen: false, children: [
+    { label: "Geral", icon: VanessaIcons.general, to: "/configuracoes" },
+    { label: "Integrações", icon: VanessaIcons.integrations, to: "/integracoes" },
+    { label: "Tutoriais", icon: VanessaIcons.tutorial, to: "/tutoriais" },
   ] },
-  { label: "Tracking", icon: Target, defaultOpen: false, children: [
-    { label: "Origens e conversões", icon: Target, to: "/modulos/tracking" },
+  { label: "Tracking", icon: VanessaIcons.tracking, defaultOpen: false, children: [
+    { label: "Origens e conversões", icon: VanessaIcons.origins, to: "/modulos/tracking" },
   ] },
 ];
 function matches(item: NavItem, path: string): boolean {
@@ -114,7 +115,7 @@ export function AppSidebar() {
           <button type="button" className="slim-sidebar-collapse" onClick={toggleCollapsed} aria-label={collapsed ? "Expandir menu lateral" : "Minimizar menu lateral"} title={collapsed ? "Expandir menu lateral" : "Minimizar menu lateral"} aria-expanded={!collapsed} aria-controls={`${navId}-sections`}>
             {collapsed ? <PanelLeftOpen size={16} aria-hidden="true" /> : <PanelLeftClose size={16} aria-hidden="true" />}
           </button>
-        </div><p className="slim-sidebar-label">Vendas, pedidos, estoque e recuperação.</p>
+        </div><p className="slim-sidebar-label">Imóveis, negociações e relacionamento.</p>
       </div></div>
       <nav id={`${navId}-sections`} className="slim-sidebar-nav" aria-label="Módulos">
         <span className="slim-sidebar-section-label slim-sidebar-label">Módulos</span>

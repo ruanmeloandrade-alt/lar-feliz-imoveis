@@ -39,7 +39,7 @@ export async function listSaudeSlimCatalogs(): Promise<DbCatalog[]> {
   const [cr,pr] = await Promise.all([
     sb.from("product_catalogs").select("id,name,description,cover")
       .eq("workspace_id",ws).order("created_at"),
-    sb.from("products").select("id,catalog_id,name,sku,description,image,price,promo_price,stock,category,active,cost_price,minimum_stock,unit,stock_known,import_snapshot")
+    sb.from("products").select("id,catalog_id,name,sku,description,image,price,promo_price,stock,category,active,cost_price,minimum_stock,unit,stock_known,import_snapshot,public_property")
       .eq("workspace_id",ws).order("created_at"),
   ]);
   const catalogs = result(cr);

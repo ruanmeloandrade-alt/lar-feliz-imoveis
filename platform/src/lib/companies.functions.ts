@@ -22,7 +22,7 @@ export const listCompanies = createServerFn({ method: "GET" })
     const wsId = await activeWorkspace(sb, context.userId);
     const { data, error } = await sb
       .from("companies")
-      .select("id, name, site, notes, primary_lead_id, crm_source_id, cnpj, phone, logo_url, created_at")
+      .select("id, name, site, notes, primary_lead_id, crm_source_id, cnpj, phone, logo_url, partner_details, created_at")
       .eq("workspace_id", wsId)
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
@@ -50,7 +50,9 @@ export const listCompanies = createServerFn({ method: "GET" })
     return { companies: withLogos };
   });
 
+const PartnerDetailsSchema=z.object({kind:z.enum(['construtora','imobiliaria','corretor','outro']),contact:z.string().trim().max(150).default(''),email:z.union([z.literal(''),z.string().email()]).default(''),region:z.string().trim().max(300).default(''),address:z.string().trim().max(500).default(''),creci:z.string().trim().max(60).default(''),terms:z.string().trim().max(3000).default('')});
 const CreateCompanySchema = z.object({
+  partnerDetails: PartnerDetailsSchema.optional(),
   name: z.string().trim().min(1).max(120),
   site: z.string().max(200).optional(),
   notes: z.string().max(2000).optional(),
@@ -76,6 +78,7 @@ export const createCompany = createServerFn({ method: "POST" })
         workspace_id: wsId,
         crm_source_id: crmSourceId,
         name: data.name,
+        partner_details: data.partnerDetails ?? null,
         site: data.site || null,
         notes: data.notes || null,
         cnpj: data.cnpj ? data.cnpj.replace(/\D/g, "") : null,
@@ -100,6 +103,7 @@ export const createCompany = createServerFn({ method: "POST" })
   });
 
 const UpdateCompanySchema = z.object({
+  partnerDetails: PartnerDetailsSchema.optional(),
   companyId: z.string().uuid(),
   name: z.string().trim().min(1).max(120).optional(),
   site: z.string().max(200).nullable().optional(),
@@ -116,6 +120,7 @@ export const updateCompany = createServerFn({ method: "POST" })
     const sb = context.supabase as unknown as AnySb;
     const wsId = await activeWorkspace(sb, context.userId);
     const patch: Record<string, unknown> = {};
+    if(data.partnerDetails !== undefined)patch.partner_details=data.partnerDetails;
     if (data.name !== undefined) patch.name = data.name;
     if (data.site !== undefined) patch.site = data.site || null;
     if (data.notes !== undefined) patch.notes = data.notes || null;
