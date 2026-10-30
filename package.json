@@ -20,7 +20,7 @@
     "verify:live": "node scripts/check-live.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
-    "build:full": "npm run build && npm --prefix platform ci --ignore-scripts && npm --prefix platform run build"
+    "build:full": "npm run build && npm --prefix platform ci --ignore-scripts --include=dev && npm --prefix platform run build"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
