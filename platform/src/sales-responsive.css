@@ -1,0 +1,15 @@
+/* Sales page responsive guard.
+ * The Lovable preview/tablet viewport often sits between Tailwind md and lg.
+ * In that range the full CRM workspace is too dense (4-column Kanban), so keep
+ * the compact hero preview until the page reaches the same lg breakpoint used
+ * by the rest of the desktop composition.
+ */
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  main > section:first-child > div > .md\:hidden {
+    display: block !important;
+  }
+
+  main > section:first-child > div > .hidden.md\:block {
+    display: none !important;
+  }
+}

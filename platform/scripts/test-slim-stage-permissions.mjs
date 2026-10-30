@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {assertSlimOperator} from '../src/lib/slim-workspace-operator.server.ts';
+const db=(owner,member,error=null)=>({from(t){return {select(){return this;},eq(){return this;},async maybeSingle(){return {data:t==='workspaces'?{owner_id:owner}:member,error};}};}});
+await assertSlimOperator(db('owner',null),'ws','owner');
+await assertSlimOperator(db('owner',{role_type:'funcionario'}),'ws','operator');
+await assert.rejects(assertSlimOperator(db('owner',{role_type:'visualizador'}),'ws','viewer'));
+await assert.rejects(assertSlimOperator(db('owner',{role_type:'funcionario',access_expires_at:'2020-01-01'}),'ws','expired'));
+await assert.rejects(assertSlimOperator(db('owner',null),'ws','outsider'));
+await assert.rejects(assertSlimOperator(db('owner',null,{code:'42501'}),'ws','owner'));
+console.log('6/6 stage operator authorization checks passed with local transport doubles.');

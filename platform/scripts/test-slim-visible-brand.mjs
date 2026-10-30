@@ -1,0 +1,22 @@
+import assert from 'node:assert/strict';
+import {transformVisibleBrand as transform} from './slim-visible-brand.core.mjs';
+let n=0;
+function test(name,source,want){const out=transform(source).source;assert.equal(out,want,name);assert.equal(transform(out).source,out,name+' idempotence');n++;console.log('PASS marca: '+name);}
+test('texto JSX','const x=<p>CRM MKTOn</p>;','const x=<p>CRM Saúde Slim</p>;');
+test('erro real','throw new Error("Fonte MKTOn não encontrada");','throw new Error("Fonte Saúde Slim não encontrada");');
+test('template de erro','throw new Error(`MktOn indisponível ${code}`);','throw new Error(`Saúde Slim indisponível ${code}`);');
+test('toast','toast.error("Falha na MKTOn");','toast.error("Falha na Saúde Slim");');
+test('rótulo público','const x={label:"MktOn",provider:"mkton"};','const x={label:"Saúde Slim",provider:"mkton"};');
+test('placeholder','const x=<input placeholder="MKTOn CRM" id="mkton-crm"/>;','const x=<input placeholder="Saúde Slim CRM" id="mkton-crm"/>;');
+test('contrato da API','client.rpc("mkton_save",{provider:"mkton",key:"MKTON_API_KEY"});','client.rpc("mkton_save",{provider:"mkton",key:"MKTON_API_KEY"});');
+test('URL preservada','const x={label:"MKTOn",url:"https://mkton.com",content:"Acesse https://mkton.com na MKTOn"};','const x={label:"Saúde Slim",url:"https://mkton.com",content:"Acesse https://mkton.com na Saúde Slim"};');
+test('e-mail e seletor preservados','const x=<p>MKTOn contato@mkton.com .mkton-home</p>;','const x=<p>Saúde Slim contato@mkton.com .mkton-home</p>;');
+test('não altera valor de formulário','const x=<option value="mkton">MKTOn</option>;','const x=<option value="mkton">Saúde Slim</option>;');
+test('identificador e propriedade técnica','const mkton={mkton:"mkton"};','const mkton={mkton:"mkton"};');
+test('SQL e regex intactos','const sql="select mkton"; const r=/mkton/i;','const sql="select mkton"; const r=/mkton/i;');
+test('futuro erro sem brand não é ocultado','throw new Error("42501: acesso negado");','throw new Error("42501: acesso negado");');
+test('var prompt','const systemPrompt="Você é o suporte da MKTOn.";','const systemPrompt="Você é o suporte da Saúde Slim.";');
+test('JSX string literal','const x=<p>{"MKTOn"}</p>;','const x=<p>{"Saúde Slim"}</p>;');
+test('JSX conditional copy','const x=<p>{ok ? "MKTOn" : "Outro"}</p>;','const x=<p>{ok ? "Saúde Slim" : "Outro"}</p>;');
+test('generic content never edits SQL','const x={content:"SELECT * FROM mkton"};','const x={content:"SELECT * FROM mkton"};');
+console.log(`${n}/${n} visible-brand tests passed. No database, credential or network access.`);

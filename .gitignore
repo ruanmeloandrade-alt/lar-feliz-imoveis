@@ -13,3 +13,17 @@ supabase/.temp/
 *.sqlite
 *.sqlite-shm
 *.sqlite-wal
+platform/docs/
+platform/.agents/
+platform/SOURCE_AGENTS_REFERENCE.md
+platform/src/integrations/lovable/
+platform/src/lib/mcp/
+platform/src/routes/[[].mcp]/
+platform/src/routes/[[].well-known]/oauth-protected-resource.ts
+platform/src/routes/mcp.ts
+platform/src/routes/lovable/
+
+.local-data-complete/
+platform/public/quiz/
+platform/public/brand/saude-slim.css
+platform/public/brand/saude-slim-logo.jpg

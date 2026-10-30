@@ -1,0 +1,23 @@
+import assert from 'node:assert/strict';
+import {conversationIndicator as dot,chooseRecordingMime as mime,recordingExtension,assertInboxAudio,INBOX_MEDIA_LIMIT,uniqueConversationRows,ACTIVE_INBOX_BOT_STATES} from '../src/lib/slim-inbox-ui.core.ts';
+let n=0;function test(name,fn){fn();console.log('PASS Inbox UI: '+name);n++;}
+test('unopened inbound is yellow',()=>assert.equal(dot({lastMessageFrom:'them',unreadCount:2})?.color,'#f59e0b'));
+test('opening inbound changes to red immediately',()=>assert.equal(dot({lastMessageFrom:'them',unreadCount:2,opened:true})?.color,'#ef4444'));
+test('previously read unanswered inbound stays red',()=>assert.equal(dot({lastMessageFrom:'them',unreadCount:0})?.kind,'unanswered'));
+test('our last message clears human attention dot',()=>assert.equal(dot({lastMessageFrom:'me',unreadCount:3}),null));
+test('bot is navy even after its outbound message',()=>assert.equal(dot({lastMessageFrom:'me',automation:{botActive:true,aiActive:false}})?.color,'#000080'));
+test('active AI is white',()=>assert.equal(dot({lastMessageFrom:'them',automation:{botActive:false,aiActive:true}})?.color,'#ffffff'));
+test('AI takes priority when bot delegates to AI',()=>assert.equal(dot({lastMessageFrom:'them',automation:{botActive:true,aiActive:true}})?.kind,'ai'));
+test('stopped automation falls back to unanswered state',()=>assert.equal(dot({lastMessageFrom:'them',automation:{botActive:false,aiActive:false}})?.kind,'unanswered'));
+test('no messages means no dot',()=>assert.equal(dot({}),null));
+test('paused and terminal bots do not report active',()=>{for(const s of ['paused','error','cancelled','finished','completed'])assert(!ACTIVE_INBOX_BOT_STATES.includes(s));});
+test('opus preferred when supported',()=>assert.equal(mime(()=>true),'audio/webm;codecs=opus'));
+test('mp4 browser fallback',()=>assert.equal(mime(s=>s==='audio/mp4'),'audio/mp4'));
+test('default recorder allowed if browser reports no preferred mime',()=>assert.equal(mime(()=>false),''));
+test('extension matches recorded MIME',()=>{assert.equal(recordingExtension('audio/mp4'),'m4a');assert.equal(recordingExtension('audio/ogg;codecs=opus'),'ogg');});
+test('empty or oversized recordings rejected',()=>{assert.throws(()=>assertInboxAudio(0,'audio/webm'));assert.throws(()=>assertInboxAudio(INBOX_MEDIA_LIMIT+1,'audio/webm'));});
+test('non-audio rejected',()=>assert.throws(()=>assertInboxAudio(1000,'video/mp4')));
+test('valid audio allowed',()=>assert.doesNotThrow(()=>assertInboxAudio(1000,'audio/webm;codecs=opus')));
+test('pagination duplicates of same ID collapse to newest',()=>{const rows=uniqueConversationRows([{id:'a',lastMessageAt:'2026-10-16T10:00:00Z'},{id:'a',lastMessageAt:'2026-10-16T11:00:00Z'}]);assert.equal(rows.length,1);assert.equal(rows[0].lastMessageAt,'2026-10-16T11:00:00Z');});
+test('different leads with the same name are not merged',()=>assert.equal(uniqueConversationRows([{id:'a',name:'Same',lastMessageAt:'2026-10-16T10:00:00Z'},{id:'b',name:'Same',lastMessageAt:'2026-10-16T10:00:00Z'}]).length,2));
+console.log(`${n}/${n} Inbox UI core checks passed. No browser microphone or external delivery tested.`);

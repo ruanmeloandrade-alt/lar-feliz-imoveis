@@ -1,0 +1,28 @@
+import assert from 'node:assert/strict';
+import {promptRuntimeMetadata as runtime,projectPromptAgent as project,mergePromptMetadata as merge,promptReadinessError as ready,isLegacyObjectiveAgent as legacy} from '../src/lib/slim-prompt-only.core.ts';
+let n=0;function test(name,fn){fn();n++;console.log('PASS prompt-only: '+name);}
+const tree={root:{id:'root',say:'Mensagem antiga',actions:[{action:'enviar-mensagem',target:'Nunca executar árvore'}]},context:'Contexto original',outcome:[{action:'mudar-etapa'}]};
+const saved={objective_tree:tree,settings:{mode:'objetivos',language:'pt-BR',is_primary:true,sources:[{content:'Fonte'}],actions:[{id:'prompt-action'}]},audit:{id:'original'}};
+test('tree not exposed to runtime',()=>assert.equal(runtime(saved).objective_tree,undefined));
+test('mode is always prompt',()=>assert.equal(runtime(saved).settings.mode,'prompt'));
+test('original tree unchanged',()=>{const original=structuredClone(saved);runtime(saved);assert.deepEqual(saved,original);});
+test('declared prompt actions preserved',()=>assert.deepEqual(runtime(saved).settings.actions,saved.settings.actions));
+test('knowledge sources preserved',()=>assert.deepEqual(runtime(saved).settings.sources,saved.settings.sources));
+test('language and primary flag preserved',()=>{assert.equal(runtime(saved).settings.language,'pt-BR');assert.equal(runtime(saved).settings.is_primary,true);});
+test('null agent remains null',()=>assert.equal(project(null),null));
+test('agent id and authored prompt unchanged',()=>{const p=project({id:'agent',system_prompt:'Meu prompt',metadata:saved});assert.equal(p.id,'agent');assert.equal(p.system_prompt,'Meu prompt');});
+test('stored tree archived across save',()=>assert.deepEqual(merge(saved,{settings:{language:'en-US'}}).objective_tree,tree));
+test('incoming goal tree cannot replace archive',()=>assert.deepEqual(merge(saved,{objective_tree:{root:{id:'replacement'}}}).objective_tree,tree));
+test('new prompt does not persist objective tree',()=>assert.equal(merge({}, {objective_tree:tree}).objective_tree,undefined));
+test('partial settings merge retains primary flag',()=>assert.equal(merge(saved,{settings:{language:'en-US'}}).settings.is_primary,true));
+test('incoming objective mode cannot reactivate workflow',()=>assert.equal(merge(saved,{settings:{mode:'objetivos'}}).settings.mode,'prompt'));
+test('other metadata retained',()=>assert.deepEqual(merge(saved,{settings:{}}).audit,{id:'original'}));
+test('save inputs not mutated',()=>{const old=structuredClone(saved),patch={objective_tree:{root:{id:'x'}},settings:{mode:'objetivos'}};const before=structuredClone(patch);merge(saved,patch);assert.deepEqual(saved,old);assert.deepEqual(patch,before);});
+test('runtime projection idempotent',()=>assert.deepEqual(runtime(runtime(saved)),runtime(saved)));
+test('save normalization idempotent',()=>assert.deepEqual(merge(merge(saved,{}),{}),merge(saved,{})));
+test('null and malformed metadata handled',()=>{for(const input of [null,undefined,1,[], 'text'])assert.deepEqual(runtime(input),{settings:{mode:'prompt'}});});
+test('empty authored instructions fail before AI call',()=>{for(const value of ['', '   ',null,undefined,123])assert(ready(value));});
+test('nonempty authored prompt accepted unmodified',()=>assert.equal(ready(' Responda apenas conforme o catálogo. '),null));
+test('excessive prompt rejected',()=>assert(ready('a'.repeat(20001))));
+test('legacy mode detected for review notice',()=>{assert(legacy(saved));assert(!legacy({settings:{mode:'prompt'}}));assert(!legacy(null));});
+console.log(`${n}/${n} prompt-only core checks passed. No database or provider accessed.`);

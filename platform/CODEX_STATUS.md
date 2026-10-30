@@ -1,0 +1,10 @@
+
+## 2026-10-29 - SalesBot audio and Lobo Paraguaio quiz
+Restored missing private salesbot-media bucket with workspace-scoped insert/read policies; verified real WAV upload/signed download, public denial and cleanup. No bot data or application auth changes. Added approved standalone public /quiz route, static document/styles/script, eight approved assets including supplied logo with transparent exterior. Full build and local production runtime checks passed; full browser path and group URL verified. Publishing to existing saude-slim-web service; no new dependencies/infrastructure. Scoped details: docs/tasks/2026-10-29-salesbot-media-storage.md and docs/tasks/2026-10-29-lobo-paraguaio-quiz.md.
+
+## 2026-10-30 - Saúde Slim visual identity
+Owner supplied logo and offer artwork. Added shared black/cyan/pink tokens and brand stylesheet for all application pages plus quiz. Replaced sidebar/auth/favicon branding, restored Saúde Slim name in quiz, and replaced offer image and displayed options with R$299,99 / R$899,99 Pix. Three editorial expressions changed to thoughtful seriousness, preserving people and bodies. Existing handlers, membership, data, bots, group destination and ERP prices preserved. Validation and publication in progress; scope docs/tasks/2026-10-30-saude-slim-visual-identity.md.
+
+Full npm run build passed (prebuild suites, client, SSR and Nitro). Quiz tested through all seven steps and result in browser, offer full artwork and current values confirmed, exact WhatsApp URL preserved, mobile portrait crop verified at 390px and viewport restored. Source diff in auth is limited to classes, logo tags and unused icon import; handlers unchanged. Browser login visual check and production deployment pending.
+
+Compiled-runtime login checked on desktop/mobile with real environment configuration in memory; logo and controls visible and no horizontal overflow. Development-server dependency mismatch avoided by using the production Node bundle. No user login or protected-module E2E claimed. Publishing approved presentation changes only.

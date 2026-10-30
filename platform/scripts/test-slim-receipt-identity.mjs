@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+const read=p=>fs.readFileSync(new URL('../'+p,import.meta.url),'utf8');
+const ui=read('src/components/erp/SlimReceiptDispatch.tsx'),page=read('src/components/erp/SlimErpWorkspace.tsx');
+assert(ui.includes("['slim-receipt-offer',workspaceId,orderId,actorId]"));
+assert(ui.includes('const offer=q.data?.actorId===actorId?q.data:undefined;'));
+assert(page.includes('orderId={pdf.orderId} actorId={actorId}'));
+assert(ui.includes('lock.current||localBlocked||!offer'));
+assert(ui.includes('disabled={busy||localBlocked||!approved'));
+console.log('5/5 receipt caller-cache and local-reference guards passed.');

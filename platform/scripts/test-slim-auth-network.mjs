@@ -1,0 +1,32 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {transformSync} from 'esbuild';
+import {slimAuthRequestKind,fetchSlimAuthWithDeadline,slimAuthFailureMessage,SLIM_PASSWORD_LOGIN_DEADLINE_MS,SLIM_TOKEN_REFRESH_DEADLINE_MS} from '../src/lib/slim-auth-network.core.ts';
+const mfaSource=fs.readFileSync(new URL('../src/lib/slim-mfa-transport.core.ts',import.meta.url),'utf8');
+const {fetchSlimMfaWithDeadline}=await import('data:text/javascript;base64,'+Buffer.from(transformSync(mfaSource,{loader:'ts',format:'esm',target:'es2022'}).code).toString('base64'));
+let passed=0;async function test(name,fn){await fn();passed++;console.log('PASS Saúde Slim auth resilience: '+name);}
+const path=name=>fs.readFileSync(new URL('../'+name,import.meta.url),'utf8');
+await test('password and refresh grants are bounded without guessing endpoint',()=>{assert.equal(slimAuthRequestKind('https://example.supabase.co/auth/v1/token?grant_type=password'),'password');assert.equal(slimAuthRequestKind('https://example.supabase.co/auth/v1/token?grant_type=refresh_token'),'refresh');assert.equal(slimAuthRequestKind('https://example.supabase.co/rest/v1/leads'),null);assert.equal(slimAuthRequestKind('https://example.supabase.co/auth/v1/user'),null);});
+await test('bounded deadlines are reasonable',()=>{assert.equal(SLIM_PASSWORD_LOGIN_DEADLINE_MS,12000);assert.equal(SLIM_TOKEN_REFRESH_DEADLINE_MS,20000);});
+await test('failed password request is not retried and times out',async()=>{let calls=0,signal;const sender=async(_i,init)=>{calls++;signal=init.signal;return await new Promise((_resolve,reject)=>init.signal.addEventListener('abort',()=>reject(new Error('aborted')),{once:true}));};await assert.rejects(fetchSlimAuthWithDeadline('https://example.supabase.co/auth/v1/token?grant_type=password',{},sender,{passwordMs:15}),/Tempo limite/);assert.equal(calls,1);assert.equal(signal.aborted,true);});
+await test('existing caller abort remains effective',async()=>{const controller=new AbortController();let called=false;const sender=async(_i,init)=>{called=true;return new Promise((_resolve,reject)=>init.signal.addEventListener('abort',()=>reject(new Error('cancelled')),{once:true}));};const pending=fetchSlimAuthWithDeadline('https://example.supabase.co/auth/v1/token?grant_type=password',{signal:controller.signal},sender,{passwordMs:1000});controller.abort();await assert.rejects(pending,/cancelled/);assert(called);});
+await test('normal data queries are not given authentication deadlines',async()=>{let matches=true;const sender=async(_i,init)=>{matches=init?.signal===undefined;return new Response('{}',{status:200});};await fetchSlimAuthWithDeadline('https://example.supabase.co/rest/v1/leads',undefined,sender,{passwordMs:1});assert(matches);});
+await test('HTTP 504 and refresh errors are not confused with bad passwords',async()=>{for(const error of [{status:504,message:'Cloudflare error'},new Error('Failed to fetch'),{message:'Connection terminated due to connection timeout'},new Error('Tempo limite para conectar à autenticação')])assert(slimAuthFailureMessage(error).includes('temporariamente indisponível'));assert.equal(slimAuthFailureMessage({message:'Invalid login credentials'}),'E-mail ou senha inválidos.');});
+await test('login UI is not gated on an asynchronous token refresh',async()=>{const root=path('src/routes/__root.tsx');assert(root.includes("path === '/auth' || path.startsWith('/auth/')"));assert(root.includes('if (isPublicRoute && !recoveryRoute && !invitationRoute) return <>{children}</>'));assert(root.includes('<SlimSessionGate allowSignedOut={recoveryRoute || invitationRoute}'));const gate=path('src/components/auth/SlimSessionGate.tsx');assert(gate.includes("phase: 'loading'"));assert(gate.includes("state.phase === 'ready'"));});
+await test('browser MFA composition passes password and refresh unchanged to bounded auth transport',async()=>{
+ const client=path('src/integrations/supabase/client.ts');assert(client.includes('fetchSlimMfaWithDeadline(input, { ...init, headers }, fetchSlimAuthWithDeadline)'));assert(!client.includes('AUTH_LOGIN_MAX_ATTEMPTS'));assert(!client.includes('AUTH_LOGIN_RETRY_DELAYS_MS'));
+ for(const grant of ['password','refresh_token']){
+  const url='https://example.invalid/auth/v1/token?grant_type='+grant,init={method:'POST',headers:new Headers({'content-type':'application/json'}),body:'synthetic'},response=new Response('{}');let calls=0;
+  const sender=async(input,options)=>{calls++;assert.equal(input,url);assert.equal(options.method,init.method);assert.equal(options.headers,init.headers);assert.equal(options.body,init.body);assert(options.signal instanceof AbortSignal);assert.equal(options.signal.aborted,false);return response;};
+  assert.equal(await fetchSlimMfaWithDeadline(url,init,(input,options)=>{assert.equal(input,url);assert.equal(options,init);return fetchSlimAuthWithDeadline(input,options,sender);}),response);assert.equal(calls,1);
+ }
+});
+await test('MFA composition preserves password and refresh timeouts without retry',async()=>{
+ for(const grant of ['password','refresh_token']){
+  let calls=0,signal;const sender=async(_input,init)=>{calls++;signal=init.signal;return new Promise((_resolve,reject)=>signal.addEventListener('abort',()=>reject(new Error('synthetic abort')),{once:true}));};
+  await assert.rejects(fetchSlimMfaWithDeadline('https://example.invalid/auth/v1/token?grant_type='+grant,{method:'POST'},(input,init)=>fetchSlimAuthWithDeadline(input,init,sender,{passwordMs:15,refreshMs:15})),/Tempo limite/);assert.equal(calls,1);assert.equal(signal.aborted,true);
+ }
+});
+await test('both login routes show recoverable error instead of raw gateway HTML',async()=>{for(const name of ['src/routes/auth.tsx','src/routes/login.tsx']){const source=path(name);assert(source.includes('slimAuthFailureMessage(err)'));assert(source.includes('signInWithPassword'));}assert(path('src/routes/auth.tsx').includes('slowLogin && !error'));});
+await test('project isolation and auth permissions preserved',async()=>{const client=path('src/integrations/supabase/client.ts');assert(client.includes("resolveBrowserSupabaseEnv()"));assert(client.includes("persistSession: true"));assert(client.includes("autoRefreshToken: true"));assert(!path('src/routes/auth.tsx').includes('supabase.auth.signInAnonymously'));});
+console.log(passed+'/'+passed+' authentication resilience checks passed. No password, token, real login or customer data used.');

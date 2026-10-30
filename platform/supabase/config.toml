@@ -1,0 +1,10 @@
+project_id = "vyzvfcgpjjzvcjegzzza"
+
+[auth.email]
+enable_signup = true
+enable_confirmations = false
+double_confirm_changes = false
+secure_password_change = true
+
+[functions.google-oauth-proxy]
+verify_jwt = false

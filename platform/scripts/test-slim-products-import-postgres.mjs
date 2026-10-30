@@ -1,0 +1,30 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {PGlite} from '@electric-sql/pglite';
+// Data remains outside the repository; run against the exact reviewed SQL.
+const manifest=JSON.parse(readFileSync(process.argv[2],'utf8'));
+const operation=readFileSync(process.argv[3],'utf8');
+const db=new PGlite();
+await db.exec(`
+create table product_catalogs(id uuid primary key,workspace_id uuid not null,name text not null,description text default '',cover text default '',created_at timestamptz default now(),updated_at timestamptz default now());
+create table products(id uuid primary key,workspace_id uuid not null,catalog_id uuid references product_catalogs(id),sku text not null default '',name text not null,description text not null default '',image text not null default '',price numeric not null default 0,promo_price numeric,stock integer not null default 0,category text not null default '',active boolean not null default true,created_at timestamptz default now(),updated_at timestamptz default now());
+`);
+await db.exec(readFileSync(new URL('../supabase/migrations/20261019173000_slim_product_import_details.sql',import.meta.url),'utf8'));
+await db.query('insert into product_catalogs(id,workspace_id,name) values($1,$2,$3)',[manifest.default_catalog,manifest.workspace_id,'Catalogo principal']);
+await db.exec(operation);
+const first=(await db.query("select to_jsonb(p)-'created_at'-'updated_at'-'promo_price' data from products p order by id")).rows.map(r=>r.data);
+const expected=manifest.products.map(p=>({...p,price:Number(p.price),cost_price:Number(p.cost_price)})).sort((a,b)=>a.id.localeCompare(b.id));
+assert.deepEqual(first,expected);
+await db.exec(operation);
+assert.equal((await db.query('select count(*)::integer n from products')).rows[0].n,manifest.products.length);
+await db.query('update products set name=$1 where id=$2',['Edited by user',manifest.products[0].id]);
+await assert.rejects(()=>db.exec(operation),/nenhuma sobrescrita/);
+await db.exec('rollback');
+assert.equal((await db.query('select name from products where id=$1',[manifest.products[0].id])).rows[0].name,'Edited by user');
+await db.query('delete from products where id=$1',[manifest.products[0].id]);
+await db.query('insert into products(id,workspace_id,catalog_id,name) values(gen_random_uuid(),$1,$2,$3)',[manifest.workspace_id,manifest.default_catalog,manifest.products[0].name]);
+await assert.rejects(()=>db.exec(operation),/outro identificador/);
+await db.exec('rollback');
+assert.equal((await db.query('select count(*)::integer n from products')).rows[0].n,manifest.products.length);
+console.log(`PASS: ${first.length} exact records, real migration, repeat import without duplicates, edited row and name conflict rollback.`);
+await db.close();

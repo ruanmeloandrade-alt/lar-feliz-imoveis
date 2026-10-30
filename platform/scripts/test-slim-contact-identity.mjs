@@ -1,0 +1,62 @@
+import assert from 'node:assert/strict';import fs from 'node:fs';import ts from 'typescript';import {execFileSync} from 'node:child_process';import {fileURLToPath} from 'node:url';
+import {contactPhoneKey,buildContactIdentityIndex,createSlimCanonicalContact,resolveSlimContactId,prepareSlimInboxContactMap} from '../src/lib/slim-contact-identity.core.ts';
+import {canonicalContactHistory} from '../src/lib/slim-contact-history.core.ts';
+const W='00000000-0000-4000-8000-000000000101',OTHER='00000000-0000-4000-8000-000000000102';const id=n=>`00000000-0000-4000-8000-${String(n).padStart(12,'0')}`;
+const contact=(n,patch={})=>({id:id(n),workspace_id:W,name:'Synthetic same name',phone:'+5522000000001',source:n===1?'whatsapp':'pedido_saude_slim',status:'active',merged_into_id:null,created_at:`2026-10-${n===1?'14':'15'}T00:00:00Z`,custom_data:{whatsapp_session_id:'same-test-session'},...patch});
+let n=0;async function test(name,fn){await fn();n++;console.log('PASS canonical contact: '+name);}
+function memoryDb(seed=[],options={}){
+ const rows=structuredClone(seed),metrics={inserts:0,reads:0};
+ return {rows,metrics,from(table){let operation='read',payload,filters=[],a=0,b=99999;
+ const q={select(){return q;},eq(key,value){filters.push(row=>row[key]===value);return q;},is(key,value){filters.push(row=>row[key]===value);return q;},not(key,op,value){const values=value.replace(/[()]/g,'').split(',');filters.push(row=>!values.includes(row[key]));return q;},in(key,values){filters.push(row=>values.includes(row[key]));return q;},order(){return q;},range(start,end){a=start;b=end;return q;},insert(value){operation='insert';payload=value;return q;},single(){return q;},then(resolve,reject){return (async()=>{if(options.fail)throw new Error('offline');if(table==='crm_sources')return {data:[{id:id(999),provider:'manual',is_default:true}],error:null};if(operation==='insert'){await new Promise(done=>setTimeout(done,2));metrics.inserts++;const row={...payload,id:id(100+metrics.inserts),created_at:'2026-10-16T00:00:00Z',merged_into_id:null};rows.push(row);return {data:{id:row.id},error:null};}metrics.reads++;return {data:rows.filter(row=>filters.every(f=>f(row))).slice(a,b+1),error:null};})().then(resolve,reject);}};return q;}};
+}
+await test('exact full number normalizes display punctuation',()=>assert.equal(contactPhoneKey(' +55 (22) 00000-0001 '),'5522000000001'));
+await test('no name or suffix country guessing',()=>{assert.notEqual(contactPhoneKey('+5522000000001'),contactPhoneKey('+35122000000001'));assert.notEqual(contactPhoneKey('22000000001'),contactPhoneKey('+5522000000001'));});
+await test('group and LID never become contact phones',()=>{assert.equal(contactPhoneKey('123456@g.us'),null);assert.equal(contactPhoneKey('123456789@lid'),null);});
+await test('four proven order/contact representations yield one canonical card',()=>{const index=buildContactIdentityIndex([contact(1),contact(2),contact(3),contact(4)],W);assert.equal(index.rows.length,1);for(const v of [1,2,3,4])assert.equal(index.resolve(id(v)),id(1));assert.equal(index.family(id(1)).length,4);});
+await test('homonym on another telephone not folded',()=>{const index=buildContactIdentityIndex([contact(1),contact(2,{phone:'+5522000000002'})],W);assert.equal(index.rows.length,2);});
+await test('another WhatsApp session is not silently folded',()=>{const index=buildContactIdentityIndex([contact(1),contact(2,{custom_data:{whatsapp_session_id:'other'}})],W);assert.equal(index.rows.length,2);});
+await test('missing session evidence leaves independent records visible',()=>assert.equal(buildContactIdentityIndex([contact(1),contact(2,{custom_data:{}})],W).rows.length,2));
+await test('social identity excluded from legacy folding',()=>{const index=buildContactIdentityIndex([contact(1,{source:'instagram'}),contact(2)],W);assert.equal(index.rows.length,2);});
+await test('rows from another company cause explicit error',()=>assert.throws(()=>buildContactIdentityIndex([contact(1,{workspace_id:OTHER})],W)));
+await test('explicit merged link resolves without creating a contact',async()=>{const db=memoryDb([contact(1),contact(2,{source:'manual',merged_into_id:id(1),status:'merged'})]);assert.equal(await resolveSlimContactId(db,W,id(2)),id(1));assert.equal(db.metrics.inserts,0);});
+await test('circular or missing links fail closed',()=>{const index=buildContactIdentityIndex([contact(1,{merged_into_id:id(2)}),contact(2,{merged_into_id:id(1)})],W);assert.throws(()=>index.resolve(id(1)));assert.throws(()=>index.resolve(id(9)));});
+await test('same contact creation preserves original fields and returns existing ID',async()=>{const original=contact(1,{value:19.99,pipeline_id:id(30),stage_id:id(31)}),db=memoryDb([original]);const r=await createSlimCanonicalContact(db,W,{name:'Replacement',phone:'55(22)00000-0001',value:0});assert.equal(r.id,id(1));assert.equal(r.created,false);assert.deepEqual(db.rows,[original]);assert.equal(db.metrics.inserts,0);});
+await test('twenty simultaneous requests in one server process create exactly once',async()=>{const db=memoryDb();const results=await Promise.all(Array.from({length:20},()=>createSlimCanonicalContact(db,W,{name:'Synthetic',phone:'+5522000000001',source:'whatsapp'})));assert.equal(db.metrics.inserts,1);assert.equal(new Set(results.map(r=>r.id)).size,1);assert.equal(results.filter(r=>r.created).length,1);});
+await test('concurrent distinct phones create independent contacts',async()=>{const db=memoryDb();const result=await Promise.all(['+5522000000001','+5522000000002'].map(phone=>createSlimCanonicalContact(db,W,{name:'Same',phone})));assert.equal(db.metrics.inserts,2);assert.notEqual(result[0].id,result[1].id);});
+await test('lookup failure never falls through to a blind insert',async()=>{const db=memoryDb([],{fail:true});await assert.rejects(()=>createSlimCanonicalContact(db,W,{name:'Synthetic',phone:'+5522000000001'}));assert.equal(db.metrics.inserts,0);});
+await test('new manual contact source is not mislabeled as a sale',async()=>{const db=memoryDb();await createSlimCanonicalContact(db,W,{name:'Synthetic',phone:'+5522000000001',source:'pedido_saude_slim'});assert.equal(db.rows[0].source,'cadastro_manual_saude_slim');});
+await test('backfill resolves the same original without another insert',async()=>{const db=memoryDb([contact(1),contact(2),contact(3),contact(4)]);const result=await prepareSlimInboxContactMap(db,W,new Map([['5522000000001',[{from_me:false,sender_name:'Same',session_id:'same-test-session'}]]]));assert.equal(result.leadByPhone.get('5522000000001'),id(1));assert.equal(result.leadsCreated,0);assert.equal(db.metrics.inserts,0);});
+await test('outbound-only orphan does not create a lead',async()=>{const db=memoryDb();const result=await prepareSlimInboxContactMap(db,W,new Map([['5522000000001',[{from_me:true}]]]));assert.equal(result.leadsCreated,0);assert.equal(db.metrics.inserts,0);});
+const message=(n,lead,provider,text='Saved message')=>({id:id(1000+n),lead_id:id(lead),type:'message_in',payload:{whatsapp_message_id:provider,text,media_url:'https://example.invalid/file'},occurred_at:`2026-10-16T00:00:${String(n).padStart(2,'0')}Z`});
+await test('identical provider copies displayed once, raw rows untouched',()=>{const rows=[message(1,2,'ONE'),message(2,1,'ONE')],before=structuredClone(rows),page=canonicalContactHistory(rows,id(1),{limit:50});assert.equal(page.activities.length,1);assert.equal(page.activities[0].id,id(1002));assert.deepEqual(rows,before);});
+await test('unique alias messages and media remain available',()=>{const page=canonicalContactHistory([message(1,1,'ONE'),message(2,2,'TWO','Unique alias message')],id(1),{limit:50});assert.equal(page.activities.length,2);assert(page.activities.some(a=>a.text==='Unique alias message'&&a.mediaUrl));});
+await test('equal text with different WhatsApp IDs is not discarded',()=>assert.equal(canonicalContactHistory([message(1,1,'ONE'),message(2,1,'TWO')],id(1),{limit:50}).activities.length,2));
+await test('pagination is after provider deduplication',()=>{const rows=[message(1,1,'ONE'),message(2,2,'ONE'),message(3,1,'TWO')];const a=canonicalContactHistory(rows,id(1),{limit:1});assert.equal(a.hasMore,true);const b=canonicalContactHistory(rows,id(1),{limit:1,cursor:a.nextCursor});assert.equal(b.activities.length,1);assert.notEqual(a.activities[0].whatsappMessageId,b.activities[0].whatsappMessageId);});
+await test('reading identity does not edit money, stock or raw history',()=>{const rows=[contact(1,{value:0}),contact(2,{value:8.5}),contact(3,{value:7.39})],before=structuredClone(rows);const index=buildContactIdentityIndex(rows,W);index.resolve(id(2));index.family(id(1));assert.deepEqual(rows,before);});
+const root=new URL('../',import.meta.url),read=p=>fs.readFileSync(new URL(p,root),'utf8');
+const paths=['src/lib/saude-slim-orders-client.ts','src/lib/saude-slim-funnel-client.ts','src/lib/saude-slim-leads-client.ts','src/routes/inbox.leads.$leadId.tsx','src/lib/leads.functions.legacy.ts','src/routes/api/public/evolution/webhook.$secret.ts'];
+const [clients,funnel,list,route,leadApi,webhook]=paths.map(read);
+await test('Clients and Funnel creation use authenticated server gateway',()=>{
+ assert(clients.includes('createSlimUiContact({data:'));
+ if(funnel.includes('createSlimLeadWithAutomations')){
+  const api=read('src/lib/slim-funnel-mutations.functions.ts');
+  const core=read('src/lib/slim-funnel-mutations.core.ts');
+  const migrations=fs.readdirSync(new URL('../supabase/migrations/',import.meta.url)).filter(p=>p.endsWith('_slim_funnel_create_bulk_outbox.sql'));
+  assert.equal(migrations.length,1);
+  const sql=read('supabase/migrations/'+migrations[0]);
+  assert(api.includes('.middleware([requireSupabaseAuth])'));
+  assert(api.includes('assertSlimOperator'));
+  assert(core.includes("db.rpc('slim_create_lead_and_emit'"));
+  assert(sql.includes('Este telefone já possui um contato. Use o cadastro existente; a etapa e os dados dele foram preservados.'));
+  assert(sql.includes('phone_normalized'));
+ }else assert(funnel.includes('createSlimUiContact({data:'));
+ assert(!clients.includes('sb.from("leads").insert'));
+ assert(!funnel.includes('sb.from("leads").insert'));
+});
+await test('three views use the same canonical ID map',()=>{assert(list.includes('identity.resolve(row.id)===row.id'));assert(funnel.includes('identity.resolve(lead.id)===lead.id'));assert(leadApi.includes('identity.resolve(row.lead_id)'));});
+await test('opening a chat is read-only and resolves before mounting thread',()=>{assert(route.includes('<SlimContactRouteGate'));const resolver=read('src/lib/slim-contact-route.functions.ts').split('export const resolveSlimInboxContact')[1].split('const Contact=')[0];assert(!resolver.includes('insert('));assert(resolver.includes('resolveSlimContactId'));});
+await test('webhook and backfill share identity instead of arbitrary first row',()=>{assert(webhook.includes('findSlimContact('));assert(webhook.includes('createSlimCanonicalContact('));assert(leadApi.includes('prepareSlimInboxContactMap('));assert(!leadApi.includes('const toInsert = missing.map'));});
+await test('old cached conversation snapshots are invalidated without message deletion',()=>assert(read('src/lib/inbox-cache.ts').includes('INBOX_CACHE_SCHEMA_VERSION = 2;')));
+await test('actual transformed source syntax valid',()=>{for(const file of [...paths,'src/lib/slim-contact-identity.core.ts','src/lib/slim-contact-history.core.ts','src/components/inbox/SlimContactRouteGate.tsx','src/lib/slim-contact-route.functions.ts']){const source=ts.createSourceFile(file,read(file),ts.ScriptTarget.Latest,true,file.endsWith('.tsx')?ts.ScriptKind.TSX:ts.ScriptKind.TS);assert.equal(source.parseDiagnostics.length,0,file);}});
+const before=paths.map(read);execFileSync(process.execPath,[fileURLToPath(new URL('./apply-slim-contact-identity.mjs',import.meta.url))],{stdio:'inherit'});await test('consumer patch is idempotent',()=>assert.deepEqual(paths.map(read),before));
+console.log(`${n}/${n} canonical contact checks passed. Concurrency is tested inside one server process; no distributed database uniqueness or browser E2E claimed.`);

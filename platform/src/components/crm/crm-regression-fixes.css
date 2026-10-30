@@ -1,0 +1,20 @@
+/*
+ * Correções preservacionais do CRM.
+ * Mantém um único seletor de massa por etapa e devolve o comportamento discreto:
+ * o controle aparece no hover/foco ou quando já existe seleção ativa.
+ */
+[data-operational-surface="crm-funis"] [data-stage-drag-handle] > div > div > div > button[role="checkbox"] {
+  display: none;
+}
+
+[data-operational-surface="crm-funis"] [data-stage-drag-handle] > div > button[role="checkbox"] {
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+[data-operational-surface="crm-funis"] [data-stage-drag-handle]:hover > div > button[role="checkbox"],
+[data-operational-surface="crm-funis"] [data-stage-drag-handle]:focus-within > div > button[role="checkbox"],
+[data-operational-surface="crm-funis"] [data-stage-drag-handle] > div > button[role="checkbox"][data-state="checked"],
+[data-operational-surface="crm-funis"] [data-stage-drag-handle] > div > button[role="checkbox"][data-state="indeterminate"] {
+  opacity: 1;
+}
