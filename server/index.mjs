@@ -34,7 +34,7 @@ export function createAppServer(root = defaultRoot, options = {}) {
     if (path.split(/[\\/]/).some(part => part.startsWith('.')) || path.includes('\0')) {
       res.writeHead(404).end(); return;
     }
-    if (/^\/(?:admin|login)(?:\/|$)/i.test(path)) {
+    if (/^\/login(?:\/|$)/i.test(path)) {
       res.writeHead(404, { 'Cache-Control': 'no-store' }).end(); return;
     }
     // Only the build directory is public; SPA routes fall back to index.html.

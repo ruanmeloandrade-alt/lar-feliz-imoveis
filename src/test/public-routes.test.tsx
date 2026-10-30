@@ -17,7 +17,7 @@ describe('Retirada do painel antigo', () => {
     expect(screen.getByRole('heading', { name: 'Site publico Vanessa' })).toBeInTheDocument();
   });
 
-  it.each(['/login', '/admin', '/admin/imoveis'])('nao renderiza a area antiga em %s', route => {
+  it.each(['/login'])('nao renderiza a area antiga em %s', route => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     window.history.replaceState({}, '', route);
     render(<App />);

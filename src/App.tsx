@@ -19,6 +19,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/admin/*" element={<Suspense fallback={<div role="status">Carregando sistema...</div>}><AuthProvider><Platform /></AuthProvider></Suspense>} />
           <Route path="/plataforma/*" element={<Suspense fallback={<div role="status">Carregando plataforma...</div>}><AuthProvider><Platform /></AuthProvider></Suspense>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
