@@ -76,7 +76,7 @@ export const getTrackingSourceStatuses = createServerFn({ method: "POST" })
         : { status: "off", detail: "Meta ainda não conectado em Integrações." };
 
     const waRows = (waSessions?.data ?? []) as Array<{ status: string | null }>;
-    const waConnected = waRows.some((s) => (s.status ?? "").toLowerCase().includes("connect") || s.status === "open");
+    const waConnected = waRows.some((s) => ["connected","conectado","open"].includes((s.status ?? "").toLowerCase()));
     out.wa_calls = waConnected && (waCalls?.count ?? 0) > 0
       ? { status: "ok", detail: "Sessão conectada e chamadas importadas." }
       : waConnected

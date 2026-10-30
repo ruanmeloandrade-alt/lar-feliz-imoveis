@@ -66,7 +66,7 @@ function proxy(req,res,path){
       incoming.on('end',()=>{
         const body=Buffer.from(Buffer.concat(chunks).toString('utf8').replace(/<script\b/g,`<script nonce="${nonce}"`));
         delete out['content-length'];delete out.etag;
-        out['Content-Security-Policy']=`default-src 'self'; script-src 'self' 'nonce-${nonce}'; connect-src 'self' ${origin} wss://${project}.supabase.co; img-src 'self' data: blob: ${origin}; media-src 'self' blob: ${origin}; frame-src 'self' ${origin}; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; worker-src 'self' blob:; base-uri 'self'; form-action 'self'; frame-ancestors 'self'`;
+        out['Content-Security-Policy']=`default-src 'self'; script-src 'self' 'nonce-${nonce}'; connect-src 'self' ${origin} wss://${project}.supabase.co; img-src 'self' data: blob: ${origin}; media-src 'self' blob: ${origin}; frame-src 'self' ${origin} https://www.youtube-nocookie.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; worker-src 'self' blob:; base-uri 'self'; form-action 'self'; frame-ancestors 'self'`;
         out['Content-Length']=body.length;out['Cache-Control']='no-store';res.writeHead(incoming.statusCode,out).end(req.method==='HEAD'?undefined:body);
       });
     }else {res.writeHead(incoming.statusCode,out);incoming.pipe(res);}
@@ -90,6 +90,15 @@ export function createFullPlatform(){
       if(path==='/api/records/properties'&&['GET','HEAD'].includes(req.method)){
         let rows=await rpc('vanessa_catalog');const id=url.searchParams.get('id');if(id)rows=rows.filter(r=>r.id===id);
         json(res,200,{data:rows,error:null});return true;
+      }
+      if(path.startsWith('/api/listing-media/')&&['GET','HEAD'].includes(req.method)){
+        const key=path.slice('/api/listing-media/'.length);
+        if(!/^[a-f0-9-]{36}\/[a-f0-9-]{36}\.(jpg|png|webp|gif|mp4|pdf)$/.test(key)){res.writeHead(404).end();return true;}
+        const response=await fetch(origin+'/storage/v1/object/public/vanessa-listings/'+key,{method:req.method,headers:req.headers.range?{Range:req.headers.range}:{},signal:AbortSignal.timeout(30000)});
+        const headers={};for(const h of ['content-type','content-length','content-range','accept-ranges','cache-control'])if(response.headers.has(h))headers[h]=response.headers.get(h);
+        res.writeHead(response.status,headers);if(req.method==='HEAD'){res.end();return true;}
+        if(response.body)for await(const chunk of response.body){if(res.destroyed)break;if(!res.write(chunk))await once(res,'drain');}
+        res.end();return true;
       }
       if(path.startsWith('/api/files/public/')&&['GET','HEAD'].includes(req.method)){await media(req,res,path.slice('/api/files/public/'.length));return true;}
       if(path==='/api/records/leads'&&req.method==='POST'){proxy(req,res,'/api/public/vanessa-lead');return true;}

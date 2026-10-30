@@ -97,3 +97,18 @@ the old remote provider or source backups before parity is verified.
 - Read pg_attribute.attacl from the canonical source, without customer rows or secrets. Restored eight exact grant statements for sessions, document delivery, team read markers and tracking writes.
 - Verified authenticated owner metadata read: 200 with one own session. Selecting token_encrypted stays denied (403); anonymous session reads stay denied (401).
 - Baseline and forward migration now include the same column permissions, with RLS unchanged.
+
+
+## Ajustes imobiliários, marketplace e suporte
+
+Cadastro de novos imóveis ligado diretamente ao catálogo público por vanessa_catalog, sem exigir registro legado. public_property armazena apenas os campos públicos; RPC retorna lista explícita sem custos, import_snapshot, contatos ou dados privados. Mantidos os 12 imóveis e todos os dados originais. Rascunhos e imóveis inativos são excluídos do público. Galeria usa Storage exclusivo vanessa-listings, upload restrito ao usuário membro da Vanessa; fotos, vídeos e PDFs servidos pela própria origem.
+
+Menu: CRM antes de Gestão imobiliária; Pedidos passa a Negociações e Fornecedores passa a Parceiros; Estoque retirado do menu e do formulário de produto. Ícones SVG próprios e distintos. Barra de rolagem do menu escondida mantendo a navegação. Parceiros reutiliza companies, com tipo, responsável, email, telefone, CNPJ, região, endereço, CRECI e condições comerciais persistentes.
+
+Conta de suporte independente criada para o email confirmado no histórico da Saúde Slim. Apenas seu UUID tem edição em tutorial_modules/tutorial_lessons, por interface e RLS; Vanessa pode consultar. Credenciais somente em arquivo privado local, fora do Git. YouTube nocookie permitido no frame-src da área privada.
+
+Tracking: site oficial cadastrado por padrão, pixel instalado só no site público; Fontes mostra o site próprio e integrações realmente conectadas; removidos cadastro de outros sites, instalação manual, Eventos do site, Conversões e Diagnóstico; Eventos e UTMs permanecem. Nenhum evento ou conexão fictícia é exibido. WhatsApp connecting não é interpretado como conectado.
+
+Validação: 23 testes de contrato imobiliário e tutoriais passaram; os 12 cadastros originais validaram pelo schema; insert público de imóvel novo, rascunho oculto e ausência de custos no retorno foram testados na própria Vanessa; dados de teste removidos. Upload autenticado no Storage e persistência de parceiro foram testados. Vanessa recebeu 403 na edição de tutorial e suporte inseriu/removeu módulo temporário com sucesso.
+
+DNS: WWW com certificado válido, porém há divergência entre resolvedores e o apex ainda está VALIDATING_OWNERSHIP. Não ignorar avisos. Acesso alternativo Railway permanece disponível.

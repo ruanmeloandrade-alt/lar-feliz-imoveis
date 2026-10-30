@@ -1,0 +1,1 @@
+INSERT INTO public.tracking_sites(workspace_id,name,domain,created_by) SELECT '2a0e0d29-4e23-47e6-bd9f-30aa8e15e698','Site Vanessa Simoni','corretoravanessasimoni.com','b93ed466-4cff-423d-9dc3-3b0492fc9345' WHERE NOT EXISTS(SELECT 1 FROM public.tracking_sites WHERE workspace_id='2a0e0d29-4e23-47e6-bd9f-30aa8e15e698' AND domain='corretoravanessasimoni.com');

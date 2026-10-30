@@ -8994,3 +8994,94 @@ GRANT INSERT(workspace_id,name,domain,created_by) ON public.tracking_sites TO au
 GRANT UPDATE(name,domain) ON public.tracking_sites TO authenticated;
 GRANT SELECT(id,workspace_id,provider,instance_id,webhook_secret,status,phone_number,last_qr,last_connected_at,last_disconnected_at,metadata,created_at,updated_at) ON public.whatsapp_web_sessions TO authenticated;
 GRANT UPDATE(status,phone_number,last_qr,last_connected_at,last_disconnected_at,metadata,updated_at) ON public.whatsapp_web_sessions TO authenticated;
+
+
+-- 20261031001000_vanessa_marketplace.sql
+BEGIN;
+ALTER TABLE public.companies ADD COLUMN IF NOT EXISTS partner_details jsonb;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS public_property jsonb;
+COMMENT ON COLUMN public.products.public_property IS 'Dados públicos do empreendimento Vanessa; campos comerciais internos permanecem separados.';
+CREATE OR REPLACE FUNCTION public.vanessa_catalog() RETURNS SETOF jsonb LANGUAGE sql STABLE SECURITY DEFINER SET search_path='' AS $$
+ WITH listing AS (
+ SELECT p.*,COALESCE(p.public_property,p.import_snapshot->'property',r.data::jsonb,'{}'::jsonb) AS estate
+ FROM public.products p LEFT JOIN vanessa_private.records r ON r.collection='properties' AND r.id=p.id::text
+ WHERE p.workspace_id='2a0e0d29-4e23-47e6-bd9f-30aa8e15e698' AND p.active
+ )
+ SELECT jsonb_build_object(
+ 'id',id,'title',name,'description',description,'city',COALESCE(estate->>'city',''),'address',estate->'address',
+ 'price',CASE WHEN price=0 AND import_snapshot->'property'->>'price' IS NULL AND import_snapshot->>'source'='vanessa-original' THEN NULL ELSE price END,
+ 'images',CASE WHEN COALESCE(image,'')<>'' THEN jsonb_build_array(image)||COALESCE((SELECT jsonb_agg(x) FROM jsonb_array_elements(COALESCE(estate->'images','[]'::jsonb)) x WHERE x<>to_jsonb(image)),'[]'::jsonb) ELSE COALESCE(estate->'images','[]'::jsonb) END,
+ 'pdfs',COALESCE(estate->'pdfs','[]'::jsonb),'plans',COALESCE(estate->'plans','[]'::jsonb),
+ 'bedrooms',estate->'bedrooms','bathrooms',estate->'bathrooms','area_m2',estate->'area_m2','tag',estate->'tag',
+ 'construction_status',COALESCE(estate->>'construction_status','na_planta'),'launch_date',estate->'launch_date',
+ 'subsidy_estimate',estate->'subsidy_estimate','monthly_parcel',estate->'monthly_parcel','down_payment',estate->'down_payment',
+ 'show_parcel',COALESCE(estate->'show_parcel','false'::jsonb),'show_down_payment',COALESCE(estate->'show_down_payment','false'::jsonb),
+ 'published',true,'created_at',created_at,'updated_at',updated_at)
+ FROM listing WHERE COALESCE((estate->>'published')::boolean,true) ORDER BY created_at DESC,id;
+$$;
+REVOKE ALL ON FUNCTION public.vanessa_catalog() FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.vanessa_catalog() TO anon,authenticated,service_role;
+INSERT INTO storage.buckets(id,name,public,file_size_limit,allowed_mime_types) VALUES('vanessa-listings','vanessa-listings',true,52428800,ARRAY['image/jpeg','image/png','image/webp','image/gif','video/mp4','application/pdf']) ON CONFLICT(id) DO NOTHING;
+CREATE POLICY vanessa_listing_upload ON storage.objects FOR INSERT TO authenticated WITH CHECK(bucket_id='vanessa-listings' AND (storage.foldername(name))[1]=auth.uid()::text AND EXISTS(SELECT 1 FROM public.workspace_members m WHERE m.workspace_id='2a0e0d29-4e23-47e6-bd9f-30aa8e15e698' AND m.user_id=auth.uid()));
+CREATE POLICY vanessa_listing_owner_read ON storage.objects FOR SELECT TO authenticated USING(bucket_id='vanessa-listings' AND (storage.foldername(name))[1]=auth.uid()::text);
+COMMIT;
+SELECT '45-marketplace' AS file,'OK' AS status;
+
+
+-- 20261031002000_vanessa_support_onboarding.sql
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+declare
+  email text;
+  display text;
+  ws_slug text;
+  ws_id uuid;
+begin
+  IF new.raw_user_meta_data->>'signup_source'='bcpll' THEN
+    PERFORM private.bcpll_onboard_user(new.id,new.email,new.raw_user_meta_data); RETURN new;
+  END IF;
+  email := lower(coalesce(new.email, ''));
+  display := coalesce(new.raw_user_meta_data->>'display_name', new.raw_user_meta_data->>'full_name', split_part(email, '@', 1), 'Usuario');
+  IF email='ruanandradenegocios@hotmail.com' THEN
+    INSERT INTO public.profiles(id,display_name,full_name,current_workspace_id) VALUES(new.id,'Suporte Ruan','Ruan Andrade','2a0e0d29-4e23-47e6-bd9f-30aa8e15e698') ON CONFLICT(id) DO NOTHING;
+    INSERT INTO public.workspace_members(workspace_id,user_id,role) VALUES('2a0e0d29-4e23-47e6-bd9f-30aa8e15e698',new.id,'admin') ON CONFLICT DO NOTHING;
+    RETURN new;
+  END IF;
+  ws_slug := public.generate_workspace_slug(display);
+
+  insert into public.profiles (id, display_name, full_name)
+  values (new.id, display, new.raw_user_meta_data->>'full_name')
+  on conflict (id) do nothing;
+
+  insert into public.workspaces (slug, name, owner_id)
+  values (ws_slug, 'Vanessa Simoni', new.id)
+  returning id into ws_id;
+
+  insert into public.workspace_members (workspace_id, user_id, role)
+  values (ws_id, new.id, 'owner');
+
+  update public.profiles
+  set current_workspace_id = ws_id,
+      updated_at = now()
+  where id = new.id;
+
+  return new;
+end;
+$function$
+;
+SELECT '46-support-onboarding' AS file,'OK' AS status;
+
+-- 20261031003000_vanessa_tutorial_support.sql
+BEGIN;
+ALTER POLICY tutorials_editor ON public.tutorial_modules USING ((SELECT auth.uid())='b6bf8bde-340c-4a98-9fb4-179e2fcf3464'::uuid) WITH CHECK ((SELECT auth.uid())='b6bf8bde-340c-4a98-9fb4-179e2fcf3464'::uuid);
+ALTER POLICY tutorials_editor ON public.tutorial_lessons USING ((SELECT auth.uid())='b6bf8bde-340c-4a98-9fb4-179e2fcf3464'::uuid) WITH CHECK ((SELECT auth.uid())='b6bf8bde-340c-4a98-9fb4-179e2fcf3464'::uuid);
+COMMIT;
+SELECT '47-support-tutorials' AS file,'OK' AS status;
+
+
+-- 20261031004000_vanessa_tracking_site.sql
+INSERT INTO public.tracking_sites(workspace_id,name,domain,created_by) SELECT '2a0e0d29-4e23-47e6-bd9f-30aa8e15e698','Site Vanessa Simoni','corretoravanessasimoni.com','b93ed466-4cff-423d-9dc3-3b0492fc9345' WHERE NOT EXISTS(SELECT 1 FROM public.tracking_sites WHERE workspace_id='2a0e0d29-4e23-47e6-bd9f-30aa8e15e698' AND domain='corretoravanessasimoni.com');
