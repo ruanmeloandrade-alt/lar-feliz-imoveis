@@ -1,0 +1,51 @@
+[
+  {
+    "id": "30da66b3-f2df-444a-83be-664a220f9a01",
+    "local_id": "30da66b3-f2df-444a-83be-664a220f9a01",
+    "type": "validacao",
+    "config": {
+      "isStartBlock": true,
+      "roleta": [
+        {
+          "id": "codigo-meta",
+          "label": "Código Meta no início da mensagem",
+          "alvo": "mensagem",
+          "tipo": "regex",
+          "valor": "^\\s*COD#055(?:CT1C(?:10|[1-9])|CT2C(?:10|[89]))(?=\\s|[,;.!:]|$)",
+          "nextBlockId": "30da66b3-f2df-444a-83be-664a220f9a02"
+        }
+      ]
+    },
+    "position_x": 220,
+    "position_y": 120,
+    "next_block_id": "30da66b3-f2df-444a-83be-664a220f9a03"
+  },
+  {
+    "id": "30da66b3-f2df-444a-83be-664a220f9a02",
+    "local_id": "30da66b3-f2df-444a-83be-664a220f9a02",
+    "type": "acao",
+    "config": {
+      "isStartBlock": false,
+      "acaoTipo": "tags",
+      "tagsModo": "adicionar",
+      "acaoConfig": "🎯META ADS"
+    },
+    "position_x": 650,
+    "position_y": 120,
+    "next_block_id": "30da66b3-f2df-444a-83be-664a220f9a03"
+  },
+  {
+    "id": "30da66b3-f2df-444a-83be-664a220f9a03",
+    "local_id": "30da66b3-f2df-444a-83be-664a220f9a03",
+    "type": "iniciar-salesbot",
+    "config": {
+      "isStartBlock": false,
+      "destinoBotId": "f2b2925f-cdae-9488-4b86-f64191b26bb8",
+      "destinoBotNome": "Pré-atendimento"
+    },
+    "position_x": 1080,
+    "position_y": 240,
+    "next_block_id": null
+  }
+]
+

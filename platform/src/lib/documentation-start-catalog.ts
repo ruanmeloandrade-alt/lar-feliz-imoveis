@@ -1,0 +1,48 @@
+import type { DocumentationModule } from "./documentation-catalog";
+
+export const DOCUMENTATION_START_MODULES: DocumentationModule[] = [
+  {
+    id: "home-primeiros-passos",
+    title: "Home e Primeiros Passos",
+    category: "Comece aqui",
+    route: "/home",
+    status: "available",
+    summary: "Use a Home como ponto de orientação e avance pela configuração da operação em uma ordem segura.",
+    keywords: ["home", "começar", "onboarding", "primeiros passos", "ativação"],
+    article: {
+      whatIs: "A Home é a entrada da operação MktOn e serve como referência para o que precisa ser configurado e acompanhado no início.",
+      purpose: "Evitar que o usuário tente ativar automações antes de ter canais, CRM e referências básicas organizados.",
+      capabilities: ["Acessar atalhos e orientações iniciais", "Entrar nos módulos principais", "Usar a Central de Ajuda, Documentação e Faculdade como apoio"],
+      location: "Home no menu principal.",
+      prerequisites: ["Conta autenticada e workspace ativo"],
+      steps: ["Confirme o workspace correto", "Conecte somente as integrações que a operação usa", "Organize CRM/funis e equipe", "Teste atendimento e captação", "Depois ative SalesBots, automações, IA, Tracking e módulos adicionais conforme o plano"],
+      connections: ["Integrações", "CRM", "Inbox", "Configurações", "Documentação", "Faculdade MktOn"],
+      examples: ["Primeira configuração de uma conta nova", "Retomar uma implementação incompleta"],
+      limitations: ["A Home não substitui a configuração de cada módulo", "Recursos disponíveis variam por plano, permissão e integração"],
+      troubleshooting: ["Se um atalho levar a uma área bloqueada, confira plano e permissão", "Se um canal não funcionar, valide primeiro a Central de Integrações"],
+      related: ["integracoes", "crm-funis", "inbox", "configuracoes"],
+    },
+  },
+  {
+    id: "programa-afiliados",
+    title: "Programa de Afiliados",
+    category: "Comece aqui",
+    route: "/afiliados",
+    status: "available",
+    summary: "Entenda a entrada pública do programa de afiliados, o papel do link de indicação e como a área se relaciona com o ecossistema MktOn.",
+    keywords: ["afiliado", "afiliados", "indicação", "referral", "link", "comissão", "parceiro"],
+    article: {
+      whatIs: "O Programa de Afiliados é a frente da MktOn para pessoas que divulgam a plataforma e originam novos clientes por indicação rastreada.",
+      purpose: "Separar aquisição por indicação da operação interna do cliente e manter uma entrada clara para quem quer conhecer ou participar do programa.",
+      capabilities: ["Acessar a página pública do programa", "Entender o papel do link de indicação", "Entrar no painel de afiliado quando o perfil estiver habilitado", "Consultar materiais e informações liberadas para o afiliado conforme a evolução do programa"],
+      location: "Página pública /afiliados e painel do afiliado quando disponível para o perfil.",
+      prerequisites: ["Para a página pública, nenhum login é necessário", "Recursos do painel dependem de cadastro, aprovação e regras vigentes"],
+      steps: ["Abra a página de Afiliados", "Leia as regras e condições exibidas na versão vigente", "Faça o cadastro/solicitação quando o fluxo estiver disponível", "Depois de habilitado, use somente o link/código de indicação fornecido pelo sistema", "Consulte o painel para acompanhar informações efetivamente registradas"],
+      connections: ["Landing pública", "Cadastro", "Assinatura", "Tracking de indicação", "Painel de Afiliado", "Administração do ecossistema"],
+      examples: ["Divulgar a MktOn usando um link de indicação próprio", "Acompanhar indicações que foram atribuídas corretamente ao afiliado"],
+      limitations: ["A documentação pública não expõe controles administrativos, dados privados ou operações financeiras internas", "Percentuais, pagamentos e regras comerciais devem seguir sempre a política vigente exibida no programa; não trate exemplos antigos como regra atual", "Afiliado não é automaticamente parceiro de implementação ou suporte"],
+      troubleshooting: ["Se a indicação não aparecer, preserve o link/origem e procure suporte com evidências", "Se o painel não estiver disponível, confirme se o perfil foi habilitado", "Em caso de divergência comercial, use a política vigente e o canal oficial de suporte"],
+      related: ["home-primeiros-passos", "tracking", "configuracoes"],
+    },
+  },
+];

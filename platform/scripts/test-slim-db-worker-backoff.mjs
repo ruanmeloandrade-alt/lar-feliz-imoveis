@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {newSlimDbBackoffState,dbBackoffActive,noteDbFailure,noteDbSuccess,isDbTransportError,sharedSlimDbBackoff,dbWorkerMayRun} from '../src/lib/slim-db-worker-backoff.core.ts';
+let n=0;function test(name,fn){fn();n++;console.log('PASS Saúde Slim worker circuit: '+name);}
+test('healthy worker runs normally',()=>{const s=newSlimDbBackoffState();assert.equal(dbBackoffActive(s,100),false);assert.equal(s.retryAfter,0);});
+test('database timeout pauses the poll',()=>{const s=newSlimDbBackoffState();assert(noteDbFailure(s,{message:'Connection terminated due to connection timeout'},1000));assert.equal(s.retryAfter,6000);assert(dbBackoffActive(s,5999));assert(!dbBackoffActive(s,6000));});
+test('repeated outages back off exponentially',()=>{const s=newSlimDbBackoffState();let now=1000;for(let i=0;i<7;i++){noteDbFailure(s,'HTTP 522 timed out',now);now=s.retryAfter;}assert(s.retryAfter-now+0===0);assert(s.failures===7);noteDbFailure(s,{status:504},now);assert.equal(s.retryAfter,now+300000);});
+test('permission and business errors do not disable other workers',()=>{const s=newSlimDbBackoffState();assert(!noteDbFailure(s,{code:'42501',message:'permission denied'},100));assert.equal(s.failures,0);assert(!noteDbFailure(s,new Error('invalid group member'),100));});
+test('claim gateway and auth timeouts recognized',()=>{for(const v of ['HTTP 522','HTTP 504','57014 canceling statement due to statement timeout','fetch failed',{code:'PGRST003'},'ECONNRESET'])assert(isDbTransportError(v));});
+test('successful authenticated queue claim clears circuit',()=>{const s=newSlimDbBackoffState();noteDbFailure(s,'HTTP 522',500);assert(noteDbSuccess(s));assert.equal(s.retryAfter,0);assert(!noteDbSuccess(s));});
+test('both worker sources use the same backoff',()=>{const i=fs.readFileSync(new URL('../src/lib/inbox-automation-worker.server.ts',import.meta.url),'utf8'),a=fs.readFileSync(new URL('../src/lib/slim-audience-runtime.server.ts',import.meta.url),'utf8');for(const source of [i,a]){assert(source.includes('dbWorkerMayRun()'));assert(source.includes('recordDbError('));assert(source.includes('recordDbRecovery()'));}assert(a.includes('},5000)'));assert(a.includes('processStageJobs().catch(report)'));});
+test('shared state survives independent worker users',()=>{const s=sharedSlimDbBackoff();const backup={...s};try{noteDbFailure(s,'HTTP 504',Date.now());assert(!dbWorkerMayRun());noteDbSuccess(s);assert(dbWorkerMayRun());}finally{Object.assign(s,backup);}});
+console.log(n+'/'+n+' worker circuit checks. No live provider calls or business records changed.');

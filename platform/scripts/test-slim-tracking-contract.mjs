@@ -1,0 +1,11 @@
+import fs from 'node:fs';import assert from 'node:assert/strict';import {execFileSync} from 'node:child_process';import {fileURLToPath} from 'node:url';
+const file=new URL('../src/lib/tracking-live.functions.ts',import.meta.url);const before=fs.readFileSync(file,'utf8');
+assert(before.includes('// SLIM_TRACKING_OVERVIEW_V1'));
+const overview=before.slice(before.indexOf('export const getTrackingOverview ='),before.indexOf('// ============ EVENTS LIST ============'));
+assert(overview.includes('await assertMember(context.supabase,data.workspaceId,context.userId)'));
+assert(overview.includes('loadSlimTrackingOverview(context.supabase as never,data.workspaceId)'));
+assert(!overview.includes('.limit(20000)'));
+for(const name of ['listTrackingEvents','listUtmRanking'])assert(before.includes('export const '+name));
+execFileSync(process.execPath,[fileURLToPath(new URL('./apply-slim-tracking-overview.mjs',import.meta.url))],{stdio:'inherit'});
+assert.equal(fs.readFileSync(file,'utf8'),before);
+console.log('7/7 tracking source contract assertions passed; not an authenticated browser test.');

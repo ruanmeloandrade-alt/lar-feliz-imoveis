@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {buildStockMovements} from '../src/lib/slim-stock-view.core.ts';
+const ws='00000000-0000-4000-8000-000000000101',order='00000000-0000-4000-8000-000000000201',product='00000000-0000-4000-8000-000000000301',move='00000000-0000-4000-8000-000000000401';
+const o={id:order,workspace_id:ws,snapshot:{orderId:order,workspaceId:ws,number:'QA-1',items:[{productId:product,name:'Synthetic product',quantity:3,sku:'QA'}],legacy:{stockMode:'already_accounted'}}};
+const m={id:move,workspace_id:ws,order_id:order,product_id:product,kind:'sale',quantity:3,balance_after:7,created_at:'2026-10-15T10:00:00Z'};
+const projected=(movement,source)=>buildStockMovements(ws,[movement],[source]).movements[0];
+const a=projected(m,o);assert.equal(a.recordedOnly,true);assert.equal(a.balanceBefore,7);assert.equal(a.balanceAfter,7);
+const b=projected(m,{...o,snapshot:{...o.snapshot,legacy:{stockMode:'apply_missing'}}});assert.equal(b.recordedOnly,undefined);assert.equal(b.balanceBefore,10);
+const c=projected({...m,kind:'reversal',balance_after:10},o);assert.equal(c.recordedOnly,undefined);assert.equal(c.balanceBefore,7);assert.equal(c.balanceAfter,10);
+console.log('8/8 legacy stock projection assertions passed. Historical recognition does not invent another debit.');

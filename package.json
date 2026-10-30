@@ -3,7 +3,9 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "engines": { "node": "24.x" },
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -17,7 +19,8 @@
     "verify:backend": "node --test server/api.test.mjs",
     "verify:live": "node scripts/check-live.mjs",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "build:full": "npm run build && npm --prefix platform ci --ignore-scripts && npm --prefix platform run build"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

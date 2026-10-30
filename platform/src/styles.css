@@ -1,0 +1,1145 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/inter/700.css";
+@import "@fontsource/jetbrains-mono/500.css";
+@import "@fontsource/jetbrains-mono/600.css";
+@import "@fontsource/space-grotesk/500.css";
+@import "@fontsource/space-grotesk/600.css";
+@import "@fontsource/space-grotesk/700.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* Rolagem discreta somente nas listas de leads das etapas do funil. */
+.slim-funnel-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklab, var(--muted-foreground) 35%, transparent) transparent;
+}
+.slim-funnel-scrollbar:hover {
+  scrollbar-color: color-mix(in oklab, var(--muted-foreground) 60%, transparent) transparent;
+}
+.slim-funnel-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.slim-funnel-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.slim-funnel-scrollbar::-webkit-scrollbar-thumb {
+  background: color-mix(in oklab, var(--muted-foreground) 35%, transparent);
+  border-radius: 999px;
+}
+.slim-funnel-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: color-mix(in oklab, var(--muted-foreground) 60%, transparent);
+}
+.slim-funnel-scrollbar::-webkit-scrollbar-button {
+  display: none;
+}
+
+/*
+ * Design system definition.
+ *
+ * The @theme inline block maps CSS custom properties to Tailwind utility
+ * classes (e.g. --color-primary -> bg-primary, text-primary).
+ *
+ * The :root and .dark blocks define the actual color values using oklch.
+ * All colors MUST use oklch format.
+ *
+ * To add a new semantic color:
+ * 1. Add the variable to :root (light value) and .dark (dark value)
+ * 2. Register it in @theme inline as --color-<name>: var(--<name>)
+ */
+
+@theme inline {
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-display: "Space Grotesk", var(--font-sans);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --shadow-premium: 0 4px 6px -1px oklch(0 0 0 / 0.05), 0 2px 4px -2px oklch(0 0 0 / 0.05);
+  --shadow-premium-lg: 0 10px 15px -3px oklch(0 0 0 / 0.05), 0 4px 6px -4px oklch(0 0 0 / 0.05);
+
+  @keyframes bounce-slow {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+  }
+  @keyframes shadow-pulse {
+    0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.2; }
+    50% { transform: translateX(-50%) scale(1.2); opacity: 0.1; }
+  }
+  --animate-bounce-slow: bounce-slow 3s ease-in-out infinite;
+  --animate-shadow-pulse: shadow-pulse 3s ease-in-out infinite;
+}
+
+:root {
+ --radius: 0.5rem;
+
+ /* Vanessa Simoni: superficie clara operacional */
+ --background: oklch(0.975 0.006 220);
+ --foreground: oklch(0.18 0.02 260);
+ --card: oklch(1 0 0);
+ --card-foreground: oklch(0.18 0.02 260);
+ --popover: oklch(1 0 0);
+ --popover-foreground: oklch(0.18 0.02 260);
+
+ /* Accent Vanessa Simoni: verde clinico/operacional */
+ --primary: oklch(0.58 0.15 158);
+ --primary-foreground: oklch(0.99 0 0);
+
+ --secondary: oklch(0.965 0.005 250);
+ --secondary-foreground: oklch(0.25 0.02 260);
+
+ --muted: oklch(0.96 0.005 250);
+ --muted-foreground: oklch(0.5 0.015 258);
+
+ --accent: oklch(0.94 0.025 160);
+ --accent-foreground: oklch(0.25 0.06 160);
+
+ --destructive: oklch(0.58 0.22 27);
+ --destructive-foreground: oklch(0.99 0 0);
+
+ --border: oklch(0.92 0.008 255);
+ --input: oklch(0.92 0.008 255);
+ --ring: oklch(0.58 0.15 158);
+
+ /* Status sem-nticos */
+ --success: oklch(0.62 0.16 155);
+ --success-foreground: oklch(0.99 0 0);
+ --warning: oklch(0.72 0.16 65);
+ --warning-foreground: oklch(0.2 0.05 65);
+ --danger: oklch(0.58 0.22 27);
+ --info: oklch(0.58 0.14 165);
+
+ /* Charts: paleta Vanessa Simoni sem azul */
+ --chart-1: oklch(0.58 0.15 158);
+ --chart-2: oklch(0.64 0.13 135);
+ --chart-3: oklch(0.72 0.16 65);
+ --chart-4: oklch(0.62 0.16 155);
+ --chart-5: oklch(0.62 0.18 28);
+
+ /* Sidebar Vanessa Simoni: escuro com acento verde */
+ --sidebar: oklch(0.18 0.028 160);
+ --sidebar-foreground: oklch(0.93 0.012 155);
+ --sidebar-primary: oklch(0.68 0.16 158);
+ --sidebar-primary-foreground: oklch(0.99 0 0);
+ --sidebar-accent: oklch(0.25 0.04 160);
+ --sidebar-accent-foreground: oklch(0.96 0.01 155);
+ --sidebar-border: oklch(0.31 0.035 160);
+ --sidebar-ring: oklch(0.68 0.16 158);
+}
+
+.dark {
+ --background: oklch(0.15 0.028 160);
+ --foreground: oklch(0.97 0.01 155);
+ --card: oklch(0.19 0.034 160);
+ --card-foreground: oklch(0.97 0.01 155);
+ --popover: oklch(0.19 0.034 160);
+ --popover-foreground: oklch(0.97 0.01 155);
+ --primary: oklch(0.68 0.16 158);
+ --primary-foreground: oklch(0.09 0.03 160);
+ --secondary: oklch(0.24 0.035 160);
+ --secondary-foreground: oklch(0.97 0.01 155);
+ --muted: oklch(0.24 0.035 160);
+ --muted-foreground: oklch(0.75 0.035 155);
+ --accent: oklch(0.28 0.055 158);
+ --accent-foreground: oklch(0.88 0.12 158);
+ --destructive: oklch(0.704 0.191 22.216);
+ --destructive-foreground: oklch(0.984 0.003 247.858);
+ --border: oklch(1 0 0 / 10%);
+ --input: oklch(1 0 0 / 15%);
+ --ring: oklch(0.68 0.16 158);
+ --chart-1: oklch(0.68 0.16 158);
+ --chart-2: oklch(0.64 0.13 135);
+ --chart-3: oklch(0.769 0.188 70.08);
+ --chart-4: oklch(0.62 0.18 28);
+ --chart-5: oklch(0.645 0.246 16.439);
+ --sidebar: oklch(0.18 0.028 160);
+ --sidebar-foreground: oklch(0.97 0.01 155);
+ --sidebar-primary: oklch(0.68 0.16 158);
+ --sidebar-primary-foreground: oklch(0.09 0.03 160);
+ --sidebar-accent: oklch(0.25 0.04 160);
+ --sidebar-accent-foreground: oklch(0.97 0.01 155);
+ --sidebar-border: oklch(1 0 0 / 10%);
+ --sidebar-ring: oklch(0.68 0.16 158);
+}
+
+/* ============================================================
+ * Tema "Tático Dark" - Bloomberg/terminal financeiro
+ * Fundo quase-preto, números grandes, accent -mbar/dourado
+ * ============================================================ */
+[data-theme="tatico"] {
+ --radius: 0.25rem;
+ --background: oklch(0.16 0.01 260);
+ --foreground: oklch(0.95 0.005 90);
+ --card: oklch(0.2 0.012 260);
+ --card-foreground: oklch(0.95 0.005 90);
+ --popover: oklch(0.2 0.012 260);
+ --popover-foreground: oklch(0.95 0.005 90);
+
+ --primary: oklch(0.78 0.16 75); /* -mbar/dourado */
+ --primary-foreground: oklch(0.15 0.01 260);
+
+ --secondary: oklch(0.24 0.012 260);
+ --secondary-foreground: oklch(0.92 0.005 90);
+
+ --muted: oklch(0.23 0.012 260);
+ --muted-foreground: oklch(0.65 0.015 90);
+
+ --accent: oklch(0.28 0.04 75);
+ --accent-foreground: oklch(0.9 0.05 75);
+
+ --destructive: oklch(0.62 0.24 25);
+ --destructive-foreground: oklch(0.99 0 0);
+
+ --border: oklch(0.3 0.01 260);
+ --input: oklch(0.3 0.01 260);
+ --ring: oklch(0.78 0.16 75);
+
+ --success: oklch(0.72 0.18 145);
+ --success-foreground: oklch(0.15 0.01 260);
+ --warning: oklch(0.78 0.16 75);
+ --warning-foreground: oklch(0.15 0.01 260);
+ --danger: oklch(0.65 0.24 25);
+ --info: oklch(0.7 0.14 220);
+
+ --chart-1: oklch(0.78 0.16 75);
+ --chart-2: oklch(0.72 0.18 145);
+ --chart-3: oklch(0.65 0.24 25);
+ --chart-4: oklch(0.7 0.14 220);
+ --chart-5: oklch(0.7 0.18 320);
+
+ /* Sidebar - combina com o tema Tático (preto/-mbar) */
+ --sidebar: oklch(0.13 0.008 260);
+ --sidebar-foreground: oklch(0.9 0.01 90);
+ --sidebar-primary: oklch(0.78 0.16 75);
+ --sidebar-primary-foreground: oklch(0.15 0.01 260);
+ --sidebar-accent: oklch(0.22 0.012 260);
+ --sidebar-accent-foreground: oklch(0.95 0.005 90);
+ --sidebar-border: oklch(0.26 0.012 260);
+ --sidebar-ring: oklch(0.78 0.16 75);
+}
+
+/* ============================================================
+ * Tema "Corporativo Sistemático" - Power BI/Looker
+ * Alta densidade, ciano/verde, cards compactos
+ * ============================================================ */
+[data-theme="corporativo"] {
+ --radius: 0.25rem;
+ --background: oklch(0.98 0.003 220);
+ --foreground: oklch(0.2 0.02 230);
+ --card: oklch(1 0 0);
+ --card-foreground: oklch(0.2 0.02 230);
+ --popover: oklch(1 0 0);
+ --popover-foreground: oklch(0.2 0.02 230);
+
+ --primary: oklch(0.55 0.14 200); /* ciano corporativo */
+ --primary-foreground: oklch(0.99 0 0);
+
+ --secondary: oklch(0.95 0.01 220);
+ --secondary-foreground: oklch(0.25 0.02 230);
+
+ --muted: oklch(0.95 0.008 220);
+ --muted-foreground: oklch(0.45 0.015 230);
+
+ --accent: oklch(0.93 0.04 200);
+ --accent-foreground: oklch(0.3 0.08 200);
+
+ --destructive: oklch(0.58 0.22 27);
+ --destructive-foreground: oklch(0.99 0 0);
+
+ --border: oklch(0.88 0.008 220);
+ --input: oklch(0.88 0.008 220);
+ --ring: oklch(0.55 0.14 200);
+
+ --success: oklch(0.6 0.17 150);
+ --success-foreground: oklch(0.99 0 0);
+ --warning: oklch(0.7 0.16 70);
+ --warning-foreground: oklch(0.2 0.05 65);
+ --danger: oklch(0.58 0.22 27);
+ --info: oklch(0.55 0.14 200);
+
+ --chart-1: oklch(0.55 0.14 200);
+ --chart-2: oklch(0.6 0.17 150);
+ --chart-3: oklch(0.5 0.18 280);
+ --chart-4: oklch(0.7 0.16 70);
+ --chart-5: oklch(0.58 0.2 340);
+
+ /* Sidebar - combina com o tema Corporativo (ciano sobre navy claro) */
+ --sidebar: oklch(0.26 0.04 230);
+ --sidebar-foreground: oklch(0.92 0.01 220);
+ --sidebar-primary: oklch(0.65 0.16 200);
+ --sidebar-primary-foreground: oklch(0.99 0 0);
+ --sidebar-accent: oklch(0.32 0.04 230);
+ --sidebar-accent-foreground: oklch(0.98 0.005 220);
+ --sidebar-border: oklch(0.36 0.04 230);
+ --sidebar-ring: oklch(0.65 0.16 200);
+}
+
+[data-theme="corporativo"] .dashboard-density {
+ font-size: 13px;
+}
+
+/* ============================================================
+ * Tema "MKTOn" - dark neutro com assinatura roxo-grafite sutil.
+ * Sem rosa/magenta vibrante. Profissional e sóbrio.
+ * ============================================================ */
+[data-theme="marca"] {
+ --radius: 0.625rem;
+ --background: oklch(0.14 0.005 270);
+ --foreground: oklch(0.96 0.005 270);
+ --card: oklch(0.18 0.006 270);
+ --card-foreground: oklch(0.96 0.005 270);
+ --popover: oklch(0.19 0.007 270);
+ --popover-foreground: oklch(0.96 0.005 270);
+
+ --primary: oklch(0.58 0.10 290); /* roxo-grafite discreto */
+ --primary-foreground: oklch(0.99 0.003 270);
+
+ --secondary: oklch(0.22 0.008 270);
+ --secondary-foreground: oklch(0.95 0.005 270);
+
+ --muted: oklch(0.22 0.006 270);
+ --muted-foreground: oklch(0.70 0.01 270);
+
+ --accent: oklch(0.42 0.06 285); /* cinza-azulado frio */
+ --accent-foreground: oklch(0.98 0.005 270);
+
+ --destructive: oklch(0.58 0.20 25);
+ --destructive-foreground: oklch(0.99 0 0);
+
+ --border: oklch(0.26 0.008 270);
+ --input: oklch(0.26 0.008 270);
+ --ring: oklch(0.58 0.10 290);
+
+ --success: oklch(0.62 0.13 155);
+ --success-foreground: oklch(0.99 0 0);
+ --warning: oklch(0.74 0.14 70);
+ --warning-foreground: oklch(0.15 0.01 270);
+ --danger: oklch(0.58 0.20 25);
+ --info: oklch(0.58 0.10 250);
+
+ /* Charts: paleta neutra com toque roxo-grafite */
+ --chart-1: oklch(0.58 0.10 290);
+ --chart-2: oklch(0.62 0.08 250);
+ --chart-3: oklch(0.68 0.09 220);
+ --chart-4: oklch(0.70 0.10 80);
+ --chart-5: oklch(0.55 0.07 200);
+
+ /* Sidebar - grafite quase neutro */
+ --sidebar: oklch(0.11 0.005 270);
+ --sidebar-foreground: oklch(0.90 0.008 270);
+ --sidebar-primary: oklch(0.58 0.10 290);
+ --sidebar-primary-foreground: oklch(0.99 0.003 270);
+ --sidebar-accent: oklch(0.20 0.008 270);
+ --sidebar-accent-foreground: oklch(0.96 0.005 270);
+ --sidebar-border: oklch(0.24 0.008 270);
+ --sidebar-ring: oklch(0.58 0.10 290);
+}
+
+[data-theme="marca"] .kpi-card,
+[data-theme="marca"] [class*="rounded-lg"][class*="border"][class*="bg-card"] {
+ background-image: linear-gradient(135deg, oklch(0.20 0.007 270) 0%, oklch(0.16 0.006 275) 100%);
+}
+
+/* ============================================================
+ * Tema "WhatsApp Claro", inspirado no WhatsApp Web, com paleta
+ * mais suave que a original. Verde folha para acento, superfícies
+ * off-white esverdeadas, sidebar em teal claro.
+ * ============================================================ */
+[data-theme="whatsapp"] {
+ --radius: 0.75rem;
+ --background: oklch(0.985 0.008 155);
+ --foreground: oklch(0.22 0.02 200);
+ --card: oklch(1 0 0);
+ --card-foreground: oklch(0.22 0.02 200);
+ --popover: oklch(1 0 0);
+ --popover-foreground: oklch(0.22 0.02 200);
+
+ --primary: oklch(0.68 0.13 152); /* verde WhatsApp mais claro */
+ --primary-foreground: oklch(0.16 0.02 200);
+
+ --secondary: oklch(0.95 0.015 155);
+ --secondary-foreground: oklch(0.28 0.02 200);
+
+ --muted: oklch(0.955 0.012 155);
+ --muted-foreground: oklch(0.48 0.015 195);
+
+ --accent: oklch(0.94 0.04 152);
+ --accent-foreground: oklch(0.28 0.06 152);
+
+ --destructive: oklch(0.6 0.2 27);
+ --destructive-foreground: oklch(0.99 0 0);
+
+ --border: oklch(0.9 0.01 155);
+ --input: oklch(0.92 0.01 155);
+ --ring: oklch(0.68 0.13 152);
+
+ --success: oklch(0.65 0.15 152);
+ --success-foreground: oklch(0.99 0 0);
+ --warning: oklch(0.72 0.16 65);
+ --warning-foreground: oklch(0.2 0.05 65);
+ --danger: oklch(0.6 0.2 27);
+ --info: oklch(0.58 0.13 210);
+
+ --chart-1: oklch(0.68 0.13 152);
+ --chart-2: oklch(0.58 0.13 210);
+ --chart-3: oklch(0.72 0.16 65);
+ --chart-4: oklch(0.55 0.15 285);
+ --chart-5: oklch(0.6 0.2 27);
+
+ /* Sidebar: teal WhatsApp mais claro */
+ --sidebar: oklch(0.42 0.05 175);
+ --sidebar-foreground: oklch(0.96 0.008 155);
+ --sidebar-primary: oklch(0.68 0.13 152);
+ --sidebar-primary-foreground: oklch(0.14 0.02 200);
+ --sidebar-accent: oklch(0.48 0.05 175);
+ --sidebar-accent-foreground: oklch(0.98 0.005 155);
+ --sidebar-border: oklch(0.52 0.05 175);
+ --sidebar-ring: oklch(0.68 0.13 152);
+}
+
+
+
+
+
+@layer base {
+ * {
+ border-color: var(--color-border);
+ }
+
+ body {
+ background-color: var(--color-background);
+ color: var(--color-foreground);
+ }
+}
+
+/* ============================================================
+ * Inbox Chat - paleta segue o modo de visualização ativo.
+ * Defaults derivados dos tokens sem-nticos do tema atual.
+ * Cada tema pode sobrescrever para um sabor próprio mais abaixo.
+ * ============================================================ */
+[data-chat-surface] {
+ --chat-panel: var(--card);
+ --chat-panel-hover: color-mix(in oklab, var(--card) 80%, var(--foreground) 8%);
+ --chat-panel-active: color-mix(in oklab, var(--card) 70%, var(--primary) 18%);
+ --chat-bg: var(--background);
+ --chat-thread-bg: color-mix(in oklab, var(--background) 94%, var(--primary) 6%);
+ --chat-pattern: color-mix(in oklab, var(--primary) 18%, transparent);
+ --chat-bubble-in: var(--muted);
+ --chat-bubble-out: color-mix(in oklab, var(--primary) 22%, var(--card) 78%);
+ --chat-text: var(--foreground);
+ --chat-text-muted: var(--muted-foreground);
+ --chat-divider: var(--border);
+ --chat-accent: var(--primary);
+ --chat-accent-fg: var(--primary-foreground);
+ --chat-meta: var(--chat-text-muted);
+ --chat-warning: var(--warning, oklch(0.78 0.16 75));
+ --chat-group-avatar: color-mix(in oklab, var(--primary) 14%, var(--card) 86%);
+ --chat-audio-control: color-mix(in oklab, var(--primary) 22%, var(--card) 78%);
+ /* WhatsApp-like unread bubble, verde característico, mantido em todos os temas */
+ --chat-unread: #25d366;
+ --chat-unread-fg: #0b141a;
+}
+
+/* Tático Dark - sabor terminal, bolha de saída -mbar suave */
+[data-theme="tatico"] [data-chat-surface] {
+ --chat-panel: oklch(0.2 0.012 260);
+ --chat-panel-hover: oklch(0.245 0.014 260);
+ --chat-panel-active: oklch(0.29 0.018 260);
+ --chat-bg: oklch(0.155 0.01 260);
+ --chat-thread-bg: oklch(0.145 0.012 260);
+ --chat-pattern: oklch(0.78 0.16 75 / 0.13);
+ --chat-bubble-in: oklch(0.24 0.012 260);
+ --chat-bubble-out: oklch(0.34 0.06 75);
+ --chat-divider: oklch(0.28 0.012 260);
+ --chat-group-avatar: oklch(0.27 0.035 75);
+ --chat-audio-control: oklch(0.34 0.06 75);
+}
+
+/* Corporativo - claro, ciano discreto na bolha de saída */
+[data-theme="corporativo"] [data-chat-surface] {
+ --chat-thread-bg: oklch(0.965 0.012 200);
+ --chat-pattern: oklch(0.55 0.14 200 / 0.12);
+ --chat-bubble-out: oklch(0.92 0.05 200);
+ --chat-bubble-in: oklch(0.97 0.005 220);
+ --chat-group-avatar: oklch(0.93 0.04 200);
+ --chat-audio-control: oklch(0.9 0.05 200);
+}
+
+/* MKTOn - dark neutro profundo, padrão sutil sem rosa */
+[data-theme="marca"] [data-chat-surface] {
+ --chat-panel: oklch(0.13 0.005 270);
+ --chat-panel-hover: oklch(0.17 0.006 270);
+ --chat-panel-active: oklch(0.21 0.008 275);
+ --chat-bg: oklch(0.09 0.004 270);
+ --chat-thread-bg: oklch(0.11 0.005 270);
+ --chat-pattern: oklch(0.58 0.10 290 / 0.08);
+ --chat-bubble-in: oklch(0.18 0.006 270);
+ --chat-bubble-out: oklch(0.28 0.05 285);
+ --chat-divider: oklch(0.22 0.007 270);
+ --chat-group-avatar: oklch(0.26 0.05 285);
+ --chat-audio-control: oklch(0.30 0.06 285);
+}
+
+/* WhatsApp Claro, bolhas verde suave, fundo bege esverdeado como WhatsApp Web light */
+[data-theme="whatsapp"] [data-chat-surface] {
+ --chat-panel: oklch(0.985 0.01 155);
+ --chat-panel-hover: oklch(0.955 0.015 155);
+ --chat-panel-active: oklch(0.93 0.03 152);
+ --chat-bg: oklch(0.97 0.012 155);
+ --chat-thread-bg: oklch(0.94 0.014 150);
+ --chat-pattern: oklch(0.65 0.12 152 / 0.10);
+ --chat-bubble-in: oklch(1 0 0);
+ --chat-bubble-out: oklch(0.93 0.09 148); /* verde bem clarinho, tipo #d9fdd3 */
+ --chat-divider: oklch(0.89 0.012 155);
+ --chat-text: oklch(0.22 0.02 200);
+ --chat-text-muted: oklch(0.48 0.015 195);
+ --chat-accent: oklch(0.55 0.13 152);
+ --chat-accent-fg: oklch(0.99 0 0);
+ --chat-group-avatar: oklch(0.9 0.06 152);
+ --chat-audio-control: oklch(0.85 0.08 152);
+}
+
+/* ============================================================
+ * Tema claro legado, mantido sem azul para nao conflitar com Vanessa Simoni.
+ * ============================================================ */
+[data-theme="light"] {
+ --radius: 0.75rem;
+ --background: oklch(1 0 0);                    /* #ffffff */
+ --foreground: oklch(0.18 0.035 160);
+ --card: oklch(1 0 0);
+ --card-foreground: oklch(0.18 0.035 160);
+ --popover: oklch(1 0 0);
+ --popover-foreground: oklch(0.18 0.035 160);
+
+ --primary: oklch(0.58 0.15 158);
+ --primary-foreground: oklch(0.99 0 0);
+
+ --secondary: oklch(0.975 0.01 155);
+ --secondary-foreground: oklch(0.18 0.035 160);
+
+ --muted: oklch(0.975 0.01 155);
+ --muted-foreground: oklch(0.48 0.025 160);
+
+ --accent: oklch(0.94 0.025 160);
+ --accent-foreground: oklch(0.25 0.06 160);
+
+ --destructive: oklch(0.60 0.22 25);
+ --destructive-foreground: oklch(0.99 0 0);
+
+ --border: oklch(0.91 0.012 155);
+ --input: oklch(0.91 0.012 155);
+ --ring: oklch(0.58 0.15 158);
+
+ --success: oklch(0.68 0.16 175);
+ --success-foreground: oklch(0.99 0 0);
+ --warning: oklch(0.75 0.18 55);
+ --warning-foreground: oklch(0.99 0 0);
+ --danger: oklch(0.60 0.22 25);
+ --info: oklch(0.58 0.14 165);
+
+ /* Charts com a paleta Vanessa Simoni sem azul */
+ --chart-1: oklch(0.58 0.15 158);
+ --chart-2: oklch(0.64 0.13 135);
+ --chart-3: oklch(0.75 0.18 55);
+ --chart-4: oklch(0.68 0.16 175);
+ --chart-5: oklch(0.60 0.22 25);
+
+ --sidebar: oklch(0.985 0.008 155);
+ --sidebar-foreground: oklch(0.25 0.04 160);
+ --sidebar-primary: oklch(0.58 0.15 158);
+ --sidebar-primary-foreground: oklch(0.99 0 0);
+ --sidebar-accent: oklch(0.94 0.025 160);
+ --sidebar-accent-foreground: oklch(0.18 0.035 160);
+ --sidebar-border: oklch(0.91 0.012 155);
+ --sidebar-ring: oklch(0.58 0.15 158);
+}
+
+/* Cards com sombra suave e borda fininha */
+[data-theme="light"] .kpi-card,
+[data-theme="light"] [class*="rounded-lg"][class*="border"][class*="bg-card"] {
+ border-color: oklch(0.91 0.012 155);
+ box-shadow: 0 1px 2px oklch(0.18 0.035 160 / 0.04), 0 8px 24px -12px oklch(0.18 0.035 160 / 0.10);
+}
+
+/* Chat surface: branco com bolhas verdes suaves */
+[data-theme="light"] [data-chat-surface] {
+ --chat-panel: oklch(1 0 0);
+ --chat-panel-hover: oklch(0.975 0.01 155);
+ --chat-panel-active: oklch(0.93 0.03 152);
+ --chat-bg: oklch(0.985 0.008 155);
+ --chat-thread-bg: oklch(0.975 0.01 155);
+ --chat-pattern: oklch(0.58 0.15 158 / 0.08);
+ --chat-bubble-in: oklch(1 0 0);
+ --chat-bubble-out: oklch(0.93 0.07 152);
+ --chat-divider: oklch(0.91 0.012 155);
+ --chat-text: oklch(0.18 0.035 160);
+ --chat-text-muted: oklch(0.48 0.025 160);
+ --chat-accent: oklch(0.58 0.15 158);
+ --chat-accent-fg: oklch(0.99 0 0);
+ --chat-group-avatar: oklch(0.90 0.06 152);
+ --chat-audio-control: oklch(0.85 0.08 152);
+}
+
+/* ============================================================
+   Modo Noturno, Vanessa Simoni em versao escura
+   Acentos verdes sobre fundo profundo, sem azul no sistema.
+   ============================================================ */
+[data-theme="dark"] {
+ --radius: 0.75rem;
+ --background: oklch(0.15 0.028 160);
+ --foreground: oklch(0.97 0.01 155);
+ --card: oklch(0.19 0.034 160);
+ --card-foreground: oklch(0.97 0.01 155);
+ --popover: oklch(0.19 0.034 160);
+ --popover-foreground: oklch(0.97 0.01 155);
+
+ --primary: oklch(0.68 0.16 158);
+ --primary-foreground: oklch(0.09 0.03 160);
+
+ --secondary: oklch(0.24 0.035 160);
+ --secondary-foreground: oklch(0.97 0.01 155);
+
+ --muted: oklch(0.24 0.035 160);
+ --muted-foreground: oklch(0.75 0.035 155);
+
+ --accent: oklch(0.28 0.055 158);
+ --accent-foreground: oklch(0.88 0.12 158);
+
+ --destructive: oklch(0.65 0.22 25);
+ --destructive-foreground: oklch(0.99 0 0);
+
+ --border: oklch(0.31 0.035 160);
+ --input: oklch(0.31 0.035 160);
+ --ring: oklch(0.68 0.16 158);
+
+ --success: oklch(0.72 0.16 175);
+ --success-foreground: oklch(0.10 0.03 160);
+ --warning: oklch(0.78 0.18 55);
+ --warning-foreground: oklch(0.16 0.04 75);
+ --danger: oklch(0.65 0.22 25);
+ --info: oklch(0.62 0.14 165);
+
+ --chart-1: oklch(0.68 0.16 158);
+ --chart-2: oklch(0.64 0.13 135);
+ --chart-3: oklch(0.78 0.18 55);
+ --chart-4: oklch(0.72 0.16 175);
+ --chart-5: oklch(0.65 0.22 25);
+
+ --sidebar: oklch(0.18 0.028 160);
+ --sidebar-foreground: oklch(0.93 0.012 155);
+ --sidebar-primary: oklch(0.68 0.16 158);
+ --sidebar-primary-foreground: oklch(0.09 0.03 160);
+ --sidebar-accent: oklch(0.25 0.04 160);
+ --sidebar-accent-foreground: oklch(0.96 0.01 155);
+ --sidebar-border: oklch(0.31 0.035 160);
+ --sidebar-ring: oklch(0.68 0.16 158);
+}
+
+[data-theme="dark"] .kpi-card,
+[data-theme="dark"] [class*="rounded-lg"][class*="border"][class*="bg-card"] {
+ border-color: oklch(0.31 0.035 160);
+ box-shadow: 0 1px 2px oklch(0 0 0 / 0.35), 0 12px 32px -16px oklch(0 0 0 / 0.55);
+}
+
+[data-theme="dark"] [data-chat-surface] {
+ --chat-panel: oklch(0.24 0.034 160);
+ --chat-panel-hover: oklch(0.29 0.035 160);
+ --chat-panel-active: oklch(0.36 0.07 158);
+ --chat-bg: oklch(0.18 0.028 160);
+ --chat-thread-bg: oklch(0.205 0.028 160);
+ --chat-pattern: oklch(0.68 0.16 158 / 0.12);
+ --chat-bubble-in: oklch(0.31 0.035 160);
+ --chat-bubble-out: oklch(0.39 0.08 158);
+ --chat-divider: oklch(0.40 0.035 160);
+ --chat-text: oklch(0.97 0.01 155);
+ --chat-text-muted: oklch(0.82 0.025 155);
+ --chat-accent: oklch(0.68 0.16 158);
+ --chat-accent-fg: oklch(0.09 0.03 160);
+ --chat-group-avatar: oklch(0.42 0.12 145);
+ --chat-audio-control: oklch(0.40 0.10 158);
+}
+
+
+
+
+
+[data-chat-thread-bg] {
+ background-color: var(--chat-thread-bg);
+ color: var(--chat-text);
+ overscroll-behavior: contain;
+}
+[data-chat-surface] input { min-width: 0; }
+[data-chat-surface] input::placeholder { color: var(--chat-text-muted); opacity: 1; }
+[data-chat-thread-bg][data-chat-wallpaper="plain"] {
+ background-image: none;
+}
+[data-chat-thread-bg][data-chat-wallpaper="grid"] {
+ background-image:
+  linear-gradient(to right, var(--chat-pattern) 1px, transparent 1px),
+  linear-gradient(to bottom, var(--chat-pattern) 1px, transparent 1px);
+ background-size: 32px 32px, 32px 32px;
+}
+[data-chat-thread-bg][data-chat-wallpaper="lines"] {
+ background-image:
+  repeating-linear-gradient(0deg, var(--chat-pattern) 0 1px, transparent 1px 24px);
+ background-size: auto;
+}
+[data-chat-thread-bg][data-chat-wallpaper="waves"] {
+ background-image:
+  repeating-linear-gradient(45deg, var(--chat-pattern) 0 1px, transparent 1px 18px);
+ background-size: auto;
+}
+
+[data-chat-surface] ::-webkit-scrollbar { width: 6px; height: 6px; }
+[data-chat-surface] ::-webkit-scrollbar-thumb { background: color-mix(in oklab, var(--chat-accent) 55%, var(--chat-divider)); border-radius: 999px; }
+[data-chat-surface] ::-webkit-scrollbar-track { background: transparent; }
+
+.scrollbar-hidden {
+ scrollbar-width: none;
+ -ms-overflow-style: none;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+ display: none;
+}
+
+.scrollbar-branded {
+ scrollbar-width: thin;
+ scrollbar-color: color-mix(in oklab, var(--primary) 55%, var(--border)) transparent;
+}
+
+.scrollbar-branded::-webkit-scrollbar {
+ width: 6px;
+ height: 6px;
+}
+
+.scrollbar-branded::-webkit-scrollbar-thumb {
+ background: color-mix(in oklab, var(--primary) 55%, var(--border));
+ border-radius: 999px;
+}
+
+.scrollbar-branded::-webkit-scrollbar-track {
+ background: transparent;
+}
+
+
+/* Automações: segue sempre o tema global; o chat continua isolado acima. */
+[data-automation-page],
+[data-automation-builder] {
+ color-scheme: light dark;
+}
+
+[data-automation-builder] [class*="bg-slate-900"],
+[data-automation-page] [class*="bg-slate-900"] { background-color: var(--card) !important; }
+[data-automation-builder] [class*="bg-slate-800"],
+[data-automation-page] [class*="bg-slate-800"] { background-color: var(--muted) !important; }
+[data-automation-builder] [class*="border-slate"],
+[data-automation-page] [class*="border-slate"] { border-color: var(--border) !important; }
+[data-automation-builder] [class*="text-slate-100"],
+[data-automation-builder] [class*="text-slate-200"],
+[data-automation-builder] [class*="text-slate-300"],
+[data-automation-page] [class*="text-slate-100"],
+[data-automation-page] [class*="text-slate-200"],
+[data-automation-page] [class*="text-slate-300"] { color: var(--foreground) !important; }
+[data-automation-builder] [class*="text-slate-400"],
+[data-automation-builder] [class*="text-slate-500"],
+[data-automation-page] [class*="text-slate-400"],
+[data-automation-page] [class*="text-slate-500"] { color: var(--muted-foreground) !important; }
+[data-automation-builder] [class*="bg-sky-600"],
+[data-automation-page] [class*="bg-sky-600"] { background-color: var(--primary) !important; color: var(--primary-foreground) !important; }
+[data-automation-builder] [class*="text-sky-400"],
+[data-automation-builder] [class*="text-sky-300"],
+[data-automation-page] [class*="text-sky-400"],
+[data-automation-page] [class*="text-sky-300"] { color: var(--primary) !important; }
+[data-automation-builder] input,
+[data-automation-builder] textarea,
+[data-automation-builder] select,
+[data-automation-page] input,
+[data-automation-page] textarea,
+[data-automation-page] select {
+ background-color: var(--background) !important;
+ border-color: var(--border) !important;
+ color: var(--foreground) !important;
+}
+
+/* ============ MKTOn Landing, escopo isolado ============ */
+.mkton-landing {
+  --ml-bg: #050505;
+  --ml-fg: #ffffff;
+  --ml-neon: #a855f7;
+  --ml-neon-soft: rgba(168, 85, 247, 0.16);
+  --ml-line: rgba(255, 255, 255, 0.08);
+  --ml-line-strong: rgba(255, 255, 255, 0.18);
+  --ml-muted: #6b6b70;
+  --ml-card: #0e0e10;
+  --ml-card-hi: #15151a;
+  background: var(--ml-bg);
+  color: var(--ml-fg);
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+.mkton-landing .font-display { font-family: "Space Grotesk", "Inter", sans-serif; letter-spacing: -0.04em; }
+.mkton-landing .font-tech { font-family: "JetBrains Mono", ui-monospace, monospace; letter-spacing: 0.04em; }
+.mkton-landing .ml-grid-bg {
+  background-image:
+    linear-gradient(to right, var(--ml-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--ml-line) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+.mkton-landing .ml-noise::before {
+  content: "";
+  position: absolute; inset: 0;
+  background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0);
+  background-size: 3px 3px;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+.mkton-landing .ml-neon-text { color: var(--ml-neon); text-shadow: 0 0 30px var(--ml-neon-soft); }
+.mkton-landing .ml-card {
+  background: var(--ml-card);
+  border: 1px solid var(--ml-line);
+  border-radius: 16px;
+  transition: border-color .3s ease, transform .3s ease, box-shadow .3s ease, background .3s ease;
+}
+.mkton-landing .ml-card:hover {
+  border-color: var(--ml-neon);
+  background: var(--ml-card-hi);
+  box-shadow: 0 0 0 1px var(--ml-neon-soft), 0 30px 80px -30px rgba(168,85,247,0.22);
+  transform: translateY(-2px);
+}
+.mkton-landing .ml-divider { height: 1px; background: var(--ml-line); }
+.mkton-landing .ml-chip {
+  display: inline-flex; align-items: center; gap: .5rem;
+  padding: .375rem .75rem; border-radius: 999px;
+  border: 1px solid var(--ml-line-strong);
+  font-family: "JetBrains Mono", monospace; font-size: .7rem; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--ml-fg);
+}
+.mkton-landing .ml-chip-neon {
+  border-color: var(--ml-neon);
+  background: var(--ml-neon-soft);
+  color: var(--ml-neon);
+}
+.mkton-landing .ml-btn-primary {
+  display: inline-flex; align-items: center; gap: .625rem;
+  background: var(--ml-neon); color: #050505;
+  padding: 1rem 1.5rem; border-radius: 10px;
+  font-weight: 600; font-size: .95rem;
+  transition: transform .2s ease, box-shadow .2s ease;
+  box-shadow: 0 0 0 0 var(--ml-neon-soft);
+}
+.mkton-landing .ml-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 60px -10px rgba(168,85,247,0.45);
+}
+.mkton-landing .ml-btn-ghost {
+  display: inline-flex; align-items: center; gap: .5rem;
+  border: 1px solid var(--ml-line-strong); color: var(--ml-fg);
+  padding: 1rem 1.5rem; border-radius: 10px;
+  font-weight: 500; font-size: .95rem;
+  transition: border-color .2s ease, background .2s ease;
+}
+.mkton-landing .ml-btn-ghost:hover { border-color: var(--ml-neon); background: rgba(168,85,247,0.04); }
+@keyframes ml-marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+.mkton-landing .ml-marquee { animation: ml-marquee 40s linear infinite; }
+@keyframes ml-pulse-dot { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: .35; transform: scale(.7); } }
+.mkton-landing .ml-pulse { animation: ml-pulse-dot 1.6s ease-in-out infinite; }
+@keyframes ml-dash { to { stroke-dashoffset: -200; } }
+.mkton-landing .ml-dash { stroke-dasharray: 6 8; animation: ml-dash 6s linear infinite; }
+@keyframes ml-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+.mkton-landing .ml-float { animation: ml-float 6s ease-in-out infinite; }
+.mkton-landing ::selection { background: var(--ml-neon); color: #050505; }
+
+/* ============================================================
+   Responsividade global (mobile)
+   AppSidebar marca body[data-app-shell="1"] em telas autenticadas;
+   no mobile, reservamos 3rem no topo do main para o botão hamburger
+   flutuante não cobrir o conteúdo.
+   ============================================================ */
+@media (max-width: 767px) {
+  body[data-app-shell="1"] main {
+    padding-top: 3rem;
+  }
+  body[data-app-shell="1"] [data-chat-surface] {
+    padding-top: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  /* Empurra a primeira linha (header/breadcrumb/h1) para a direita do botão hambúrguer */
+  body[data-app-shell="1"] main > div > :first-child,
+  body[data-app-shell="1"] main > div > div > :first-child:where(header) {
+    padding-left: 3rem;
+  }
+}
+
+/* Utility: hide scrollbars while keeping scroll behavior */
+@utility scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar { display: none; width: 0; height: 0; }
+}
+
+/* ============================================================
+   Landing MKTOn (.mkton-home), Cloud White + Space Grotesk / DM Sans
+   Escopo isolado: não afeta o app autenticado.
+   ============================================================ */
+.mkton-home {
+  --lp-bg: #ffffff;
+  --lp-surface: #fafbfc;
+  --lp-surface-2: #f1f5f9;
+  --lp-line: #e3e8ef;
+  --lp-line-soft: #eef2f7;
+  --lp-ink: #0b1524;
+  --lp-ink-2: #4a5b70;
+  --lp-muted: #94a3b8;
+  --lp-accent: #3b82f6;
+  --lp-accent-dark: #1d4ed8;
+  --lp-accent-soft: #eff6ff;
+  background: var(--lp-bg);
+  color: var(--lp-ink);
+  font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.005em;
+}
+.mkton-home h1, .mkton-home h2, .mkton-home h3, .mkton-home .lp-display {
+  font-family: "Space Grotesk", "DM Sans", sans-serif;
+  letter-spacing: -0.035em;
+  font-weight: 600;
+}
+.mkton-home .lp-eyebrow {
+  display: inline-flex; align-items: center; gap: .5rem;
+  font-size: .6875rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--lp-accent-dark);
+}
+.mkton-home .lp-chip {
+  display: inline-flex; align-items: center; gap: .5rem;
+  border: 1px solid var(--lp-line); background: #fff;
+  border-radius: 999px; padding: .375rem .75rem;
+  font-size: .75rem; font-weight: 500; color: var(--lp-ink-2);
+}
+.mkton-home .lp-card {
+  position: relative; background: #fff;
+  border: 1px solid var(--lp-line-soft);
+  border-radius: 20px;
+  transition: border-color .25s ease, transform .25s ease, box-shadow .25s ease;
+}
+.mkton-home .lp-card:hover {
+  border-color: #cbd8ea;
+  transform: translateY(-3px);
+  box-shadow: 0 24px 50px -28px rgba(11, 21, 36, 0.28);
+}
+.mkton-home .lp-pain {
+  font-size: .8125rem; line-height: 1.45; color: var(--lp-muted);
+}
+.mkton-home .lp-pain b { color: #64748b; font-weight: 600; }
+.mkton-home .lp-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+  background: var(--lp-accent); color: #fff;
+  border-radius: 12px; padding: .875rem 1.5rem;
+  font-size: .9375rem; font-weight: 600;
+  box-shadow: 0 10px 24px -12px rgba(59,130,246,.75);
+  transition: transform .2s ease, background .2s ease, box-shadow .2s ease;
+}
+.mkton-home .lp-btn:hover { background: var(--lp-accent-dark); transform: translateY(-2px); box-shadow: 0 18px 34px -14px rgba(29,78,216,.6); }
+.mkton-home .lp-btn-ghost {
+  display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+  border: 1px solid var(--lp-line); color: var(--lp-ink); background: #fff;
+  border-radius: 12px; padding: .875rem 1.5rem;
+  font-size: .9375rem; font-weight: 600;
+  transition: border-color .2s ease, background .2s ease;
+}
+.mkton-home .lp-btn-ghost:hover { border-color: #cbd8ea; background: var(--lp-surface); }
+.mkton-home .lp-rule { height: 1px; background: var(--lp-line-soft); }
+.mkton-home .lp-grid-bg {
+  background-image:
+    linear-gradient(to right, rgba(148,163,184,.14) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(148,163,184,.14) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(70% 60% at 50% 0%, #000 0%, transparent 100%);
+}
+.mkton-home .lp-grid-bg-soft {
+  background-image:
+    linear-gradient(to right, rgba(148,163,184,.16) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(148,163,184,.16) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(90% 80% at 50% 50%, #000 20%, transparent 100%);
+}
+.mkton-home .lp-grid-bg-dark {
+  background-image:
+    linear-gradient(to right, rgba(255,255,255,.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,.07) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(95% 85% at 50% 40%, #000 10%, transparent 100%);
+}
+.mkton-home .lp-mock {
+  background: #fff; border: 1px solid var(--lp-line-soft); border-radius: 18px;
+  box-shadow: 0 40px 80px -40px rgba(11,21,36,.35);
+}
+.mkton-home .lp-num { font-variant-numeric: tabular-nums; }
+.mkton-home .lp-partners {
+  background:
+    radial-gradient(120% 100% at 50% 0%, color-mix(in oklab, var(--lp-accent, #16a34a) 7%, transparent), transparent 70%),
+    #fff;
+}
+.mkton-home .lp-partners-badge {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--lp-accent, #16a34a);
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--lp-accent, #16a34a) 25%, transparent);
+  background: color-mix(in oklab, var(--lp-accent, #16a34a) 8%, #fff);
+}
+.mkton-home .lp-logo-item {
+  display: inline-flex;
+  align-items: center;
+}
+.mkton-home .lp-logo-sep {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin: 0 32px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--lp-accent, #16a34a) 35%, transparent);
+}
+.mkton-home .lp-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+  transition: transform .25s ease, opacity .25s ease;
+}
+.mkton-home .lp-brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  border: 1px solid color-mix(in oklab, var(--lp-ink) 10%, transparent);
+  background: color-mix(in oklab, var(--brand, #111) 6%, #fff);
+  color: color-mix(in oklab, var(--brand, #111) 55%, #8a8f98);
+  transition: color .25s ease, background .25s ease, border-color .25s ease, box-shadow .25s ease, transform .25s ease;
+}
+.mkton-home .lp-brand-mark svg {
+  width: 30px;
+  height: 30px;
+  display: block;
+}
+.mkton-home .lp-brand-name {
+  font-family: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(15px, 1.5vw, 19px);
+  font-weight: 650;
+  letter-spacing: -0.015em;
+  color: color-mix(in oklab, var(--lp-ink) 62%, #fff);
+  transition: color .25s ease;
+}
+.mkton-home .lp-brand:hover {
+  transform: translateY(-3px);
+}
+.mkton-home .lp-brand:hover .lp-brand-mark {
+  color: var(--brand, #111);
+  background: color-mix(in oklab, var(--brand, #111) 12%, #fff);
+  border-color: color-mix(in oklab, var(--brand, #111) 28%, transparent);
+  box-shadow: 0 10px 28px color-mix(in oklab, var(--brand, #111) 22%, transparent);
+  transform: scale(1.05);
+}
+.mkton-home .lp-brand:hover .lp-brand-name {
+  color: var(--lp-ink);
+}
+
+.mkton-home .lp-fade {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 120px;
+  pointer-events: none;
+}
+.mkton-home .lp-fade-l { left: 0; background: linear-gradient(90deg, #fff 15%, transparent); }
+.mkton-home .lp-fade-r { right: 0; background: linear-gradient(270deg, #fff 15%, transparent); }
+.mkton-home .lp-marquee { animation: lp-marquee 46s linear infinite; }
+.mkton-home .lp-marquee:hover { animation-play-state: paused; }
+
+@keyframes lp-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mkton-home .lp-marquee { animation: none; }
+}
+
+
+.mkton-home .lp-social {
+  color: var(--lp-muted);
+  border: 1px solid var(--lp-line);
+  background: transparent;
+  transition: color .2s ease, border-color .2s ease, background .2s ease;
+}
+.mkton-home .lp-social:hover {
+  color: var(--lp-accent-dark, #1d4ed8);
+  border-color: color-mix(in oklab, var(--lp-accent, #16a34a) 40%, transparent);
+  background: color-mix(in oklab, var(--lp-accent, #16a34a) 8%, transparent);
+}
+
+/* Copiar/colar: campos de texto sempre selecionáveis, mesmo dentro de áreas
+   com arraste (canvas de automações, kanban, etc.). */
+input,
+textarea,
+[contenteditable="true"],
+[contenteditable=""] {
+  -webkit-user-select: text;
+  user-select: text;
+}

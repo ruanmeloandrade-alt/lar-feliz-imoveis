@@ -1,0 +1,32 @@
+{
+  "include": ["src/**/*.ts", "src/**/*.tsx", "vite.config.ts", "eslint.config.js"],
+  "compilerOptions": {
+    "target": "ES2022",
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["vite/client"],
+
+    /* Bundler mode */
+    "moduleResolution": "Bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": false,
+    "noEmit": true,
+
+    /* Linting */
+    "skipLibCheck": true,
+    "strict": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true,
+    "paths": {
+      "@/components/social/PostCreatorDialog": ["./src/components/social/PostCreatorAccessDialog.tsx"],
+      "@/components/social/CampaignsDialog": ["./src/components/social/CampaignsAccessDialog.tsx"],
+      "@/lib/social-finalization.functions": ["./src/lib/social-finalization.runtime.functions.ts"],
+      "@/lib/social-wave4.functions": ["./src/lib/social-wave4.runtime.functions.ts"],
+      "@/lib/salesbot-runtime.server": ["./src/lib/salesbot-runtime.override.server.ts"],
+      "@/*": ["./src/*"]
+    }
+  }
+}

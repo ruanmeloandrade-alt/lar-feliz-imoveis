@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';import {execFileSync} from 'node:child_process';import {fileURLToPath} from 'node:url';
+const root=new URL('../',import.meta.url);const files=['src/lib/settings.functions.ts','src/legacy/configuracoes.legacy.tsx'];const read=p=>fs.readFileSync(new URL(p,root),'utf8');const before=files.map(read);let n=0;
+const test=(name,fn)=>{fn();n++;console.log('PASS settings integration: '+name)};
+test('real source is patched',()=>assert(before.every(c=>c.includes('// SLIM_SETTINGS_CONTINUATION_V1'))));
+execFileSync(process.execPath,[fileURLToPath(new URL('./apply-slim-settings-continuation.mjs',import.meta.url))],{stdio:'inherit'});
+test('patch is idempotent',()=>assert.deepEqual(files.map(read),before));
+test('four setting writes require an affected row',()=>assert.equal((before[0].match(/assertSettingsRow\(\{data:changed,error\}/g)||[]).length,4));
+test('business hours validated before handler',()=>assert(before[0].includes('validateSlimBusinessHours(BusinessHoursSchema.parse(d))')));
+test('employee setup checked before Auth creation',()=>{const c=before[0].slice(before[0].indexOf('export const createEmployee'));assert(c.indexOf('validateEmployeeSetup(data)')<c.indexOf('admin.auth.admin.createUser('));});
+test('no fabricated account safety score',()=>{assert(!before[1].includes('{score}/100'));assert(!before[1].includes('Nível de segurança da conta'));});
+test('loading or failed security does not enable backend toggles',()=>{assert(before[1].includes('disabled={securityState!=="ready"||!securityAdmin||securitySaving}'));assert(before[1].includes('securitySaveLock.current=true'));});
+test('only a confirmed value changes the toggle',()=>{const c=before[1].slice(before[1].indexOf('const saveSec='),before[1].indexOf('  const ipList'));assert(c.indexOf('await fnSetSec')<c.indexOf('setAdv('));assert(c.includes('confirmed.settings[key]!==value'));});
+test('password update has a failure and finally path',()=>assert(before[1].includes('finally{setLoading(false);}')));
+test('recovery service failure is not infinite loading',()=>assert(before[1].includes('Serviço de códigos de recuperação indisponível')));
+test('local inactivity preference remains available',()=>{assert(before[1].includes('applyIdle(next, idleMin)'));assert(before[1].includes('on={adv.autoLogout}'));});
+test('existing role gates remain unchanged',()=>{assert(before[0].includes('Apenas o dono pode criar funcionários'));assert(before[1].includes('sub === "seguranca" && isSuperAdmin'));});
+console.log(`${n}/${n} settings integration checks passed. Not an authenticated browser test.`);

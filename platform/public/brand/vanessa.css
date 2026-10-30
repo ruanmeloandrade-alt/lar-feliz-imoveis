@@ -1,0 +1,61 @@
+/* Vanessa Simoni: original sales identity with preserved operational layouts. */
+:root:root,html.dark,html[data-theme="dark"]{
+ --slim-cyan:oklch(.78 .14 215);--slim-pink:oklch(.65 .26 347);--slim-blue:oklch(.65 .19 255);
+ --slim-brand-gradient:linear-gradient(110deg,var(--slim-cyan),var(--slim-blue) 48%,var(--slim-pink));
+ --radius:.75rem;
+ --background:oklch(.135 .027 265);--foreground:oklch(.97 .006 250);
+ --card:oklch(.18 .03 265);--card-foreground:var(--foreground);
+ --popover:oklch(.19 .032 265);--popover-foreground:var(--foreground);
+ --primary:var(--slim-cyan);--primary-foreground:oklch(.13 .025 265);
+ --secondary:oklch(.23 .035 270);--secondary-foreground:var(--foreground);
+ --muted:oklch(.22 .03 265);--muted-foreground:oklch(.76 .026 260);
+ --accent:oklch(.26 .06 290);--accent-foreground:oklch(.88 .09 220);
+ --border:oklch(.34 .045 265);--input:oklch(.34 .045 265);--ring:var(--slim-cyan);
+ --info:var(--slim-cyan);
+ --chart-1:var(--slim-cyan);--chart-2:var(--slim-pink);--chart-3:var(--slim-blue);
+ --chart-4:oklch(.72 .18 305);--chart-5:oklch(.81 .12 185);
+ --sidebar:oklch(.12 .025 265);--sidebar-foreground:var(--foreground);
+ --sidebar-primary:var(--slim-cyan);--sidebar-primary-foreground:var(--primary-foreground);
+ --sidebar-accent:oklch(.23 .045 270);--sidebar-accent-foreground:var(--foreground);
+ --sidebar-border:var(--border);--sidebar-ring:var(--slim-cyan);
+}
+html{color-scheme:dark}
+body{background-color:var(--background);color:var(--foreground)}
+::selection{background:color-mix(in oklab,var(--slim-pink) 40%,transparent);color:var(--foreground)}
+.slim-auth{background:radial-gradient(ellipse at 15% 5%,oklch(.78 .14 215 / .08),transparent 45%),var(--background)!important;color:var(--foreground)!important}
+.slim-auth>aside{background:radial-gradient(ellipse at 10% 20%,oklch(.78 .14 215 / .12),transparent 60%),radial-gradient(ellipse at 90% 90%,oklch(.65 .26 347 / .14),transparent 55%),var(--background)!important;border-right:1px solid var(--border)}
+.slim-auth .bg-gradient-to-br{background-image:linear-gradient(135deg,oklch(.78 .14 215 / .08),transparent,oklch(.65 .26 347 / .08))!important}
+.slim-auth [class~="bg-white"]{background:var(--card)!important}
+.slim-auth :is(input,[class*="bg-[#fbfcfe]"]){background:var(--background)!important;color:var(--foreground)!important;border-color:var(--input)!important}
+.slim-auth [class*="border-slate-"],.slim-auth [class*="border-emerald-"]{border-color:var(--border)!important}
+.slim-auth [class*="text-slate-950"],.slim-auth [class*="text-slate-900"],.slim-auth [class*="text-slate-800"],.slim-auth [class*="text-slate-700"]{color:var(--foreground)!important}
+.slim-auth [class*="text-slate-600"],.slim-auth [class*="text-slate-500"],.slim-auth [class*="text-slate-400"]{color:var(--muted-foreground)!important}
+.slim-auth [class*="text-emerald-"]{color:var(--slim-cyan)!important}
+.slim-auth [class*="bg-emerald-50"],.slim-auth [class*="bg-emerald-100"]{background:oklch(.78 .14 215 / .1)!important}
+.slim-auth :is(button[type="submit"],button[class*="bg-emerald-600"]){background:var(--slim-brand-gradient)!important;color:var(--primary-foreground)!important;box-shadow:0 8px 25px oklch(.65 .26 347 / .16)!important}
+.slim-auth :is(button,a):focus-visible{outline:2px solid var(--slim-cyan);outline-offset:3px}
+.slim-auth-brand{padding:0!important;background:transparent!important;box-shadow:none!important}
+.slim-auth-logo{display:block;width:176px;height:176px;object-fit:contain;border-radius:16px}
+.slim-login-logo{display:block;width:140px;height:140px;object-fit:contain;margin:0 auto 20px;border-radius:14px}
+[data-slim-sidebar]{background:var(--sidebar)!important;border-color:var(--sidebar-border)!important}
+.slim-sidebar-brand{min-height:96px}
+.slim-sidebar-logo{width:64px;height:64px;background:transparent!important;border-radius:12px;overflow:hidden}
+.slim-sidebar-logo img{width:100%;height:100%;object-fit:contain}
+.slim-sidebar-brand strong{background:var(--slim-brand-gradient);background-clip:text;-webkit-background-clip:text;color:transparent!important}
+.slim-sidebar-operation-card{border-color:oklch(.78 .14 215 / .22)!important;background:oklch(.78 .14 215 / .035)!important}
+[data-slim-sidebar] .slim-sidebar-active,[data-slim-sidebar] .slim-sidebar-active:hover{background:linear-gradient(100deg,oklch(.78 .14 215 / .17),oklch(.65 .26 347 / .12))!important;color:var(--slim-cyan)!important;box-shadow:inset 3px 0 var(--slim-pink)}
+[data-slim-sidebar] :is(button,a):focus-visible{outline-color:var(--slim-cyan)!important}
+.slim-mobile-menu-trigger{background:var(--card)!important;color:var(--slim-cyan)!important;border-color:var(--border)!important}
+body[data-app-shell="1"] button[class*="bg-emerald-600"]{background-color:var(--primary)!important;color:var(--primary-foreground)!important}
+body[data-app-shell="1"] button[class*="bg-emerald-600"]:hover{filter:brightness(1.08)}
+@media(min-width:768px){[data-slim-sidebar][data-collapsed="true"] .slim-sidebar-logo{width:48px;height:48px}.slim-auth>aside .slim-auth-logo{width:220px;height:220px}}
+@media(max-width:767px){.slim-auth-logo{width:116px;height:116px}.slim-auth .slim-auth-brand{flex-shrink:0}.slim-sidebar-brand{min-height:88px}}
+
+
+/* Original Vanessa palette: red #C40008, black #212125, white and gold #FFEC00. */
+:root:root,html.dark,html[data-theme="dark"]{--slim-cyan:#e42931;--slim-pink:#ffec00;--slim-blue:#c40008;--slim-brand-gradient:linear-gradient(110deg,#c40008,#e42931 58%,#ffec00);--primary:#c40008;--primary-foreground:#fff;--ring:#c40008;--chart-1:#c40008;--chart-2:#ffce00;--sidebar-primary:#c40008;--font-sans:Inter,sans-serif;}
+body{font-family:Inter,sans-serif;}
+.slim-sidebar-brand strong{font-family:'Playfair Display',serif;}
+.slim-sidebar-operation-card{border-color:#c4000840!important;background:#c400080a!important;}
+[data-slim-sidebar] .slim-sidebar-active,[data-slim-sidebar] .slim-sidebar-active:hover{background:linear-gradient(100deg,#c4000829,#ffec0014)!important;color:#ef454c!important;box-shadow:inset 3px 0 #ffec00;}
+.slim-sidebar-logo img,.slim-auth-logo,.slim-login-logo{object-fit:cover;border-radius:50%;}

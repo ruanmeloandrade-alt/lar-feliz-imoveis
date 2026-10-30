@@ -1,0 +1,23 @@
+import assert from 'node:assert/strict';
+import {shapeSlimTrackingOverview} from '../src/lib/slim-tracking-overview.core.ts';
+let n=0;function test(name,fn){fn();n++;console.log('PASS tracking: '+name);}
+const empty=()=>({events:0,sessions:0,visitors:0,identified_visitors:0,leads:0,page_views:0,form_submits:0,conversions:0,revenue:0,revenue_by_currency:{},conversion_by_campaign:[],by_event:{},by_campaign:[],by_source:[],quality:{internal_events:0,orphan_events:0}});
+const shaped=(a=empty(),sites=[],feed=[])=>shapeSlimTrackingOverview(empty(),a,sites,feed);
+test('confirmed empty aggregate is valid',()=>assert.equal(shaped().funnel.conversions,0));
+test('missing RPC is not empty success',()=>assert.throws(()=>shapeSlimTrackingOverview(null,empty(),[],[])));
+test('partial aggregate rejected',()=>{const a=empty();delete a.sessions;assert.throws(()=>shaped(a));});
+test('invalid count rejected',()=>assert.throws(()=>shaped({...empty(),events:-1})));
+test('nonfinite money rejected',()=>assert.throws(()=>shaped({...empty(),revenue:'NaN'})));
+test('complete conversion totals can exceed 1000',()=>{const a={...empty(),conversions:2405,revenue:100,revenue_by_currency:{BRL:100},conversion_by_campaign:[{campaign:'A',conversions:2405,value_brl:100}]};assert.equal(shaped(a).funnel.conversions,2405);});
+test('USD never added into BRL revenue',()=>{const a={...empty(),conversions:2,revenue:100,revenue_by_currency:{BRL:100,USD:50},conversion_by_campaign:[{campaign:'A',conversions:2,value_brl:100}]};const r=shaped(a);assert.equal(r.revenue7d,100);assert.equal(r.revenueByCurrency.USD,50);});
+test('conversion-only campaign appears in ranking',()=>{const a={...empty(),conversions:1,revenue:10,revenue_by_currency:{BRL:10},conversion_by_campaign:[{campaign:'conversion-only',conversions:1,value_brl:10}]};assert.deepEqual(shaped(a).topCampaigns,[{key:'conversion-only',sessions:0,conversions:1,value:10}]);});
+test('inconsistent conversion total rejected',()=>assert.throws(()=>shaped({...empty(),conversions:1})));
+test('inconsistent BRL total rejected',()=>assert.throws(()=>shaped({...empty(),revenue:20,revenue_by_currency:{BRL:10}})));
+test('site verification does not imply merely existing',()=>assert.equal(shaped(empty(),[{verified:false},{verified:true}]).sitesActive,1));
+test('missing site read rejected',()=>assert.throws(()=>shaped(empty(),null)));
+test('missing feed rejected',()=>assert.throws(()=>shaped(empty(),[],null)));
+test('real click types added',()=>assert.equal(shaped({...empty(),by_event:{click:2,whatsapp_click:3,phone_click:4}}).funnel.clicks,9));
+test('unsafe integer count rejected',()=>assert.throws(()=>shaped({...empty(),events:Number.MAX_SAFE_INTEGER+1})));
+test('duplicate campaign aggregate rejected',()=>assert.throws(()=>shaped({...empty(),by_campaign:[{campaign:'A',sessions:0},{campaign:'A',sessions:0}]})));
+test('blank labels keep database group identity',()=>{const a={...empty(),by_campaign:[{campaign:'',sessions:1},{campaign:'(sem campanha)',sessions:2}]};assert.equal(shaped(a).topCampaigns.length,2);});
+console.log(`${n}/${n} tracking aggregate checks passed; local source logic, no network calls.`);

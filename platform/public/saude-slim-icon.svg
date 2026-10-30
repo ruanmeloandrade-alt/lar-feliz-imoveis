@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="Saúde Slim">
+  <rect width="64" height="64" rx="16" fill="#173b36"/>
+  <path d="M13 35a19 19 0 0 1 38 0" fill="none" stroke="#b9e5c7" stroke-width="5" stroke-linecap="round"/>
+  <path d="M43 22c-3-3-7-4-12-4-7 0-12 3-12 9 0 13 25 5 25 18 0 6-5 10-13 10-6 0-12-2-16-7" fill="none" stroke="#fff" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

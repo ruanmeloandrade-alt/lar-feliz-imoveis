@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {loadSlimTrackingOverview} from '../src/lib/slim-tracking-overview.server.ts';
+let n=0;async function test(name,fn){await fn();n++;console.log('PASS tracking loader: '+name);}
+const agg=()=>({events:0,sessions:0,visitors:0,identified_visitors:0,leads:0,page_views:0,form_submits:0,conversions:0,revenue:0,revenue_by_currency:{},conversion_by_campaign:[],by_event:{},by_campaign:[],by_source:[],quality:{internal_events:0,orphan_events:0}});
+function db({rows=[],fail='',cap=500}={}){const calls=[];return {calls,async rpc(name,args){calls.push({rpc:name,args});return {data:agg(),error:fail===`rpc${args._days}`?{message:'secret'}:null};},from(table){const c={table,eq:[]};calls.push(c);return {select(){return this;},eq(k,v){c.eq.push([k,v]);return this;},lte(){return this;},order(){return this;},async range(a,b){c.offset=a;return {data:rows.slice(a,Math.min(a+cap,b+1)),error:fail==='sites'?{message:'secret'}:null};},async limit(n){c.limit=n;return {data:[],error:fail==='feed'?{message:'secret'}:null};}};}};}
+await test('periods and workspace stay server-scoped',async()=>{const d=db();await loadSlimTrackingOverview(d,'workspace');assert.deepEqual(d.calls.filter(c=>c.rpc).map(c=>c.args),[{_workspace_id:'workspace',_days:1},{_workspace_id:'workspace',_days:7}]);});
+await test('site read passes 1000 rows with capped server pages',async()=>{const d=db({rows:Array.from({length:1234},(_,i)=>({id:String(i),verified:i%2===0})),cap:75});const r=await loadSlimTrackingOverview(d,'workspace');assert.equal(r.sitesTotal,1234);assert.equal(r.sitesActive,617);});
+await test('conversion totals do not use a truncated detail-list query',async()=>{const d=db();await loadSlimTrackingOverview(d,'workspace');assert(!d.calls.some(c=>c.table==='tracking_conversion_events'));});
+await test('feed stays limited to latest client events',async()=>{const d=db();await loadSlimTrackingOverview(d,'workspace');const c=d.calls.find(c=>c.table==='tracking_events');assert.equal(c.limit,20);assert.deepEqual(c.eq,[['workspace_id','workspace'],['source_class','cliente']]);});
+await test('either aggregate failure rejects all indicators',async()=>{for(const fail of ['rpc1','rpc7'])await assert.rejects(loadSlimTrackingOverview(db({fail}),'workspace'));});
+await test('failed sites or feed never produces fake zeros',async()=>{for(const fail of ['sites','feed'])await assert.rejects(loadSlimTrackingOverview(db({fail}),'workspace'));});
+await test('empty workspace never reaches a source',async()=>{const d=db();await assert.rejects(loadSlimTrackingOverview(d,''));assert.equal(d.calls.length,0);});
+await test('raw backend response never becomes user-facing error',async()=>await assert.rejects(loadSlimTrackingOverview(db({fail:'rpc7'}),'workspace'),e=>!e.message.includes('secret')));
+console.log(`${n}/${n} tracking loader checks passed; simulated transport, no production access.`);

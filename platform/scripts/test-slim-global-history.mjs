@@ -1,0 +1,23 @@
+import assert from 'node:assert/strict';import fs from 'node:fs';import {execFileSync} from 'node:child_process';import {fileURLToPath} from 'node:url';
+import {applyHistorySearch,emptyHistorySearch} from '../src/lib/slim-history-filter.core.ts';
+let n=0;function test(name,fn){fn();n++;console.log('PASS global/history: '+name);}
+const root=new URL('../',import.meta.url),read=p=>fs.readFileSync(new URL(p,root),'utf8');
+test('initial filter is complete and empty',()=>assert.deepEqual(applyHistorySearch(emptyHistorySearch()),{query:'',status:'all',from:'',to:''}));
+test('typing does not mutate applied search',()=>{const draft=emptyHistorySearch(),applied=applyHistorySearch(draft);draft.query='João';assert.equal(applied.query,'');assert.equal(applyHistorySearch(draft).query,'João');});
+test('applied filter is immutable',()=>assert(Object.isFrozen(applyHistorySearch(emptyHistorySearch()))));
+test('date inversion rejected',()=>assert.throws(()=>applyHistorySearch({...emptyHistorySearch(),from:'2026-10-16',to:'2026-10-15'})));
+test('invalid calendar date rejected',()=>assert.throws(()=>applyHistorySearch({...emptyHistorySearch(),from:'2026-02-30'})));
+test('valid leap day allowed',()=>assert.equal(applyHistorySearch({...emptyHistorySearch(),from:'2024-02-29'}).from,'2024-02-29'));
+test('unknown status rejected',()=>assert.throws(()=>applyHistorySearch({...emptyHistorySearch(),status:'error'})));
+const ui=read('src/components/erp/SlimOrderHistory.tsx'),layout=read('src/routes/__root.tsx'),robot=read('src/components/SupportRobot.tsx'),server=read('src/lib/support-robot.functions.ts'),erp=read('src/components/erp/SlimErpWorkspace.tsx');
+test('search and Enter share commit handler',()=>{assert(ui.includes('<form onSubmit={e=>{e.preventDefault();search();}}'));assert(ui.includes('type="submit"'));assert(ui.includes('>Pesquisar</button>'));assert(ui.includes('buildOrderReadModel(response,workspaceId,{...applied,view})'));});
+test('list is a table with per-order details and documents',()=>{assert(ui.includes('<table'));assert(ui.includes('<thead'));assert(ui.includes('key={order.orderId}'));assert(ui.includes('openDocument(order)'));assert(!ui.includes('<article'));});
+test('clearing resets page and applied filters',()=>assert(ui.includes('setApplied(applyHistorySearch(empty));setPage(1)')));
+test('read failures do not turn into empty successful history',()=>assert(ui.includes('error||result.error?<p role="alert"')));
+test('removed panel absent without deleting historical functions',()=>{assert(!erp.includes('<SlimLegacyOrdersReview'));assert(read('src/lib/slim-legacy-review.functions.ts').includes('slim_reconcile_legacy_sale'));});
+test('one copilot lives inside authentication gate on migrated pages too',()=>{assert(!layout.includes('!migratedRoute && <ConditionalSupportRobot'));assert(layout.includes('<AuthGate><ConditionalSupportRobot /><Outlet />'));assert.equal(layout.split('<ConditionalSupportRobot />').length-1,1);assert(layout.includes('if (!isCopilotAllowedPath(path)) return null;'));});
+test('copilot instance isolated by workspace and actor',()=>{assert(robot.includes("key={identity.data.workspaceId+':'+identity.data.actorId}"));assert(robot.includes('["support-robot-context", workspaceId, actorId]'));assert(robot.includes('contextQuery.data.actorId===actorId'));assert(server.includes('actorId: userId'));});
+test('internal navigation does not close the copilot',()=>{assert(!robot.includes('}, [location.href]);'));assert(robot.includes('page:location.pathname'));assert(robot.includes('approvalRequired:true'));});
+test('current Copilot identity does not expose a previous operator cache',()=>{assert(robot.includes('queryKey: ["slim-copilot-identity", authenticatedActorId]'));assert(robot.includes('identity.isFetchedAfterMount'));assert(robot.includes('identity.data.actorId !== authenticatedActorId'));assert(robot.includes('actorId={actorId}'));assert(read('src/components/ai-agent/AiAgentChat.tsx').includes('slimCopilotConversationKey(workspaceId, actorId)'));});
+const paths=['src/routes/__root.tsx','src/components/SupportRobot.tsx','src/lib/support-robot.functions.ts','src/components/erp/SlimErpWorkspace.tsx','scripts/test-slim-legacy-contract.mjs'],before=paths.map(read);execFileSync(process.execPath,[fileURLToPath(new URL('./apply-slim-global-history.mjs',import.meta.url))],{stdio:'inherit'});test('transformation is idempotent',()=>assert.deepEqual(paths.map(read),before));
+console.log(`${n}/${n} global/history checks passed. No authenticated browser E2E or Copilot action execution claimed.`);

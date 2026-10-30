@@ -1,0 +1,4 @@
+{
+  "enabled": true,
+  "reason": "Installed and verified on Supabase Saúde Slim: migration slim_stage_move_outbox, version 20261016215531; RLS, grants, event table and authenticated RPC verified before enabling. Stage worker shares DB readiness gate."
+}

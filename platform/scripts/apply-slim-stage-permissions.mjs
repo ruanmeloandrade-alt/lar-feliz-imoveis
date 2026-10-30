@@ -1,0 +1,6 @@
+import fs from 'node:fs';
+const root=new URL('../',import.meta.url);
+function patch(path,exportName,operation){const url=new URL(path,root);let code=fs.readFileSync(url,'utf8');const mark='// SLIM_STAGE_OPERATOR_GUARD_'+exportName;if(code.includes(mark))return;const start=code.indexOf('export const '+exportName);if(start<0)throw new Error('Missing operation '+exportName);const end=code.indexOf('export const ',start+13);const stop=end<0?code.length:end;const body=code.slice(start,stop);const anchor=operation;const pos=body.indexOf(anchor);if(pos<0)throw new Error('Missing workspace anchor '+exportName);const after=body.slice(0,pos+anchor.length)+`\n ${mark}\n const {assertSlimOperator}=await import("@/lib/slim-workspace-operator.server");\n await assertSlimOperator(context.supabase,wsId,context.userId);`+body.slice(pos+anchor.length);code=code.slice(0,start)+after+code.slice(stop);fs.writeFileSync(url,code);}
+patch('src/lib/stage-automations.functions.ts','triggerStageAutomations','const wsId = await requireActiveWorkspace(sb as never, context.userId);');
+patch('src/lib/crm.functions.legacy.ts','backfillAutomationAction','const wsId = await loadActiveWorkspace(sb, context.userId);');
+console.log('[Slim stage] Server-side operator checks installed without changing database grants.');
