@@ -5,7 +5,7 @@ const origin = new URL(process.argv[2]);
 assert.equal(origin.protocol, 'https:');
 const get = path => fetch(new URL(path, origin), { signal: AbortSignal.timeout(20000), cache: 'no-store' });
 let html;
-for (const path of ['/', '/healthz', '/plataforma', '/plataforma/clientes', '/plataforma/negociacoes', '/plataforma/imoveis', '/plataforma/agenda', '/plataforma/propostas', '/plataforma/automacoes']) {
+for (const path of ['/', '/healthz', '/admin', '/admin/produtos', '/admin/clientes', '/plataforma', '/plataforma/clientes', '/plataforma/negociacoes', '/plataforma/imoveis', '/plataforma/agenda', '/plataforma/propostas', '/plataforma/automacoes']) {
   const response = await get(path);
   assert.equal(response.status, 200, `Rota indisponivel: ${path}`);
   if (path === '/') html = await response.text();
@@ -36,7 +36,7 @@ for (const name of ['vanessa-', 'condominio-bg-', 'bandeira-sp-']) {
   assert.ok(contentType?.startsWith('image/'), `Resposta nao e uma imagem: ${name}`);
   assert.ok((await response.arrayBuffer()).byteLength > 100);
 }
-for (const path of ['/.env', '/assets/missing.js', '/login', '/admin', '/admin/imoveis']) {
+for (const path of ['/.env', '/assets/missing.js', '/login']) {
   assert.equal((await get(path)).status, 404, `Rota retirada ainda acessivel: ${path}`);
   console.log(`HTTPS ${path}: 404`);
 }

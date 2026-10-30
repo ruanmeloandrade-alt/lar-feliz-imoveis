@@ -18,7 +18,7 @@ import './platform.css';
 
 const tabs = [
   ['inicio', 'Visao geral', LayoutDashboard], ['negociacoes', 'Negociacoes', KanbanSquare],
-  ['clientes', 'Clientes', Users], ['imoveis', 'Imoveis', Building2],
+  ['clientes', 'Clientes', Users], ['produtos', 'Produtos', Building2],
   ['agenda', 'Agenda', CalendarCheck], ['automacoes', 'Automacoes', Workflow],
   ['propostas', 'Propostas e contratos', FileText],
 ] as const;
@@ -33,7 +33,8 @@ export default function Platform() {
   const cache = useQueryClient();
   const navigate = useNavigate();
   const location = useLocation();
-  const tab = location.pathname.split('/')[2] || 'inicio';
+  const requestedTab = location.pathname.split('/')[2] || 'inicio';
+  const tab = requestedTab === 'imoveis' ? 'produtos' : requestedTab;
   const [search, setSearch] = useState('');
   const [editor, setEditor] = useState<Editor | null>(null);
   const [historyId, setHistoryId] = useState<string | null>(null);
@@ -54,7 +55,7 @@ export default function Platform() {
   const data = query.data;
   const current = tabs.find(t => t[0] === tab);
   const matches = (text: string) => text.toLocaleLowerCase('pt-BR').includes(search.toLocaleLowerCase('pt-BR'));
-  const changeTab = (key: string) => { setSearch(''); navigate(`/plataforma/${key}`); };
+  const changeTab = (key: string) => { setSearch(''); navigate(`/admin/${key}`); };
   const move = async (deal: Deal, stage: string) => {
     if (!data || moving || deal.stage_id === stage) return;
     const key = `${deal.id}:${stage}`;
@@ -70,22 +71,22 @@ export default function Platform() {
 
   return <div className="vp-shell">
     <aside className="vp-sidebar">
-      <Link className="vp-brand" to="/plataforma"><img src={vanessaPhoto} alt="Vanessa Simoni" /><span><strong>Vanessa Simoni</strong><small>Gestao imobiliaria</small></span></Link>
+      <Link className="vp-brand" to="/admin"><img src={vanessaPhoto} alt="Vanessa Simoni" /><span><strong>Vanessa Simoni</strong><small>Gestao imobiliaria</small></span></Link>
       <nav aria-label="Plataforma">{tabs.map(([key, label, Icon]) => <button key={key} onClick={() => changeTab(key)} aria-current={tab === key ? 'page' : undefined}><Icon size={18} />{label}</button>)}</nav>
       <div className="vp-sidebar-bottom"><Link to="/" target="_blank"><ExternalLink size={17} /> Site publico</Link><button onClick={async () => { await signOut(); cache.clear(); }}><LogOut size={17} /> Sair</button></div>
     </aside>
     <main className="vp-main">
       <header className="vp-top"><div><small>Vanessa Simoni <ChevronRight size={12} /> Plataforma</small><h1>{current?.[1] ?? 'Pagina nao encontrada'}</h1></div><div className="vp-actions"><button className="vp-icon" title="Atualizar" aria-label="Atualizar" disabled={query.isFetching} onClick={() => refresh()}><RefreshCw size={18} className={query.isFetching ? 'animate-spin' : ''} /></button><span className="vp-user">{user.email}</span></div></header>
       {query.isError ? <div className="vp-error" role="alert"><strong>Nao foi possivel carregar os dados.</strong><p>{query.error.message}</p><Button variant="outline" onClick={() => refresh()}>Tentar novamente</Button></div> : !data ? <div className="vp-loading" role="status"><Loader2 className="animate-spin" /> Carregando plataforma</div> : <>
-        {['clientes', 'negociacoes', 'imoveis'].includes(tab) && <div className="vp-toolbar"><label className="vp-search"><Search size={17} /><Input aria-label="Buscar" value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar" /></label>{tab !== 'imoveis' && <Button onClick={() => setEditor({ kind: tab === 'clientes' ? 'contact' : 'deal' })}><Plus size={16} />{tab === 'clientes' ? 'Cliente' : 'Negociacao'}</Button>}</div>}
+        {['clientes', 'negociacoes', 'produtos'].includes(tab) && <div className="vp-toolbar"><label className="vp-search"><Search size={17} /><Input aria-label="Buscar" value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar" /></label>{tab !== 'produtos' && <Button onClick={() => setEditor({ kind: tab === 'clientes' ? 'contact' : 'deal' })}><Plus size={16} />{tab === 'clientes' ? 'Cliente' : 'Negociacao'}</Button>}</div>}
         {tab === 'inicio' && <Overview data={data} onAgenda={() => changeTab('agenda')} onDeal={() => setEditor({ kind: 'deal' })} />}
         {tab === 'clientes' && <div className="vp-table-wrap"><table><thead><tr><th>Cliente</th><th>Telefone</th><th>Cidade</th><th>Negociacoes</th><th><span className="sr-only">Acoes</span></th></tr></thead><tbody>{data.contacts.filter(c => matches(`${c.name} ${c.phone ?? ''} ${c.email ?? ''}`)).map(c => <tr key={c.id}><td><strong>{c.name}</strong><small>{c.email || 'Sem e-mail'}</small></td><td>{c.phone || '-'}</td><td>{c.city || '-'}</td><td>{data.deals.filter(d => d.contact_id === c.id).length}</td><td><div className="vp-actions">{whatsappUrl(c.phone) && <a className="vp-icon" href={whatsappUrl(c.phone)!} target="_blank" rel="noreferrer" title="WhatsApp"><MessageCircle size={17} /></a>}<button className="vp-icon" title="Editar cliente" onClick={() => setEditor({ kind: 'contact', row: c })}><Pencil size={16} /></button></div></td></tr>)}</tbody></table>{!data.contacts.length && <Empty>Nenhum cliente cadastrado.</Empty>}</div>}
         {tab === 'negociacoes' && <div className="vp-board">{data.stages.map(stage => { const deals = data.deals.filter(d => d.stage_id === stage.id && matches(`${d.name} ${data.contacts.find(c => c.id === d.contact_id)?.name ?? ''}`)); return <section key={stage.id} className={`vp-stage vp-${stage.outcome}`}><header><strong>{stage.name}</strong><span>{deals.length}</span></header><div className="vp-stage-total">{currency(deals.reduce((sum, d) => sum + Number(d.value), 0))}</div>{deals.map(deal => <article key={deal.id} className="vp-deal"><button className="vp-deal-title" onClick={() => setEditor({ kind: 'deal', row: deal })}>{deal.name}</button><p>{data.contacts.find(c => c.id === deal.contact_id)?.name}</p><strong>{currency(Number(deal.value))}</strong>{deal.property_id && <small><Building2 size={12} />{data.properties.find(p => p.id === deal.property_id)?.title}</small>}<footer><select aria-label={`Etapa de ${deal.name}`} value={deal.stage_id} disabled={moving} onChange={e => move(deal, e.target.value)}>{data.stages.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}</select><button title="Historico da negociacao" className="vp-icon" onClick={() => setHistoryId(deal.id)}><History size={15} /></button></footer></article>)}{!deals.length && <p className="vp-column-empty">Nenhuma negociacao</p>}</section>; })}</div>}
-        {tab === 'imoveis' && <Portfolio properties={data.properties.filter(p => matches(`${p.title} ${p.city}`))} refresh={refresh} />}
+        {tab === 'produtos' && <Portfolio properties={data.properties.filter(p => matches(`${p.title} ${p.city}`))} refresh={refresh} />}
         {tab === 'propostas' && <Proposals data={data} />}
         {tab === 'agenda' && <><div className="vp-toolbar"><span>{data.tasks.filter(t => !t.done).length} tarefas em aberto</span><Button onClick={() => setEditor({ kind: 'task' })}><Plus size={16} />Tarefa</Button></div><div className="vp-table-wrap"><table><thead><tr><th>Situacao</th><th>Tarefa</th><th>Prazo</th><th>Cliente</th><th /></tr></thead><tbody>{[...data.tasks].sort((a, b) => Number(a.done) - Number(b.done)).map(t => <tr key={t.id}><td><input type="checkbox" aria-label={`Concluir ${t.title}`} checked={t.done} disabled={save.isPending} onChange={e => { const done = e.target.checked; save.mutate(async () => { const r = await platformDb.from('vanessa_tasks').update({ done }).eq('id', t.id).select('id').single(); if (r.error) throw new Error(r.error.message); }); }} /></td><td><strong className={t.done ? 'vp-done' : ''}>{t.title}</strong>{t.automation_id && <small>Automacao</small>}</td><td className={!t.done && new Date(t.due_at).getTime() < Date.now() ? 'vp-overdue' : ''}>{dateTime(t.due_at)}</td><td>{data.contacts.find(c => c.id === t.contact_id)?.name || '-'}</td><td><button className="vp-icon" title="Editar tarefa" onClick={() => setEditor({ kind: 'task', row: t })}><Pencil size={16} /></button></td></tr>)}</tbody></table>{!data.tasks.length && <Empty>Nenhuma tarefa agendada.</Empty>}</div></>}
         {tab === 'automacoes' && <><div className="vp-toolbar"><span>{data.automations.length} regras de tarefas</span><Button onClick={() => setEditor({ kind: 'automation' })}><Plus size={16} />Regra</Button></div><div className="vp-table-wrap"><table><thead><tr><th>Regra</th><th>Evento</th><th>Tarefa</th><th>Prazo</th><th>Ativa</th><th /></tr></thead><tbody>{data.automations.map(a => <tr key={a.id}><td><strong>{a.name}</strong><small>{data.stages.find(s => s.id === a.stage_id)?.name || 'Todas as etapas'}</small></td><td>{a.event_kind === 'lead.created' ? 'Nova negociacao' : 'Mudanca de etapa'}</td><td>{a.task_title}</td><td>{a.delay_hours} h</td><td><input type="checkbox" aria-label={`Ativar ${a.name}`} checked={a.enabled} disabled={save.isPending} onChange={e => { const enabled = e.target.checked; save.mutate(async () => { const r = await platformDb.from('vanessa_automations').update({ enabled }).eq('id', a.id).select('id').single(); if (r.error) throw new Error(r.error.message); }); }} /></td><td><button className="vp-icon" title="Editar regra" onClick={() => setEditor({ kind: 'automation', row: a })}><Pencil size={16} /></button></td></tr>)}</tbody></table>{!data.automations.length && <Empty>Nenhuma regra cadastrada.</Empty>}</div></>}
-        {!current && <Empty>Pagina nao encontrada. <Link to="/plataforma">Voltar</Link></Empty>}
+        {!current && <Empty>Pagina nao encontrada. <Link to="/admin">Voltar</Link></Empty>}
         <Dialog open={!!editor} onOpenChange={open => { if (!open && !save.isPending) setEditor(null); }}><DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-xl"><DialogHeader><DialogTitle>{editor?.kind === 'contact' ? 'Cliente' : editor?.kind === 'deal' ? 'Negociacao' : editor?.kind === 'task' ? 'Tarefa' : 'Regra de tarefa'}</DialogTitle></DialogHeader>{editor && <EditorForm key={`${editor.kind}:${editor.row?.id ?? 'new'}`} editor={editor} data={data} pending={save.isPending} submit={action => save.mutate(action)} />}</DialogContent></Dialog>
         <Dialog open={!!historyId} onOpenChange={open => { if (!open) setHistoryId(null); }}><DialogContent><DialogHeader><DialogTitle>Historico da negociacao</DialogTitle></DialogHeader>{history.isError ? <p role="alert">{history.error.message}</p> : history.isLoading ? <Loader2 className="animate-spin" /> : <ol className="vp-history">{history.data?.map(e => <li key={e.id}><strong>{e.kind === 'lead.created' ? 'Negociacao criada' : 'Etapa alterada'}</strong><span>{data.stages.find(s => s.id === e.payload.stageId)?.name}</span><small>{dateTime(e.created_at)}</small></li>)}</ol>}</DialogContent></Dialog>
       </>}

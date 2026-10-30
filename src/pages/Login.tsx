@@ -20,7 +20,7 @@ const Login = () => {
   useEffect(() => { apiClient.auth.status().then(data => setSetup(data.setupRequired)).catch(() => setSetup(false)); }, []);
 
   useEffect(() => {
-    if (!authLoading && user) nav("/plataforma", { replace: true });
+    if (!authLoading && user) nav("/admin", { replace: true });
   }, [user, authLoading, nav]);
 
   const submit = async (e: React.FormEvent) => {
@@ -38,7 +38,7 @@ const Login = () => {
       if (error) throw error;
       }
       toast.success("Bem-vinda!");
-      nav("/plataforma");
+      nav("/admin");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erro ao processar.");
     } finally {
