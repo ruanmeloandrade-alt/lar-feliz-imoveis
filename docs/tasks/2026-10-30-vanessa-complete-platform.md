@@ -83,3 +83,10 @@ the old remote provider or source backups before parity is verified.
 - Hostinger authenticated domain inventory confirmed corretoravanessasimoni.com active through 2027-07-03. Existing DNS has only two website A records and two obsolete provider-verification TXT records; no email records are present in that zone. Nameservers remain unchanged.
 - Railway registered apex and www for this service; target CNAMEs are p33g7q13.up.railway.app and rerwq3gx.up.railway.app. DNS originals are retained in the local delivery outputs.
 - The domain cutover update permits both owned application origins, redirects www to the apex, and keeps the Railway URL for compatibility. DNS/HTTPS completion is verified separately after deployment.
+
+## Certified primary hostname
+
+- Railway verified www.corretoravanessasimoni.com and issued its certificate. The Hostinger CNAME and ownership TXT are public.
+- Apex ALIAS remains configured correctly, but authoritative Hostinger nodes have temporarily returned mixed old/new A answers. Its Railway certificate was still provisioning during validation.
+- Primary PUBLIC_APP_URL is therefore https://www.corretoravanessasimoni.com. The app redirects apex requests to www and accepts both owned origins plus the Railway compatibility URL.
+- A real HTTP test proves the primary www host serves the public page and apex redirects preserve /admin paths and query strings. All three server tests pass; native build passes.
