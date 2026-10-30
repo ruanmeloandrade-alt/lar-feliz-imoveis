@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { Store } from './store.mjs';
 import { createApi } from './api.mjs';
 import { createFullPlatform,startFullPlatform } from './full-platform.mjs';
+import { reconcileLegacyLeads } from './reconcile-legacy-leads.mjs';
 
 const defaultRoot = fileURLToPath(new URL('../dist/', import.meta.url));
 const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.ico': 'image/x-icon', '.woff2': 'font/woff2', '.txt': 'text/plain; charset=utf-8' };
@@ -71,6 +72,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   if (process.env.RAILWAY_PROJECT_ID && process.env.RAILWAY_VOLUME_MOUNT_PATH !== '/data') throw new Error('Volume persistente /data obrigatorio. Publicacao interrompida para proteger os dados.');
   const store = new Store(process.env.RAILWAY_VOLUME_MOUNT_PATH || process.env.VANESSA_DATA_DIR || resolve('.local-data'));
   const fullPlatform=process.env.VANESSA_FULL_PLATFORM==='1';
+  if(fullPlatform)console.log('Vanessa cutover:',await reconcileLegacyLeads(store));
   const child=fullPlatform?startFullPlatform():null;
   child?.on('exit',()=>process.exit(1));
   const server = createAppServer(defaultRoot, { store, fullPlatform, bootstrapToken: process.env.BOOTSTRAP_TOKEN || '' });
