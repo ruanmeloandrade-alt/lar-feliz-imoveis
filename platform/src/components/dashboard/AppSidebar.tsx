@@ -39,7 +39,7 @@ const OPERATION_GROUPS: NavGroup[] = [
     { label: "Tutoriais", icon: VanessaIcons.tutorial, to: "/tutoriais" },
   ] },
   { label: "Tracking", icon: VanessaIcons.tracking, defaultOpen: false, children: [
-    { label: "Origens e conversões", icon: VanessaIcons.origins, to: "/modulos/tracking" },
+    { label: "Fontes e eventos", icon: VanessaIcons.origins, to: "/modulos/tracking" },
   ] },
 ];
 function matches(item: NavItem, path: string): boolean {

@@ -95,6 +95,7 @@ import { Route as ApiPartnersPaymentProfileRouteImport } from './routes/api/part
 import { Route as ApiPartnersRequestPayoutRouteImport } from './routes/api/partners/request-payout'
 import { Route as ApiPublicFormEmbedDotjsRouteImport } from './routes/api/public/form-embed[.]js'
 import { Route as ApiPublicRecoveryResetRouteImport } from './routes/api/public/recovery-reset'
+import { Route as ApiPublicVanessaChatRouteImport } from './routes/api/public/vanessa-chat'
 import { Route as ApiPublicVanessaLeadRouteImport } from './routes/api/public/vanessa-lead'
 import { Route as ApiSocialGenerateImageRouteImport } from './routes/api/social/generate-image'
 import { Route as ApiSocialRefineContentRouteImport } from './routes/api/social/refine-content'
@@ -589,6 +590,11 @@ const ApiPublicRecoveryResetRoute = ApiPublicRecoveryResetRouteImport.update({
   path: '/api/public/recovery-reset',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicVanessaChatRoute = ApiPublicVanessaChatRouteImport.update({
+  id: '/api/public/vanessa-chat',
+  path: '/api/public/vanessa-chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicVanessaLeadRoute = ApiPublicVanessaLeadRouteImport.update({
   id: '/api/public/vanessa-lead',
   path: '/api/public/vanessa-lead',
@@ -1009,6 +1015,7 @@ export interface FileRoutesByFullPath {
   '/api/partners/request-payout': typeof ApiPartnersRequestPayoutRoute
   '/api/public/form-embed.js': typeof ApiPublicFormEmbedDotjsRoute
   '/api/public/recovery-reset': typeof ApiPublicRecoveryResetRoute
+  '/api/public/vanessa-chat': typeof ApiPublicVanessaChatRoute
   '/api/public/vanessa-lead': typeof ApiPublicVanessaLeadRoute
   '/api/social/generate-image': typeof ApiSocialGenerateImageRoute
   '/api/social/refine-content': typeof ApiSocialRefineContentRoute
@@ -1152,6 +1159,7 @@ export interface FileRoutesByTo {
   '/api/partners/request-payout': typeof ApiPartnersRequestPayoutRoute
   '/api/public/form-embed.js': typeof ApiPublicFormEmbedDotjsRoute
   '/api/public/recovery-reset': typeof ApiPublicRecoveryResetRoute
+  '/api/public/vanessa-chat': typeof ApiPublicVanessaChatRoute
   '/api/public/vanessa-lead': typeof ApiPublicVanessaLeadRoute
   '/api/social/generate-image': typeof ApiSocialGenerateImageRoute
   '/api/social/refine-content': typeof ApiSocialRefineContentRoute
@@ -1300,6 +1308,7 @@ export interface FileRoutesById {
   '/api/partners/request-payout': typeof ApiPartnersRequestPayoutRoute
   '/api/public/form-embed.js': typeof ApiPublicFormEmbedDotjsRoute
   '/api/public/recovery-reset': typeof ApiPublicRecoveryResetRoute
+  '/api/public/vanessa-chat': typeof ApiPublicVanessaChatRoute
   '/api/public/vanessa-lead': typeof ApiPublicVanessaLeadRoute
   '/api/social/generate-image': typeof ApiSocialGenerateImageRoute
   '/api/social/refine-content': typeof ApiSocialRefineContentRoute
@@ -1448,6 +1457,7 @@ export interface FileRouteTypes {
     | '/api/partners/request-payout'
     | '/api/public/form-embed.js'
     | '/api/public/recovery-reset'
+    | '/api/public/vanessa-chat'
     | '/api/public/vanessa-lead'
     | '/api/social/generate-image'
     | '/api/social/refine-content'
@@ -1591,6 +1601,7 @@ export interface FileRouteTypes {
     | '/api/partners/request-payout'
     | '/api/public/form-embed.js'
     | '/api/public/recovery-reset'
+    | '/api/public/vanessa-chat'
     | '/api/public/vanessa-lead'
     | '/api/social/generate-image'
     | '/api/social/refine-content'
@@ -1738,6 +1749,7 @@ export interface FileRouteTypes {
     | '/api/partners/request-payout'
     | '/api/public/form-embed.js'
     | '/api/public/recovery-reset'
+    | '/api/public/vanessa-chat'
     | '/api/public/vanessa-lead'
     | '/api/social/generate-image'
     | '/api/social/refine-content'
@@ -1870,6 +1882,7 @@ export interface RootRouteChildren {
   ApiPartnersRequestPayoutRoute: typeof ApiPartnersRequestPayoutRoute
   ApiPublicFormEmbedDotjsRoute: typeof ApiPublicFormEmbedDotjsRoute
   ApiPublicRecoveryResetRoute: typeof ApiPublicRecoveryResetRoute
+  ApiPublicVanessaChatRoute: typeof ApiPublicVanessaChatRoute
   ApiPublicVanessaLeadRoute: typeof ApiPublicVanessaLeadRoute
   ApiSocialGenerateImageRoute: typeof ApiSocialGenerateImageRoute
   ApiSocialRefineContentRoute: typeof ApiSocialRefineContentRoute
@@ -2519,6 +2532,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicRecoveryResetRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/vanessa-chat': {
+      id: '/api/public/vanessa-chat'
+      path: '/api/public/vanessa-chat'
+      fullPath: '/api/public/vanessa-chat'
+      preLoaderRoute: typeof ApiPublicVanessaChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/vanessa-lead': {
       id: '/api/public/vanessa-lead'
       path: '/api/public/vanessa-lead'
@@ -3134,6 +3154,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPartnersRequestPayoutRoute: ApiPartnersRequestPayoutRoute,
   ApiPublicFormEmbedDotjsRoute: ApiPublicFormEmbedDotjsRoute,
   ApiPublicRecoveryResetRoute: ApiPublicRecoveryResetRoute,
+  ApiPublicVanessaChatRoute: ApiPublicVanessaChatRoute,
   ApiPublicVanessaLeadRoute: ApiPublicVanessaLeadRoute,
   ApiSocialGenerateImageRoute: ApiSocialGenerateImageRoute,
   ApiSocialRefineContentRoute: ApiSocialRefineContentRoute,

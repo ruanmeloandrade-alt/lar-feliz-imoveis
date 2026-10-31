@@ -1,7 +1,8 @@
+import {trackPublicEvent,openVanessaChat} from "@/lib/public-site";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { MapPin, BedDouble, Bath, Ruler, MessageCircle, Sparkles, ChevronLeft, ChevronRight, X, HandCoins, FileText, Image as ImageIcon, Download, ExternalLink, Building2, CheckCircle2, CalendarClock } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { waUrl } from "@/lib/brand";
 import { isVideoUrl, fileNameFromUrl } from "@/lib/media";
 import type { Property } from "@/types/property";
@@ -27,6 +28,11 @@ const PropertyDetailDialog = ({ property, onOpenChange }: Props) => {
   const [idx, setIdx] = useState(0);
   const [mode, setMode] = useState<"media" | "pdf">("media");
   const [pdfIdx, setPdfIdx] = useState(0);
+  useEffect(()=>{
+    if(!property)return;const current=property;setIdx(0);let since=document.visibilityState==='visible'?performance.now():0;let elapsed=0;
+    const flush=()=>{if(since){elapsed+=performance.now()-since;since=document.visibilityState==='visible'?performance.now():0;}const seconds=Math.floor(elapsed/1000);if(seconds>0){trackPublicEvent('product_view_time',{product_id:current.id,product_name:current.title,duration_seconds:seconds});elapsed-=seconds*1000;}};
+    const visibility=()=>{flush();since=document.visibilityState==='visible'?performance.now():0;};trackPublicEvent('view_item',{product_id:current.id,product_name:current.title,city:current.city});document.addEventListener('visibilitychange',visibility);window.addEventListener('pagehide',flush);const timer=window.setInterval(flush,15000);return()=>{flush();window.clearInterval(timer);document.removeEventListener('visibilitychange',visibility);window.removeEventListener('pagehide',flush);};
+  },[property?.id]);
   if (!property) return null;
 
   const images = property.images.length ? property.images : [];

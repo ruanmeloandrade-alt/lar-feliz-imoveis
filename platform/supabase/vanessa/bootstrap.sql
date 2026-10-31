@@ -9085,3 +9085,105 @@ SELECT '47-support-tutorials' AS file,'OK' AS status;
 
 -- 20261031004000_vanessa_tracking_site.sql
 INSERT INTO public.tracking_sites(workspace_id,name,domain,created_by) SELECT '2a0e0d29-4e23-47e6-bd9f-30aa8e15e698','Site Vanessa Simoni','corretoravanessasimoni.com','b93ed466-4cff-423d-9dc3-3b0492fc9345' WHERE NOT EXISTS(SELECT 1 FROM public.tracking_sites WHERE workspace_id='2a0e0d29-4e23-47e6-bd9f-30aa8e15e698' AND domain='corretoravanessasimoni.com');
+
+
+-- 20261031005000_vanessa_tracking_runtime.sql
+BEGIN;
+ALTER TABLE public.tracking_events ADD COLUMN IF NOT EXISTS anon_id text, ADD COLUMN IF NOT EXISTS props jsonb, ADD COLUMN IF NOT EXISTS user_agent text, ADD COLUMN IF NOT EXISTS ip text, ADD COLUMN IF NOT EXISTS country text;
+CREATE OR REPLACE FUNCTION private.vanessa_tracking_compat() RETURNS trigger LANGUAGE plpgsql SET search_path='' AS $$ BEGIN NEW.visitor_id:=COALESCE(NEW.anon_id,NEW.visitor_id); NEW.properties:=COALESCE(NEW.props,NEW.properties,'{}'::jsonb); NEW.currency:=COALESCE(NULLIF(NEW.currency,''),'BRL'); RETURN NEW; END $$;
+CREATE TRIGGER vanessa_tracking_compat BEFORE INSERT OR UPDATE ON public.tracking_events FOR EACH ROW EXECUTE FUNCTION private.vanessa_tracking_compat();
+CREATE INDEX IF NOT EXISTS vanessa_tracking_anon_idx ON public.tracking_events(workspace_id,anon_id,created_at DESC);
+CREATE UNIQUE INDEX IF NOT EXISTS vanessa_tracking_event_id_idx ON public.tracking_events(workspace_id,event_id) WHERE event_id IS NOT NULL;
+ALTER TABLE public.tracking_conversion_events ADD COLUMN IF NOT EXISTS dedupe_key text;
+CREATE UNIQUE INDEX IF NOT EXISTS vanessa_tracking_conversion_dedupe_idx ON public.tracking_conversion_events(workspace_id,dedupe_key) WHERE dedupe_key IS NOT NULL;
+CREATE TABLE IF NOT EXISTS public.tracking_identities(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),workspace_id uuid NOT NULL REFERENCES public.workspaces(id) ON DELETE CASCADE,anon_id text NOT NULL,lead_id uuid REFERENCES public.leads(id) ON DELETE SET NULL,email text,phone text,first_utm jsonb NOT NULL DEFAULT '{}',last_utm jsonb NOT NULL DEFAULT '{}',first_seen_at timestamptz NOT NULL DEFAULT now(),last_seen_at timestamptz NOT NULL DEFAULT now(),UNIQUE(workspace_id,anon_id));
+CREATE TABLE IF NOT EXISTS public.tracking_dispatch_log(id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,workspace_id uuid NOT NULL REFERENCES public.workspaces(id) ON DELETE CASCADE,event_row_id bigint REFERENCES public.tracking_events(id) ON DELETE CASCADE,event_name text,module text NOT NULL,status text NOT NULL CHECK(status IN ('ok','skip','error')),detail text,created_at timestamptz NOT NULL DEFAULT now());
+CREATE INDEX IF NOT EXISTS vanessa_dispatch_event_idx ON public.tracking_dispatch_log(workspace_id,event_row_id,module,status);
+CREATE TABLE IF NOT EXISTS public.tracking_conversions(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),workspace_id uuid NOT NULL REFERENCES public.workspaces(id) ON DELETE CASCADE,name text NOT NULL,event_name text NOT NULL,active boolean NOT NULL DEFAULT true,default_value numeric,currency text DEFAULT 'BRL',value_expr text,created_by uuid REFERENCES auth.users(id),created_at timestamptz NOT NULL DEFAULT now(),updated_at timestamptz NOT NULL DEFAULT now());
+CREATE INDEX IF NOT EXISTS vanessa_conversions_workspace_idx ON public.tracking_conversions(workspace_id,active);
+CREATE TABLE IF NOT EXISTS public.workflow_pipelines(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),workspace_id uuid NOT NULL REFERENCES public.workspaces(id) ON DELETE CASCADE,name text NOT NULL DEFAULT 'Novo fluxo',color text NOT NULL DEFAULT '#C40008',position integer NOT NULL DEFAULT 0,is_default boolean NOT NULL DEFAULT false,sector_id uuid REFERENCES public.workflow_sectors(id),created_at timestamptz NOT NULL DEFAULT now(),updated_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE IF NOT EXISTS public.workflow_stages(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),workspace_id uuid NOT NULL REFERENCES public.workspaces(id) ON DELETE CASCADE,pipeline_id uuid NOT NULL REFERENCES public.workflow_pipelines(id) ON DELETE CASCADE,name text NOT NULL,color text NOT NULL DEFAULT '#C40008',position integer NOT NULL DEFAULT 0,is_done_stage boolean NOT NULL DEFAULT false,is_incomplete_stage boolean NOT NULL DEFAULT false,is_review_stage boolean NOT NULL DEFAULT false,product_id uuid REFERENCES public.products(id) ON DELETE SET NULL,created_at timestamptz NOT NULL DEFAULT now(),updated_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE IF NOT EXISTS public.workflow_tasks(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),workspace_id uuid NOT NULL REFERENCES public.workspaces(id) ON DELETE CASCADE,pipeline_id uuid NOT NULL REFERENCES public.workflow_pipelines(id) ON DELETE CASCADE,stage_id uuid NOT NULL REFERENCES public.workflow_stages(id) ON DELETE CASCADE,title text NOT NULL,description text,position numeric NOT NULL DEFAULT 0,priority text NOT NULL DEFAULT 'media',status text NOT NULL DEFAULT 'pending',tags jsonb NOT NULL DEFAULT '[]',created_by uuid REFERENCES auth.users(id),assignee_id uuid REFERENCES auth.users(id),due_at timestamptz,completed_at timestamptz,estimated_seconds integer,time_spent_seconds integer NOT NULL DEFAULT 0,credentials jsonb NOT NULL DEFAULT '{}',links jsonb NOT NULL DEFAULT '[]',automation_state jsonb NOT NULL DEFAULT '{}',parent_task_id uuid REFERENCES public.workflow_tasks(id),is_review_copy boolean NOT NULL DEFAULT false,review_copy_of uuid REFERENCES public.workflow_tasks(id),review_round integer NOT NULL DEFAULT 0,review_status text,review_notes text,review_outcome text,reviewed_at timestamptz,reviewed_by uuid REFERENCES auth.users(id),submitted_for_review_at timestamptz,incomplete_reason text,created_at timestamptz NOT NULL DEFAULT now(),updated_at timestamptz NOT NULL DEFAULT now());
+DO $$ DECLARE t text; BEGIN FOREACH t IN ARRAY ARRAY['tracking_identities','tracking_dispatch_log','tracking_conversions','workflow_pipelines','workflow_stages','workflow_tasks'] LOOP EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY',t);EXECUTE format('REVOKE ALL ON public.%I FROM PUBLIC,anon,authenticated',t);EXECUTE format('GRANT ALL ON public.%I TO service_role',t);IF t<>'tracking_identities' THEN EXECUTE format('GRANT SELECT ON public.%I TO authenticated',t);EXECUTE format('CREATE POLICY vanessa_member_read ON public.%I FOR SELECT TO authenticated USING (private.slim_workspace_access(workspace_id,%L) AND private.slim_session_security_allowed())',t,CASE WHEN t LIKE 'workflow_%' THEN 'admin' ELSE 'member' END);END IF;IF t IN ('tracking_conversions','workflow_pipelines','workflow_stages','workflow_tasks') THEN EXECUTE format('GRANT INSERT,UPDATE,DELETE ON public.%I TO authenticated',t);EXECUTE format('CREATE POLICY vanessa_operator_write ON public.%I FOR ALL TO authenticated USING(private.slim_workspace_access(workspace_id,%L) AND private.slim_session_security_allowed()) WITH CHECK(private.slim_workspace_access(workspace_id,%L) AND private.slim_session_security_allowed())',t,CASE WHEN t LIKE 'workflow_%' THEN 'admin' ELSE 'operator' END,CASE WHEN t LIKE 'workflow_%' THEN 'admin' ELSE 'operator' END);END IF;END LOOP;END $$;
+GRANT USAGE,SELECT ON SEQUENCE public.tracking_dispatch_log_id_seq TO service_role;
+CREATE INDEX IF NOT EXISTS vanessa_workflow_pipeline_idx ON public.workflow_pipelines(workspace_id,position);
+CREATE INDEX IF NOT EXISTS vanessa_workflow_stages_idx ON public.workflow_stages(workspace_id,pipeline_id,position);
+CREATE INDEX IF NOT EXISTS vanessa_workflow_tasks_idx ON public.workflow_tasks(workspace_id,stage_id,position);
+COMMIT;
+NOTIFY pgrst,'reload schema';
+SELECT '49-tracking-runtime' AS file,'OK' AS status;
+
+
+-- 20261031006000_vanessa_vgv_commissions.sql
+BEGIN;
+CREATE TABLE public.vanessa_deal_financials(lead_id uuid PRIMARY KEY REFERENCES public.leads(id) ON DELETE CASCADE,workspace_id uuid NOT NULL REFERENCES public.workspaces(id) ON DELETE CASCADE,property_id uuid REFERENCES public.products(id) ON DELETE SET NULL,partner_id uuid REFERENCES public.companies(id) ON DELETE SET NULL,deal_kind text NOT NULL CHECK(deal_kind IN ('venda','locacao')),deal_value_cents bigint NOT NULL CHECK(deal_value_cents BETWEEN 0 AND 99999999999999),commission_mode text NOT NULL CHECK(commission_mode IN ('percentual','fixa')),commission_bps integer CHECK(commission_bps BETWEEN 0 AND 10000),commission_cents bigint NOT NULL CHECK(commission_cents BETWEEN 0 AND 99999999999999),received_cents bigint NOT NULL DEFAULT 0 CHECK(received_cents>=0 AND received_cents<=commission_cents),due_on date,notes text NOT NULL DEFAULT '',updated_at timestamptz NOT NULL DEFAULT clock_timestamp(),updated_by uuid NOT NULL REFERENCES auth.users(id));
+ALTER TABLE public.vanessa_deal_financials ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.vanessa_deal_financials FROM PUBLIC,anon,authenticated;
+GRANT SELECT ON public.vanessa_deal_financials TO authenticated;
+GRANT ALL ON public.vanessa_deal_financials TO service_role;
+CREATE POLICY vanessa_finance_read ON public.vanessa_deal_financials FOR SELECT TO authenticated USING(private.slim_workspace_access(workspace_id) AND private.slim_session_security_allowed());
+CREATE INDEX vanessa_finance_workspace_idx ON public.vanessa_deal_financials(workspace_id,due_on);
+CREATE OR REPLACE FUNCTION public.vanessa_save_financials(_lead_id uuid,_kind text,_value_cents bigint,_mode text,_bps integer,_fixed_cents bigint,_received_cents bigint,_property_id uuid DEFAULT NULL,_partner_id uuid DEFAULT NULL,_due_on date DEFAULT NULL,_notes text DEFAULT '',_expected_updated_at timestamptz DEFAULT NULL) RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $$
+DECLARE ws uuid;previous public.vanessa_deal_financials;total bigint;saved public.vanessa_deal_financials;
+BEGIN
+SELECT workspace_id INTO ws FROM public.leads WHERE id=_lead_id FOR UPDATE;
+IF ws IS DISTINCT FROM '2a0e0d29-4e23-47e6-bd9f-30aa8e15e698'::uuid OR NOT private.slim_workspace_access(ws,'operator') OR NOT private.slim_session_security_allowed() THEN RAISE EXCEPTION 'Acesso não autorizado à negociação.';END IF;
+IF _kind NOT IN ('venda','locacao') OR _mode NOT IN ('percentual','fixa') OR _value_cents IS NULL OR _value_cents<0 OR _value_cents>99999999999999 OR char_length(COALESCE(_notes,''))>3000 THEN RAISE EXCEPTION 'Confira os valores da negociação.';END IF;
+IF _mode='percentual' THEN IF _bps IS NULL OR _bps<0 OR _bps>10000 THEN RAISE EXCEPTION 'Comissão percentual inválida.';END IF;total:=round((_value_cents::numeric*_bps)/10000)::bigint;ELSE total:=_fixed_cents;END IF;
+IF total IS NULL OR total<0 OR total>99999999999999 OR _received_cents IS NULL OR _received_cents<0 OR _received_cents>total THEN RAISE EXCEPTION 'O recebimento informado deve estar entre zero e a comissão combinada.';END IF;
+IF _property_id IS NOT NULL AND NOT EXISTS(SELECT 1 FROM public.products WHERE id=_property_id AND workspace_id=ws) THEN RAISE EXCEPTION 'Imóvel não pertence à Vanessa.';END IF;
+IF _partner_id IS NOT NULL AND NOT EXISTS(SELECT 1 FROM public.companies WHERE id=_partner_id AND workspace_id=ws) THEN RAISE EXCEPTION 'Parceiro não pertence à Vanessa.';END IF;
+SELECT * INTO previous FROM public.vanessa_deal_financials WHERE lead_id=_lead_id;
+IF previous.lead_id IS NOT NULL AND previous.updated_at IS DISTINCT FROM _expected_updated_at THEN RAISE EXCEPTION 'Esta negociação foi atualizada em outra tela. Reabra a ficha antes de salvar.';END IF;
+INSERT INTO public.vanessa_deal_financials(lead_id,workspace_id,property_id,partner_id,deal_kind,deal_value_cents,commission_mode,commission_bps,commission_cents,received_cents,due_on,notes,updated_by)
+VALUES(_lead_id,ws,_property_id,_partner_id,_kind,_value_cents,_mode,CASE WHEN _mode='percentual' THEN _bps ELSE NULL END,total,_received_cents,_due_on,COALESCE(_notes,''),auth.uid())
+ON CONFLICT(lead_id) DO UPDATE SET property_id=EXCLUDED.property_id,partner_id=EXCLUDED.partner_id,deal_kind=EXCLUDED.deal_kind,deal_value_cents=EXCLUDED.deal_value_cents,commission_mode=EXCLUDED.commission_mode,commission_bps=EXCLUDED.commission_bps,commission_cents=EXCLUDED.commission_cents,received_cents=EXCLUDED.received_cents,due_on=EXCLUDED.due_on,notes=EXCLUDED.notes,updated_by=auth.uid(),updated_at=clock_timestamp() RETURNING * INTO saved;
+UPDATE public.leads SET value=_value_cents::numeric/100,updated_at=clock_timestamp() WHERE id=_lead_id AND workspace_id=ws;
+INSERT INTO public.lead_activities(workspace_id,lead_id,type,payload) VALUES(ws,_lead_id,'note',jsonb_build_object('source','vanessa_finance','text','Dados de VGV e comissão atualizados. Recebimento informado pelo operador.','actor_id',auth.uid(),'deal_value_cents',_value_cents,'commission_cents',total,'received_cents',_received_cents));
+RETURN to_jsonb(saved);
+END $$;
+REVOKE ALL ON FUNCTION public.vanessa_save_financials(uuid,text,bigint,text,integer,bigint,bigint,uuid,uuid,date,text,timestamptz) FROM PUBLIC,anon;
+GRANT EXECUTE ON FUNCTION public.vanessa_save_financials(uuid,text,bigint,text,integer,bigint,bigint,uuid,uuid,date,text,timestamptz) TO authenticated;
+COMMIT;
+NOTIFY pgrst,'reload schema';
+SELECT '51-vgv-commissions' AS file,'OK' AS status;
+
+
+-- 20261031007000_vanessa_site_chat.sql
+BEGIN;
+CREATE TABLE public.vanessa_site_chats(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),workspace_id uuid NOT NULL DEFAULT '2a0e0d29-4e23-47e6-bd9f-30aa8e15e698' REFERENCES public.workspaces(id),messages jsonb NOT NULL DEFAULT '[]',facts jsonb NOT NULL DEFAULT '{}',lead_id uuid REFERENCES public.leads(id) ON DELETE SET NULL,contact_name text,contact_phone text,consent_at timestamptz,automation_dispatched boolean NOT NULL DEFAULT false,created_at timestamptz NOT NULL DEFAULT now(),updated_at timestamptz NOT NULL DEFAULT now());
+ALTER TABLE public.vanessa_site_chats ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.vanessa_site_chats FROM PUBLIC,anon,authenticated;
+GRANT SELECT ON public.vanessa_site_chats TO authenticated;
+GRANT ALL ON public.vanessa_site_chats TO service_role;
+CREATE POLICY vanessa_chat_member_read ON public.vanessa_site_chats FOR SELECT TO authenticated USING(private.slim_workspace_access(workspace_id) AND private.slim_session_security_allowed());
+CREATE INDEX vanessa_chat_lead_idx ON public.vanessa_site_chats(workspace_id,lead_id,updated_at DESC);
+INSERT INTO public.lead_custom_fields(workspace_id,name,field_type) SELECT '2a0e0d29-4e23-47e6-bd9f-30aa8e15e698',x.name,x.kind FROM (VALUES('Idade','number'),('Orçamento','number'),('Quartos desejados','number')) x(name,kind) WHERE NOT EXISTS(SELECT 1 FROM public.lead_custom_fields f WHERE f.workspace_id='2a0e0d29-4e23-47e6-bd9f-30aa8e15e698' AND lower(f.name)=lower(x.name));
+CREATE OR REPLACE FUNCTION public.vanessa_register_site_contact(_chat_id uuid,_name text,_phone text) RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path='' AS $$
+DECLARE c public.vanessa_site_chats;l public.leads;src uuid;pl uuid;st uuid;made boolean:=false;digits text;target_field_id uuid;kv record;label text;
+BEGIN
+SELECT * INTO c FROM public.vanessa_site_chats WHERE id=_chat_id AND workspace_id='2a0e0d29-4e23-47e6-bd9f-30aa8e15e698' FOR UPDATE;
+IF c.id IS NULL OR c.created_at<now()-interval '24 hours' THEN RAISE EXCEPTION 'Conversa expirada.';END IF;
+digits:=regexp_replace(_phone,'[^0-9]','','g');IF length(btrim(_name))<2 OR length(_name)>120 OR length(digits)<10 OR length(digits)>15 THEN RAISE EXCEPTION 'Confira seu nome e WhatsApp.';END IF;
+IF c.lead_id IS NOT NULL AND regexp_replace(c.contact_phone,'[^0-9]','','g') IS DISTINCT FROM digits THEN RAISE EXCEPTION 'Este atendimento já está associado a outro WhatsApp. Inicie uma nova conversa.';END IF;
+PERFORM pg_advisory_xact_lock(hashtextextended(c.workspace_id::text||':'||digits,0));
+IF c.lead_id IS NOT NULL THEN SELECT * INTO l FROM public.leads WHERE id=c.lead_id AND workspace_id=c.workspace_id;END IF;
+IF l.id IS NULL THEN SELECT * INTO l FROM public.leads WHERE workspace_id=c.workspace_id AND CASE WHEN phone LIKE '+%' THEN regexp_replace(phone,'[^0-9]','','g') WHEN length(regexp_replace(COALESCE(phone,''),'[^0-9]','','g')) IN (10,11) THEN '55'||regexp_replace(phone,'[^0-9]','','g') ELSE regexp_replace(COALESCE(phone,''),'[^0-9]','','g') END=digits ORDER BY created_at LIMIT 1;END IF;
+IF l.id IS NULL THEN
+SELECT s.id,p.id,ps.id INTO src,pl,st FROM public.crm_sources s JOIN public.pipelines p ON p.crm_source_id=s.id AND p.workspace_id=s.workspace_id JOIN public.pipeline_stages ps ON ps.pipeline_id=p.id AND ps.workspace_id=p.workspace_id WHERE s.workspace_id=c.workspace_id ORDER BY s.is_default DESC,p.position,p.created_at,ps.position,ps.created_at LIMIT 1;
+IF st IS NULL THEN RAISE EXCEPTION 'Funil de atendimento indisponível.';END IF;
+INSERT INTO public.leads(workspace_id,crm_source_id,pipeline_id,stage_id,name,phone,value,status,source,tags,custom_data) VALUES(c.workspace_id,src,pl,st,btrim(_name),'+'||digits,0,'active','site-assistente','["site","atendimento-ia"]'::jsonb,jsonb_build_object('site_chat_id',c.id,'whatsapp_contact_consent',true)) RETURNING * INTO l;made:=true;
+END IF;
+IF c.lead_id IS NULL THEN INSERT INTO public.lead_activities(workspace_id,lead_id,type,payload) VALUES(c.workspace_id,l.id,'note',jsonb_build_object('source','site-assistente','text','Cliente solicitou atendimento por WhatsApp no chat do site.','chat_id',c.id,'consent_at',now(),'conversation',c.messages));END IF;
+FOR kv IN SELECT key,value FROM jsonb_each_text(c.facts) LOOP
+label:=CASE kv.key WHEN 'age' THEN 'Idade' WHEN 'city' THEN 'cidade' WHEN 'budget' THEN 'Orçamento' WHEN 'bedrooms' THEN 'Quartos desejados' ELSE NULL END;
+IF label IS NOT NULL AND length(kv.value)<300 THEN SELECT f.id INTO target_field_id FROM public.lead_custom_fields f WHERE f.workspace_id=c.workspace_id AND lower(f.name)=lower(label) AND f.active LIMIT 1;IF target_field_id IS NOT NULL THEN INSERT INTO public.lead_custom_field_values(workspace_id,lead_id,field_id,value) VALUES(c.workspace_id,l.id,target_field_id,jsonb_build_object('display',kv.value,'raw',jsonb_build_array(kv.value),'source','site-chat','chat_id',c.id)) ON CONFLICT(lead_id,field_id) DO UPDATE SET value=EXCLUDED.value,updated_at=now();END IF;END IF;
+END LOOP;
+UPDATE public.vanessa_site_chats SET lead_id=l.id,contact_name=btrim(_name),contact_phone='+'||digits,consent_at=COALESCE(consent_at,now()),automation_dispatched=CASE WHEN NOT made AND c.lead_id IS NULL THEN true ELSE automation_dispatched END,updated_at=now() WHERE id=c.id;
+RETURN jsonb_build_object('leadId',l.id,'leadCreated',made,'pipelineId',l.pipeline_id,'stageId',l.stage_id,'automationDispatched',CASE WHEN NOT made AND c.lead_id IS NULL THEN true ELSE c.automation_dispatched END);
+END $$;
+REVOKE ALL ON FUNCTION public.vanessa_register_site_contact(uuid,text,text) FROM PUBLIC,anon,authenticated;
+GRANT EXECUTE ON FUNCTION public.vanessa_register_site_contact(uuid,text,text) TO service_role;
+COMMIT;
+NOTIFY pgrst,'reload schema';
+SELECT '52-site-chat' AS file,'OK' AS status;
