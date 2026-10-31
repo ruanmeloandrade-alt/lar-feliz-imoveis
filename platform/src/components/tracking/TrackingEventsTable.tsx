@@ -1,12 +1,10 @@
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Search, Target } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { Search } from "lucide-react";
 import { ModuleSection } from "@/components/modules/ModuleShell";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { toast } from "sonner";
 import { TrackingEmptyState } from "./EmptyState";
-import { listTrackingEvents, upsertConversion } from "@/lib/tracking-live.functions";
+import { listTrackingEvents } from "@/lib/tracking-live.functions";
 import { getActiveWorkspace } from "@/lib/workspace.functions";
 
 type Row = {
@@ -19,17 +17,31 @@ type Row = {
   utm_campaign: string | null;
   value: number | null;
   created_at: string;
+  properties: Record<string, unknown> | null;
 };
 
-export function TrackingEventsTable() {
-  const qc = useQueryClient();
-  const [query, setQuery] = useState("");
-  const [markOpen, setMarkOpen] = useState(false);
-  const [markEvent, setMarkEvent] = useState<string>("");
-  const [markName, setMarkName] = useState("");
-  const [markValue, setMarkValue] = useState("");
+function eventDetail(props: Row["properties"]): string {
+  if (!props) return "-";
+  const detail = [props.product_name, props.label, props.text, props.button_text].find(
+    (v) => typeof v === "string" && v.trim(),
+  );
+  const seconds = Number(props.duration_seconds);
+  return (
+    [
+      typeof detail === "string" ? detail.slice(0, 160) : "",
+      Number.isFinite(seconds) && seconds > 0 ? `${Math.floor(seconds)} s de visualização` : "",
+    ]
+      .filter(Boolean)
+      .join(" · ") || "-"
+  );
+}
 
-  const { data: ws } = useQuery({ queryKey: ["active-workspace"], queryFn: () => getActiveWorkspace() });
+export function TrackingEventsTable() {
+  const [query, setQuery] = useState("");
+  const { data: ws } = useQuery({
+    queryKey: ["active-workspace"],
+    queryFn: () => getActiveWorkspace(),
+  });
   const workspaceId = ws?.id ?? "";
   const { data: rows = [], isLoading } = useQuery({
     queryKey: ["tracking-events", workspaceId, query],
@@ -38,39 +50,10 @@ export function TrackingEventsTable() {
     refetchInterval: 15000,
   });
 
-  const save = useMutation({
-    mutationFn: () =>
-      upsertConversion({
-        data: {
-          workspaceId,
-          name: markName.trim() || markEvent,
-          eventName: markEvent,
-          defaultValue: markValue ? Number(markValue) : null,
-          currency: "BRL",
-          active: true,
-        },
-      }),
-    onSuccess: () => {
-      toast.success(`"${markEvent}" agora conta como conversão`);
-      qc.invalidateQueries({ queryKey: ["tracking-conversions", workspaceId] });
-      qc.invalidateQueries({ queryKey: ["tracking-overview", workspaceId] });
-      setMarkOpen(false);
-      setMarkEvent(""); setMarkName(""); setMarkValue("");
-    },
-    onError: (e: Error) => toast.error(e.message),
-  });
-
-  const openMark = (eventName: string) => {
-    setMarkEvent(eventName);
-    setMarkName(eventName.replace(/_/g, " "));
-    setMarkValue("");
-    setMarkOpen(true);
-  };
-
   return (
     <ModuleSection
       title="Eventos rastreados"
-      description="Cada linha é um evento que o pixel Vanessa Simoni recebeu. Atualiza sozinho a cada 15 s. Clique em Marcar como conversão para transformar qualquer evento em KPI."
+      description="Visitas, cliques e interesse em imóveis no site público da Vanessa. Atualização automática a cada 15 segundos. A navegação interna não entra nesta lista."
     >
       <div className="mb-3 relative max-w-sm">
         <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
@@ -86,7 +69,7 @@ export function TrackingEventsTable() {
       ) : (rows as Row[]).length === 0 ? (
         <TrackingEmptyState
           title="Nenhum evento recebido ainda"
-          hint="Instale o pixel Vanessa Simoni no seu site (aba Instalação) e navegue até uma página para gerar o primeiro page_view."
+          hint="O site da Vanessa já está conectado. Os eventos aparecem automaticamente conforme os visitantes navegam na página pública."
         />
       ) : (
         <div className="border border-border rounded-lg overflow-hidden">
@@ -98,70 +81,47 @@ export function TrackingEventsTable() {
                 <th className="p-2">Página</th>
                 <th className="p-2">UTM</th>
                 <th className="p-2 text-right">Valor</th>
-                <th className="p-2 text-right">Ação</th>
+                <th className="p-2">Imóvel / interação</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {(rows as Row[]).map((r) => (
                 <tr key={r.id}>
                   <td className="p-2 text-muted-foreground tabular-nums whitespace-nowrap">
-                    {new Date(r.created_at).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                    {new Date(r.created_at).toLocaleString("pt-BR", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
                   </td>
-                  <td className="p-2"><span className="font-mono text-[11px] px-1.5 py-0.5 rounded bg-muted">{r.event_name}</span></td>
+                  <td className="p-2">
+                    <span className="font-mono text-[11px] px-1.5 py-0.5 rounded bg-muted">
+                      {r.event_name}
+                    </span>
+                  </td>
                   <td className="p-2 truncate max-w-[240px]">{r.page_path ?? "-"}</td>
                   <td className="p-2 text-muted-foreground">
                     {r.utm_source || r.utm_campaign ? (
-                      <span className="font-mono text-[10px]">{r.utm_source ?? "-"}·{r.utm_campaign ?? "-"}</span>
-                    ) : "-"}
+                      <span className="font-mono text-[10px]">
+                        {r.utm_source ?? "-"}·{r.utm_campaign ?? "-"}
+                      </span>
+                    ) : (
+                      "-"
+                    )}
                   </td>
-                  <td className="p-2 text-right tabular-nums">{r.value != null ? r.value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) : "-"}</td>
-                  <td className="p-2 text-right">
-                    <button
-                      onClick={() => openMark(r.event_name)}
-                      className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-1 rounded-md border border-border hover:bg-primary/10 hover:text-primary hover:border-primary/40"
-                      title="Marcar este tipo de evento como conversão"
-                    >
-                      <Target className="w-3 h-3" /> Marcar como conversão
-                    </button>
+                  <td className="p-2 text-right tabular-nums">
+                    {r.value != null
+                      ? r.value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+                      : "-"}
                   </td>
+                  <td className="p-2 max-w-[280px]">{eventDetail(r.properties)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       )}
-
-      <Dialog open={markOpen} onOpenChange={setMarkOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Marcar "{markEvent}" como conversão</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3">
-            <p className="text-xs text-muted-foreground">
-              Todo evento com nome <span className="font-mono">{markEvent}</span> vai entrar no funil de conversões, KPIs da dashboard e ranking de UTMs.
-            </p>
-            <div>
-              <label className="text-[10px] uppercase tracking-widest text-muted-foreground">Nome amigável</label>
-              <Input value={markName} onChange={(e) => setMarkName(e.target.value)} placeholder="Ex.: Lead qualificado" className="h-9 text-sm mt-1" />
-            </div>
-            <div>
-              <label className="text-[10px] uppercase tracking-widest text-muted-foreground">Valor padrão (opcional, R$)</label>
-              <Input type="number" value={markValue} onChange={(e) => setMarkValue(e.target.value)} placeholder="Ex.: 297" className="h-9 text-sm mt-1" />
-              <p className="text-[10px] text-muted-foreground mt-1">Usado quando o evento não trouxer um valor próprio.</p>
-            </div>
-          </div>
-          <DialogFooter>
-            <button onClick={() => setMarkOpen(false)} className="text-xs px-3 py-2 rounded-md border border-border hover:bg-muted">Cancelar</button>
-            <button
-              onClick={() => save.mutate()}
-              disabled={save.isPending}
-              className="text-xs px-3 py-2 rounded-md bg-primary text-primary-foreground disabled:opacity-60"
-            >
-              {save.isPending ? "Salvando…" : "Marcar como conversão"}
-            </button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </ModuleSection>
   );
 }

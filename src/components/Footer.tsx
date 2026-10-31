@@ -1,71 +1,68 @@
-import { Phone, Instagram, MapPin } from "lucide-react";
+import { Phone, Instagram, MessageCircle } from "lucide-react";
 import { BRAND } from "@/lib/brand";
 import SpFlagMark from "./SpFlagMark";
-
-
-
 const Footer = () => (
-  <footer className="bg-foreground text-background">
-    <div className="divider-sp" />
-    <div className="container py-14">
-      <div className="grid md:grid-cols-4 gap-10">
-        <div className="md:col-span-2">
-          <div className="mb-4">
-            <div className="font-heading font-bold text-lg">{BRAND.name}</div>
-            <div className="text-[10px] uppercase tracking-widest text-secondary">Corretora Especialista MCMV</div>
-          </div>
-          <p className="text-sm text-background/70 max-w-md leading-relaxed">
-            Especialista em Minha Casa Minha Vida em Campinas, Sumaré, Hortolândia e Paulínia.
-            Missão: ajudar famílias a saírem do aluguel com orientação clara, humana e transparente.
+  <footer className="vs-footer">
+    <div className="container">
+      <div className="vs-footer-grid">
+        <div className="vs-footer-brand">
+          <strong>{BRAND.name}</strong>
+          <span>Corretora de imóveis · Minha Casa Minha Vida</span>
+          <p>
+            Orientação próxima e transparente para encontrar seu imóvel em
+            Campinas e região.
           </p>
-          <div className="flex items-center gap-2 text-xs text-background/60 mt-4">
-            <MapPin className="w-3.5 h-3.5" />
-            {BRAND.cities.join(" · ")} — Estado de São Paulo
+          <div className="vs-footer-region">
+            <SpFlagMark size={40} />
+            <span>
+              Estado de São Paulo
+              <br />
+              {BRAND.cities.join(" · ")}
+            </span>
           </div>
         </div>
-
-        <div>
-          <h4 className="font-heading font-bold mb-4 text-secondary">Navegação</h4>
-          <nav className="space-y-2 text-sm">
-            <a href="#analise" className="block text-background/70 hover:text-background transition-colors">Pré-análise</a>
-            <a href="#beneficios" className="block text-background/70 hover:text-background transition-colors">Benefícios MCMV</a>
-            <a href="#como-funciona" className="block text-background/70 hover:text-background transition-colors">Como funciona</a>
-            <a href="#imoveis" className="block text-background/70 hover:text-background transition-colors">Imóveis</a>
-            <a href="#faq" className="block text-background/70 hover:text-background transition-colors">Dúvidas</a>
-          </nav>
-        </div>
-
-        <div>
-          <h4 className="font-heading font-bold mb-4 text-secondary">Contato</h4>
-          <div className="space-y-3 text-sm">
-            <a href={`tel:+${BRAND.whatsappNumber}`} className="flex items-center gap-2 text-background/70 hover:text-background transition-colors">
-              <Phone className="w-4 h-4" /> {BRAND.whatsappDisplay}
-            </a>
-            <a href={`https://wa.me/${BRAND.whatsappNumber}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-background/70 hover:text-background transition-colors">
-              💬 WhatsApp
-            </a>
-            <a href={BRAND.instagram} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-background/70 hover:text-background transition-colors">
-              <Instagram className="w-4 h-4" /> {BRAND.instagramHandle}
-            </a>
-          </div>
+        <nav aria-label="Navegação do rodapé">
+          <h3>Explore</h3>
+          <a href="#imoveis">Imóveis</a>
+          <a href="#beneficios">Minha Casa Minha Vida</a>
+          <a href="#como-funciona">Como funciona</a>
+          <a href="#analise">Pré-análise</a>
+          <a href="#faq">Dúvidas frequentes</a>
+        </nav>
+        <div className="vs-footer-contact">
+          <h3>Converse com a Vanessa</h3>
+          <a href={"tel:+" + BRAND.whatsappNumber}>
+            <Phone size={15} />
+            {BRAND.whatsappDisplay}
+          </a>
+          <a
+            href={"https://wa.me/" + BRAND.whatsappNumber}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <MessageCircle size={15} />
+            WhatsApp
+          </a>
+          <a href={BRAND.instagram} target="_blank" rel="noopener noreferrer">
+            <Instagram size={15} />
+            {BRAND.instagramHandle}
+          </a>
         </div>
       </div>
-
-      <div className="border-t border-background/10 mt-12 pt-6 space-y-4">
-
-        <p className="text-[11px] text-background/60 leading-relaxed max-w-4xl">
-          <strong className="text-background/80">Aviso legal:</strong> Esta página oferece uma pré-análise informativa.
-          A aprovação do financiamento, valor de subsídio, taxas, prazos e condições dependem da análise oficial da
-          Caixa Econômica Federal ou da instituição financeira responsável. Esta página <strong>não representa órgão público</strong>,
-          não possui vínculo oficial com a Caixa Econômica Federal ou o Governo do Estado de São Paulo, e não garante aprovação
-          nem concessão de subsídio.
+      <div className="vs-footer-legal">
+        <p>
+          Esta página oferece uma pré-análise informativa. Aprovação de
+          financiamento, subsídio, taxas, prazos e condições dependem da análise
+          oficial da instituição financeira. Não representa órgão público, não
+          possui vínculo oficial com a Caixa Econômica Federal ou o Governo do
+          Estado de São Paulo e não garante aprovação ou concessão de subsídio.
         </p>
-        <p className="text-xs text-background/50 text-center">
-          © {new Date().getFullYear()} {BRAND.name} — Corretora de Imóveis. Todos os direitos reservados.
-        </p>
+        <span>
+          © {new Date().getFullYear()} {BRAND.name}. Todos os direitos
+          reservados.
+        </span>
       </div>
     </div>
   </footer>
 );
-
 export default Footer;

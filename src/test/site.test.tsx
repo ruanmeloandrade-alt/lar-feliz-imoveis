@@ -1,18 +1,22 @@
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
 
 afterEach(cleanup);
 
-describe('Site original da Vanessa', () => {
+describe('Site público da Vanessa', () => {
   it('preserva a navegacao e o destino do atendimento', async () => {
     render(<Header />);
     expect(screen.queryByRole('link', { name: 'Login' })).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'Area da corretora' })).not.toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Falar no WhatsApp' }).getAttribute('href')).toMatch(/^https:\/\/wa.me\/5519992250701\?/);
+    const onChat = vi.fn();
+    window.addEventListener('vanessa:open-chat', onChat);
+    fireEvent.click(screen.getByRole('button', { name: 'Começar atendimento' }));
+    window.removeEventListener('vanessa:open-chat', onChat);
+    expect(onChat).toHaveBeenCalledTimes(1);
     expect(screen.getAllByRole('navigation')).toHaveLength(1);
-    fireEvent.click(screen.getByRole('button', { name: 'Menu' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir menu' }));
     await waitFor(() => expect(screen.getAllByRole('navigation')).toHaveLength(2));
     expect(document.querySelector('a[href="/login"], a[href="/admin"], a[href="/plataforma"]')).toBeNull();
   });

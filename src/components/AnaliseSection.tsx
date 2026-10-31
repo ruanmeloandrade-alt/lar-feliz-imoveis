@@ -1,11 +1,5 @@
 import { useState } from "react";
-import {
-  ArrowRight,
-  ArrowLeft,
-  Check,
-  ShieldCheck,
-  CheckCircle2,
-} from "lucide-react";
+import { ArrowRight, ArrowLeft, ShieldCheck, CheckCircle2 } from "lucide-react";
 import { BRAND } from "@/lib/brand";
 import { apiClient } from "@/lib/api-client";
 import { openVanessaChat, trackPublicEvent } from "@/lib/public-site";
@@ -33,16 +27,6 @@ const initial: Profile = {
   nome: "",
   whatsapp: "",
 };
-const steps = [
-  "Renda",
-  "Trabalho",
-  "FGTS",
-  "CPF",
-  "Imóvel",
-  "Cidade",
-  "Entrada",
-  "Contato",
-];
 const questions = [
   "Qual é a renda mensal da sua família?",
   "Como você trabalha hoje?",
@@ -78,8 +62,7 @@ const AnaliseSection = () => {
     [data, setData] = useState<Profile>(initial),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
-    [done, setDone] = useState(false),
-    [consent, setConsent] = useState(false);
+    [done, setDone] = useState(false);
   const update = (key: keyof Profile, value: string) =>
     setData((d) => ({ ...d, [key]: value }));
   const valid = [
@@ -90,9 +73,7 @@ const AnaliseSection = () => {
     !!data.possuiImovel,
     data.cidade.trim().length > 1,
     true,
-    data.nome.trim().length > 1 &&
-      digits(data.whatsapp).length >= 10 &&
-      consent,
+    data.nome.trim().length > 1 && digits(data.whatsapp).length >= 10,
   ];
   async function next() {
     if (busy || !valid[step]) return;
@@ -109,25 +90,23 @@ const AnaliseSection = () => {
     }
     setBusy(true);
     try {
-      const { error } = await apiClient
-        .from("leads")
-        .insert({
-          nome: data.nome.trim(),
-          whatsapp: data.whatsapp.trim(),
-          renda: amount(data.renda),
-          tipo_trabalho: data.tipoTrabalho,
-          fgts:
-            data.fgts === "Sim" ? "Sim (R$ " + data.fgtsValor + ")" : data.fgts,
-          cpf_limpo: data.cpfLimpo,
-          possui_imovel: data.possuiImovel,
-          cidade: data.cidade.trim(),
-          entrada: amount(data.entrada),
-          faixa: null,
-          subsidio_resultado: null,
-          produto_interesse: "Pré-análise de perfil imobiliário",
-          observacoes:
-            "Contato solicitado pelo formulário do site. Cliente autorizou retorno por WhatsApp.",
-        });
+      const { error } = await apiClient.from("leads").insert({
+        nome: data.nome.trim(),
+        whatsapp: data.whatsapp.trim(),
+        renda: amount(data.renda),
+        tipo_trabalho: data.tipoTrabalho,
+        fgts:
+          data.fgts === "Sim" ? "Sim (R$ " + data.fgtsValor + ")" : data.fgts,
+        cpf_limpo: data.cpfLimpo,
+        possui_imovel: data.possuiImovel,
+        cidade: data.cidade.trim(),
+        entrada: amount(data.entrada),
+        faixa: null,
+        subsidio_resultado: null,
+        produto_interesse: "Pré-análise de perfil imobiliário",
+        observacoes:
+          "Contato solicitado pelo formulário do site. Cliente autorizou retorno por WhatsApp.",
+      });
       if (error)
         throw Error(
           "Não conseguimos enviar agora. Confira sua conexão e tente novamente.",
@@ -180,17 +159,6 @@ const AnaliseSection = () => {
             prepara uma conversa mais objetiva sobre os imóveis e os próximos
             passos da sua compra.
           </p>
-          <ol>
-            <li>
-              <span>01</span>Você compartilha seu perfil.
-            </li>
-            <li>
-              <span>02</span>A Vanessa entende seus planos.
-            </li>
-            <li>
-              <span>03</span>Vocês avaliam as melhores opções.
-            </li>
-          </ol>
           <p className="vs-form-privacy">
             <ShieldCheck size={15} />
             <span>
@@ -216,15 +184,6 @@ const AnaliseSection = () => {
                     width: done ? "100%" : ((step + 1) / 8) * 100 + "%",
                   }}
                 />
-              </div>
-              <div className="vs-step-chips">
-                {steps.map((name, i) => (
-                  <span key={name} data-current={!done && i === step}>
-                    {i < step || done ? "✓ " : ""}
-                    {name}
-                    {i < 7 ? " ·" : ""}
-                  </span>
-                ))}
               </div>
             </div>
             <div className="vs-form-body">
@@ -407,16 +366,10 @@ const AnaliseSection = () => {
                           }
                         />
                       </label>
-                      <label className="flex items-start gap-2 text-xs leading-relaxed text-muted-foreground mt-2">
-                        <input
-                          type="checkbox"
-                          checked={consent}
-                          onChange={(e) => setConsent(e.target.checked)}
-                          className="mt-1 accent-primary"
-                        />
-                        Quero receber a orientação da Vanessa por WhatsApp sobre
-                        esta solicitação.
-                      </label>
+                      <p className="text-xs leading-relaxed text-muted-foreground">
+                        Ao enviar, você solicita a pré-análise e o retorno da
+                        Vanessa pelo WhatsApp informado.
+                      </p>
                     </div>
                   )}
                   {error && (

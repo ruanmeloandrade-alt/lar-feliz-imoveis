@@ -1,7 +1,6 @@
 import { ArrowUpRight, MapPin, ArrowDown } from "lucide-react";
 import { BRAND } from "@/lib/brand";
 import vanessa from "@/assets/vanessa.jpg";
-import neighborhood from "@/assets/condominio-bg.jpg";
 import flag from "@/assets/bandeira-sp.svg";
 const HeroSection = () => (
   <section className="vs-hero">
@@ -9,18 +8,15 @@ const HeroSection = () => (
       <div className="vs-hero-copy">
         <p className="vs-eyebrow">
           <MapPin size={15} />
-          Campinas e região
+          São Paulo · Campinas e região
         </p>
         <h1>
-          O seu próximo capítulo
-          <br />
-          começa com uma
-          <br />
-          <em>boa escolha.</em>
+          Seu imóvel em São Paulo.
+          <em>Seu próximo capítulo.</em>
         </h1>
         <p className="vs-hero-description">
-          Um imóvel que combina com a sua vida. Uma corretora ao seu lado para
-          encontrar o caminho até ele.
+          Imóveis em Campinas e região, com orientação especializada em Minha
+          Casa Minha Vida. Da escolha à documentação, a Vanessa acompanha você.
         </p>
         <div className="vs-hero-actions">
           <a className="vs-button" href="#imoveis">
@@ -42,14 +38,13 @@ const HeroSection = () => (
         </div>
         <div className="vs-region">
           <img src={flag} alt="São Paulo" />
-          {BRAND.cities.join(" · ")}
+          <span>
+            <strong>São Paulo</strong>
+            <small>{BRAND.cities.join(" · ")}</small>
+          </span>
         </div>
       </div>
       <div className="vs-hero-visual">
-        <div className="vs-hero-architecture">
-          <img src={neighborhood} alt="Arquitetura residencial" />
-          <span>Viver bem começa pela escolha.</span>
-        </div>
         <figure className="vs-portrait">
           <img src={vanessa} alt="Vanessa Simoni, corretora de imóveis" />
           <figcaption>
@@ -58,7 +53,6 @@ const HeroSection = () => (
             <p>Imóveis e Minha Casa Minha Vida</p>
           </figcaption>
         </figure>
-        <span className="vs-vertical">Pessoas, planos e novos começos.</span>
       </div>
     </div>
     <div className="container vs-hero-bottom">
