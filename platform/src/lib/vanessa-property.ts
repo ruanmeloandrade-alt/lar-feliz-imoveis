@@ -15,6 +15,7 @@ export const vanessaPropertySchema = z
     published: z.boolean().default(true),
     city: z.string().trim().max(120).default(""),
     address: z.string().trim().max(500).nullable().optional(),
+    neighborhood: z.string().trim().max(160).nullable().optional(),
     bedrooms: optionalNumber,
     bathrooms: optionalNumber,
     area_m2: optionalNumber,

@@ -2,6 +2,13 @@ import { describe, it, expect } from "vitest";
 import { vanessaPropertySchema } from "./vanessa-property";
 import { productDetailsFromRow, productDetailsPatch } from "./product-import-details";
 describe("Vanessa public property contract", () => {
+  it("persists the registered neighborhood without inventing absent values", () => {
+    const value = vanessaPropertySchema.parse({ neighborhood: "Centro" });
+    expect(productDetailsPatch({ property: value }).public_property as any).toMatchObject({
+      neighborhood: "Centro",
+    });
+    expect(vanessaPropertySchema.parse({}).neighborhood).toBeUndefined();
+  });
   it("preserves a migrated gallery and private import metadata without exposing it as property fields", () => {
     const row = {
       import_snapshot: {

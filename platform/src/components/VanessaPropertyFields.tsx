@@ -80,6 +80,7 @@ export function VanessaPropertyFields({
       <div className="grid grid-cols-2 gap-3">
         {[
           ["city", "Cidade"],
+          ["neighborhood", "Bairro"],
           ["address", "Endereço"],
           ["tag", "Destaque / selo"],
         ].map(([key, label]) => (

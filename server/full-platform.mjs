@@ -3,6 +3,7 @@ import { spawn } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
 import { once } from 'node:events';
 import { fileURLToPath } from 'node:url';
+import { publicPropertyExtras } from './property-metadata.mjs';
 
 const project='fnuhmypmhcwecziswbat';
 const origin=`https://${project}.supabase.co`;
@@ -16,6 +17,28 @@ async function rpc(name,body={}){
   if(!result.ok)throw Error('Catálogo indisponível.');
   return result.json();
 }
+
+async function publicCatalog(){
+  const rows=await rpc('vanessa_catalog');
+  if(!Array.isArray(rows))throw Error('Catálogo indisponível.');
+  if(!rows.length)return rows;
+  const serviceKey=process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if(!serviceKey)throw Error('Catálogo indisponível.');
+  const headers={...publicHeaders(),apikey:serviceKey,...(serviceKey.startsWith('sb_secret_')?{}:{Authorization:'Bearer '+serviceKey})};
+  const details=new Map();
+  for(let index=0;index<rows.length;index+=100){
+    const ids=rows.slice(index,index+100).map(row=>row.id);
+    if(ids.some(id=>typeof id!=='string'||! /^[a-f0-9-]{36}$/i.test(id)))throw Error('Catálogo inválido.');
+    const params=new URLSearchParams({workspace_id:'eq.2a0e0d29-4e23-47e6-bd9f-30aa8e15e698',active:'eq.true',select:'id,public_property',id:'in.('+ids.join(',')+')'});
+    const response=await fetch(origin+'/rest/v1/products?'+params,{headers,signal:AbortSignal.timeout(20000)});
+    if(!response.ok)throw Error('Catálogo indisponível.');
+    const metadata=await response.json();
+    if(!Array.isArray(metadata))throw Error('Catálogo indisponível.');
+    for(const row of metadata)details.set(row.id,row.public_property);
+  }
+  return rows.map(row=>({...row,...publicPropertyExtras(details.get(row.id))}));
+}
+
 function json(res,status,value){res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'no-store'}).end(JSON.stringify(value));}
 
 async function media(req,res,disk){
@@ -88,7 +111,7 @@ export function createFullPlatform(){
         json(res,health.ok?200:503,{status:health.ok?'ok':'unavailable',service:'vanessa-complete-platform',backend:'supabase-exclusive'});return true;
       }
       if(path==='/api/records/properties'&&['GET','HEAD'].includes(req.method)){
-        let rows=await rpc('vanessa_catalog');const id=url.searchParams.get('id');if(id)rows=rows.filter(r=>r.id===id);
+        let rows=await publicCatalog();const id=url.searchParams.get('id');if(id)rows=rows.filter(r=>r.id===id);
         json(res,200,{data:rows,error:null});return true;
       }
       if(path.startsWith('/api/listing-media/')&&['GET','HEAD'].includes(req.method)){

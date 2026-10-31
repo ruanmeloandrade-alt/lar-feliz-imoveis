@@ -1,4 +1,4 @@
-import { ArrowUpRight, MapPin, ArrowDown } from "lucide-react";
+import { ArrowUpRight, ArrowDown } from "lucide-react";
 import { BRAND } from "@/lib/brand";
 import vanessa from "@/assets/vanessa.jpg";
 import flag from "@/assets/bandeira-sp.svg";
@@ -6,10 +6,6 @@ const HeroSection = () => (
   <section className="vs-hero">
     <div className="container vs-hero-grid">
       <div className="vs-hero-copy">
-        <p className="vs-eyebrow">
-          <MapPin size={15} />
-          São Paulo · Campinas e região
-        </p>
         <h1>
           Seu imóvel em São Paulo.
           <em>Seu próximo capítulo.</em>
@@ -48,9 +44,15 @@ const HeroSection = () => (
         <figure className="vs-portrait">
           <img src={vanessa} alt="Vanessa Simoni, corretora de imóveis" />
           <figcaption>
-            <span>Conheça sua corretora</span>
-            <strong>Vanessa Simoni</strong>
-            <p>Imóveis e Minha Casa Minha Vida</p>
+            <div>
+              <span>Conheça sua corretora</span>
+              <strong>Vanessa Simoni</strong>
+              <p>Imóveis e Minha Casa Minha Vida</p>
+            </div>
+            <div className="vs-creci">
+              <span>CRECI-SP</span>
+              <strong>273754-F</strong>
+            </div>
           </figcaption>
         </figure>
       </div>

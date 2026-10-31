@@ -1,13 +1,14 @@
 import { Phone, Instagram, MessageCircle } from "lucide-react";
 import { BRAND } from "@/lib/brand";
 import SpFlagMark from "./SpFlagMark";
+import VanessaBrandLogo from "./VanessaBrandLogo";
 const Footer = () => (
   <footer className="vs-footer">
     <div className="container">
       <div className="vs-footer-grid">
         <div className="vs-footer-brand">
-          <strong>{BRAND.name}</strong>
-          <span>Corretora de imóveis · Minha Casa Minha Vida</span>
+          <VanessaBrandLogo />
+          <p className="vs-footer-creci">{BRAND.creci}</p>
           <p>
             Orientação próxima e transparente para encontrar seu imóvel em
             Campinas e região.
