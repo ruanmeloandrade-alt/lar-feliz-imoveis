@@ -31,10 +31,10 @@ const Footer = () => (
         </nav>
         <div className="vs-footer-contact">
           <h3>Converse com a Vanessa</h3>
-          <a href={"tel:+" + BRAND.whatsappNumber}>
+          <p className="vs-contact-number">
             <Phone size={15} />
             {BRAND.whatsappDisplay}
-          </a>
+          </p>
           <a
             href={"https://wa.me/" + BRAND.whatsappNumber}
             target="_blank"

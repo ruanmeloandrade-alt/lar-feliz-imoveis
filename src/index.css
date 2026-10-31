@@ -6,9 +6,9 @@
 
 @layer base {
   :root {
-    /* Bandeira do Estado de São Paulo — Branco, Preto #212125, Vermelho #C40008, Ouro #FFEC00 */
+    /* Bandeira do Estado de São Paulo — Branco, Preto #1a1a1a, Vermelho #c40008, Ouro #e5e5e5 */
     --background: 0 0% 100%;
-    --foreground: 240 6% 14%; /* #212125 */
+    --foreground: 0 0% 10%; /* #1a1a1a */
 
     --card: 0 0% 100%;
     --card-foreground: 240 6% 14%;
@@ -17,24 +17,24 @@
     --popover-foreground: 240 6% 14%;
 
     /* Vermelho institucional da bandeira */
-    --primary: 358 100% 39%; /* #C40008 */
+    --primary: 358 100% 38.4%; /* #c40008 */
     --primary-foreground: 0 0% 100%;
 
     /* Ouro / Amarelo estrela */
-    --secondary: 55 100% 50%; /* #FFEC00 */
-    --secondary-foreground: 240 6% 14%;
+    --secondary: 0 0% 10%; /* #e5e5e5 */
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 240 5% 96%;
-    --muted-foreground: 240 4% 40%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 40%;
 
     /* Verde discreto para subsídio */
-    --accent: 145 55% 34%;
+    --accent: 358 100% 38.4%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 240 5% 90%;
+    --border: 0 0% 86%;
     --input: 240 5% 88%;
     --ring: 358 100% 39%;
 
@@ -131,30 +131,30 @@
 
 /* Vanessa Simoni — editorial real-estate identity, public site only. */
 :root {
-  --background: 40 27% 97%;
-  --foreground: 240 8% 13%;
-  --primary: 354 79% 34%;
-  --secondary: 36 32% 53%;
-  --accent: 354 79% 34%;
-  --border: 35 14% 85%;
-  --muted: 40 20% 94%;
-  --hero-gradient: linear-gradient(125deg, #272526, #421c22);
-  --gold-gradient: linear-gradient(120deg, #b49464, #d6c19c);
-  --sp-flag-stripe: linear-gradient(90deg, #a01425, #b49464);
+  --background: 0 0% 100%;
+  --foreground: 0 0% 10%;
+  --primary: 358 100% 38.4%;
+  --secondary: 0 0% 10%;
+  --accent: 358 100% 38.4%;
+  --border: 0 0% 86%;
+  --muted: 0 0% 96%;
+  --hero-gradient: linear-gradient(125deg, #1a1a1a, #1a1a1a);
+  --gold-gradient: linear-gradient(120deg, #969696, #b3b3b3);
+  --sp-flag-stripe: linear-gradient(90deg, #c40008, #969696);
 }
 .vanessa-public {
-  background: #f8f6f2;
-  color: #262326;
+  background: #ffffff;
+  color: #1a1a1a;
 }
 .vanessa-public .divider-sp {
   height: 1px;
-  background: #d9cfbf;
+  background: #d0d0d0;
 }
 .vanessa-public section {
   scroll-margin-top: 95px;
 }
 .vanessa-public .shadow-card {
-  box-shadow: 0 8px 30px -20px #211c1c66;
+  box-shadow: 0 8px 30px -20px #1a1a1a66;
 }
 .vanessa-public button,
 .vanessa-public a,
@@ -164,8 +164,8 @@
 .vs-header {
   position: relative;
   z-index: 50;
-  border-bottom: 1px solid #ded8cf;
-  background: #f8f6f2;
+  border-bottom: 1px solid #d0d0d0;
+  background: #ffffff;
 }
 .vs-header-row {
   height: 92px;
@@ -188,7 +188,7 @@
   font-size: 9px;
   text-transform: uppercase;
   letter-spacing: 2.8px;
-  color: #81766c;
+  color: #777777;
 }
 .vs-desktop-nav {
   display: flex;
@@ -199,17 +199,17 @@
 }
 .vs-desktop-nav > a {
   padding: 14px 0;
-  color: #6f6865;
+  color: #5f5f5f;
 }
 .vs-desktop-nav > a:hover {
-  color: #a01425;
+  color: #c40008;
 }
 .vs-header-contact {
   display: flex;
   gap: 14px;
   align-items: center;
-  border-bottom: 1px solid #a01425;
-  color: #991326;
+  border-bottom: 1px solid #c40008;
+  color: #c40008;
   padding: 12px 0;
   margin-left: 14px;
 }
@@ -227,11 +227,11 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  color: #a01425;
+  color: #c40008;
 }
 .vs-hero {
   overflow: hidden;
-  background: #f8f6f2;
+  background: #ffffff;
   padding-top: 42px;
 }
 .vs-hero-grid {
@@ -248,7 +248,7 @@
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 2.3px;
-  color: #8a7360;
+  color: #5f5f5f;
   font-weight: 600;
 }
 .vs-hero h1 {
@@ -260,13 +260,13 @@
   margin: 28px 0;
 }
 .vs-hero h1 em {
-  color: #9d1729;
+  color: #c40008;
   font-weight: 500;
 }
 .vs-hero-description {
   max-width: 380px;
   font-size: 14px;
-  color: #756c67;
+  color: #5f5f5f;
   line-height: 1.9;
 }
 .vs-hero-actions {
@@ -281,7 +281,7 @@
   align-items: center;
   justify-content: center;
   gap: 23px;
-  background: #a01425;
+  background: #c40008;
   color: white;
   padding: 17px 23px;
   font-size: 12px;
@@ -290,7 +290,7 @@
   transition: background 0.2s;
 }
 .vs-button:hover {
-  background: #7f0e1c;
+  background: #c40008;
 }
 .vs-text-link {
   display: inline-flex;
@@ -298,7 +298,7 @@
   gap: 11px;
   font-size: 11px;
   font-weight: 600;
-  border-bottom: 1px solid #a99b8e;
+  border-bottom: 1px solid #969696;
   padding: 8px 0;
 }
 .vs-hero-note {
@@ -306,25 +306,25 @@
   align-items: center;
   gap: 15px;
   font-size: 10px;
-  color: #8a8076;
+  color: #777777;
   line-height: 1.8;
   margin-top: 36px;
 }
 .vs-hero-note strong {
   font-weight: 400;
-  color: #625c57;
+  color: #5f5f5f;
 }
 .vs-line {
   height: 42px;
   width: 1px;
-  background: #baa388;
+  background: #969696;
 }
 .vs-region {
   display: flex;
   gap: 9px;
   align-items: center;
   font-size: 9px;
-  color: #999085;
+  color: #969696;
   letter-spacing: 0.3px;
   margin-top: 25px;
 }
@@ -346,7 +346,7 @@
   right: 25%;
   height: 510px;
   overflow: hidden;
-  background: #d5c5b3;
+  background: #d0d0d0;
 }
 .vs-hero-architecture > img {
   width: 100%;
@@ -369,8 +369,8 @@
   inset: 0 5px 0 20%;
   overflow: hidden;
   border-radius: 190px 190px 3px 3px;
-  background: #d2c2af;
-  box-shadow: 0 20px 50px -30px #221d1955;
+  background: #b3b3b3;
+  box-shadow: 0 20px 50px -30px #1a1a1a55;
 }
 .vs-portrait > img {
   height: 100%;
@@ -382,20 +382,20 @@
   content: "";
   position: absolute;
   inset: 45% 0 0;
-  background: linear-gradient(transparent, #1d191bf2);
+  background: linear-gradient(transparent, #1a1a1af2);
 }
 .vs-portrait figcaption {
   position: absolute;
   z-index: 1;
   bottom: 30px;
   left: 30px;
-  color: #fff;
+  color: #ffffff;
 }
 .vs-portrait figcaption > span {
   font-size: 8px;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: #dfc9ac;
+  color: #d0d0d0;
 }
 .vs-portrait strong {
   display: block;
@@ -407,7 +407,7 @@
 .vs-portrait p {
   font-size: 10px;
   letter-spacing: 0.4px;
-  color: #ddd4cb;
+  color: #d0d0d0;
 }
 .vs-vertical {
   position: absolute;
@@ -417,7 +417,7 @@
   font-size: 8px;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: #a3988d;
+  color: #969696;
 }
 .vs-hero-bottom {
   display: flex;
@@ -428,7 +428,7 @@
   font-size: 9px;
   text-transform: uppercase;
   letter-spacing: 1.5px;
-  color: #98897b;
+  color: #777777;
 }
 .vs-hero-bottom > a {
   display: flex;
@@ -436,7 +436,7 @@
   align-items: center;
 }
 .vanessa-public #imoveis {
-  background: #f0ece5;
+  background: #f5f5f5;
 }
 .vanessa-public #imoveis > [aria-hidden] {
   display: none;
@@ -445,31 +445,31 @@
 .vanessa-public #imoveis [class~="text-background/80"],
 .vanessa-public #imoveis [class~="text-background/70"],
 .vanessa-public #imoveis [class~="text-primary-foreground/70"] {
-  color: #34302c;
+  color: #1a1a1a;
 }
 .vanessa-public #imoveis article {
   border-radius: 5px !important;
-  border: 1px solid #ded8cf;
+  border: 1px solid #d0d0d0;
   box-shadow: none;
 }
 .vanessa-public #imoveis article > div:first-child {
   aspect-ratio: 4/3;
 }
 .vanessa-public footer {
-  background: #262225;
+  background: #1a1a1a;
 }
 .vanessa-public #beneficios {
-  border-top: 1px solid #e2dbd0;
-  background: #f8f6f2;
+  border-top: 1px solid #e5e5e5;
+  background: #ffffff;
 }
 .vanessa-public .rounded-3xl {
   border-radius: 8px;
 }
 .vanessa-public #faq {
-  background: #f0ece5;
+  background: #f5f5f5;
 }
 .vs-analysis {
-  background: #ece7df;
+  background: #e5e5e5;
   padding: 95px 0;
 }
 .vs-analysis-grid {
@@ -493,7 +493,7 @@
 .vs-analysis-intro > p {
   font-size: 13px;
   line-height: 1.9;
-  color: #766c62;
+  color: #5f5f5f;
 }
 .vs-analysis-intro ol {
   margin-top: 35px;
@@ -506,28 +506,28 @@
   gap: 15px;
   align-items: center;
   font-size: 11px;
-  color: #73675c;
+  color: #5f5f5f;
 }
 .vs-analysis-intro li > span {
   display: grid;
   place-items: center;
   width: 29px;
   height: 29px;
-  border: 1px solid #b9aa99;
+  border: 1px solid #969696;
   border-radius: 50%;
   font-size: 10px;
-  color: #9d1729;
+  color: #c40008;
 }
 .vs-analysis-card {
-  background: #fff;
-  border: 1px solid #dcd2c6;
-  box-shadow: 0 20px 60px -40px #2b211c55;
+  background: #ffffff;
+  border: 1px solid #d0d0d0;
+  box-shadow: 0 20px 60px -40px #1a1a1a55;
   border-radius: 8px;
   overflow: hidden;
 }
 .vs-form-top {
   padding: 27px 30px 20px;
-  border-bottom: 1px solid #ece5dc;
+  border-bottom: 1px solid #e5e5e5;
 }
 .vs-form-step {
   display: flex;
@@ -535,17 +535,17 @@
   font-size: 9px;
   text-transform: uppercase;
   letter-spacing: 1.6px;
-  color: #8a7766;
+  color: #777777;
 }
 .vs-progress {
   height: 3px;
-  background: #eee8df;
+  background: #e5e5e5;
   margin-top: 15px;
 }
 .vs-progress > span {
   display: block;
   height: 100%;
-  background: #a01425;
+  background: #c40008;
   transition: width 0.3s;
 }
 .vs-step-chips {
@@ -557,10 +557,10 @@
 .vs-step-chips > span {
   font-size: 8px;
   letter-spacing: 0.3px;
-  color: #ada398;
+  color: #969696;
 }
 .vs-step-chips > span[data-current="true"] {
-  color: #a01425;
+  color: #c40008;
   font-weight: 700;
 }
 .vs-form-body {
@@ -576,7 +576,7 @@
 }
 .vs-form-body > .vs-form-hint {
   font-size: 12px;
-  color: #8d8074;
+  color: #777777;
   line-height: 1.7;
   margin-bottom: 25px;
 }
@@ -584,8 +584,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border: 1px solid #ded6cc;
-  background: #fff;
+  border: 1px solid #d0d0d0;
+  background: #ffffff;
   border-radius: 4px;
   padding: 15px 16px;
   text-align: left;
@@ -595,19 +595,19 @@
   min-height: 52px;
 }
 .vs-choice[data-selected="true"] {
-  border-color: #a01425;
-  background: #fcf7f7;
-  color: #a01425;
+  border-color: #c40008;
+  background: #ffffff;
+  color: #c40008;
 }
 .vs-choice > span:last-child {
   height: 16px;
   width: 16px;
-  border: 1px solid #c9bdb2;
+  border: 1px solid #b3b3b3;
   border-radius: 50%;
   flex-shrink: 0;
 }
 .vs-choice[data-selected="true"] > span:last-child {
-  border: 5px solid #a01425;
+  border: 5px solid #c40008;
 }
 .vs-form-grid {
   display: grid;
@@ -615,7 +615,7 @@
 }
 .vs-form-input {
   width: 100%;
-  border: 1px solid #d7cbbd;
+  border: 1px solid #d0d0d0;
   border-radius: 4px;
   background: white;
   height: 55px;
@@ -624,8 +624,8 @@
   outline: none;
 }
 .vs-form-input:focus {
-  border-color: #a01425;
-  box-shadow: 0 0 0 2px #a0142512;
+  border-color: #c40008;
+  box-shadow: 0 0 0 2px #c4000812;
 }
 .vs-form-label {
   display: block;
@@ -640,12 +640,12 @@
   gap: 15px;
   align-items: center;
   padding: 22px 30px;
-  background: #faf8f5;
-  border-top: 1px solid #ece5dc;
+  background: #ffffff;
+  border-top: 1px solid #e5e5e5;
 }
 .vs-form-footer > button:first-child {
   font-size: 11px;
-  color: #8b7d70;
+  color: #777777;
   display: flex;
   gap: 6px;
   align-items: center;
@@ -656,7 +656,7 @@
 }
 .vs-form-privacy {
   font-size: 9px;
-  color: #9b8e80;
+  color: #777777;
   line-height: 1.7;
   display: flex;
   gap: 7px;
@@ -672,12 +672,12 @@
 .vs-form-summary > div {
   display: flex;
   justify-content: space-between;
-  border-bottom: 1px solid #eee5da;
+  border-bottom: 1px solid #e5e5e5;
   padding-bottom: 10px;
   gap: 20px;
 }
 .vs-form-summary dt {
-  color: #8b7e71;
+  color: #777777;
 }
 .vs-form-summary dd {
   font-weight: 600;
@@ -835,12 +835,12 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  border: 1px solid #fff5;
+  border: 1px solid #ffffff55;
   border-radius: 40px;
-  background: #98182a;
+  background: #c40008;
   color: white;
   padding: 15px 20px;
-  box-shadow: 0 8px 28px #321c2933;
+  box-shadow: 0 8px 28px #1a1a1a33;
   font-size: 11px;
   font-weight: 600;
 }
@@ -852,10 +852,10 @@
   max-height: min(700px, 85dvh);
   display: flex;
   flex-direction: column;
-  background: #fff;
-  border: 1px solid #ddd0c0;
+  background: #ffffff;
+  border: 1px solid #d0d0d0;
   border-radius: 12px;
-  box-shadow: 0 22px 80px #1e132644;
+  box-shadow: 0 22px 80px #1a1a1a44;
   overflow: hidden;
 }
 .vs-chat-panel > header {
@@ -863,7 +863,7 @@
   justify-content: space-between;
   gap: 10px;
   padding: 17px 20px;
-  background: #272226;
+  background: #1a1a1a;
   color: white;
 }
 .vs-chat-panel > header > div {
@@ -878,7 +878,7 @@
 .vs-chat-panel > header small {
   display: block;
   font-size: 9px;
-  color: #ccbfb4;
+  color: #b3b3b3;
   margin-top: 3px;
 }
 .vs-chat-history {
@@ -900,31 +900,31 @@
   overflow-wrap: anywhere;
 }
 .vs-chat-assistant {
-  background: #f4efe8;
+  background: #f5f5f5;
   align-self: flex-start;
 }
 .vs-chat-user {
-  background: #99182a;
+  background: #c40008;
   color: white;
   align-self: flex-end;
 }
 .vs-chat-error {
   padding: 10px;
   font-size: 11px;
-  color: #8b3a2b;
-  background: #fff6ef;
+  color: #424242;
+  background: #ffffff;
   border-radius: 5px;
 }
 .vs-chat-status {
   font-size: 10px;
-  color: #8b7d70;
+  color: #777777;
 }
 .vs-chat-property {
   display: flex;
   align-items: center;
   gap: 11px;
   padding: 10px;
-  border: 1px solid #e0d5c8;
+  border: 1px solid #d0d0d0;
   border-radius: 6px;
 }
 .vs-chat-property img {
@@ -943,23 +943,23 @@
 }
 .vs-chat-property small {
   font-size: 9px;
-  color: #8b7d70;
+  color: #777777;
 }
 .vs-chat-property b {
   font-size: 10px;
-  color: #98182a;
+  color: #c40008;
 }
 .vs-chat-contact {
   padding: 15px 18px;
-  border-top: 1px solid #e9e0d7;
-  background: #fcfaf7;
+  border-top: 1px solid #e5e5e5;
+  background: #ffffff;
 }
 .vs-chat-contact > strong {
   font-size: 12px;
 }
 .vs-chat-contact > p {
   font-size: 10px;
-  color: #8b7d70;
+  color: #777777;
   line-height: 1.6;
   margin: 5px 0 11px;
 }
@@ -971,7 +971,7 @@
 .vs-chat-contact-fields input {
   min-width: 0;
   width: 100%;
-  border: 1px solid #d9ccbd;
+  border: 1px solid #d0d0d0;
   background: white;
   border-radius: 4px;
   padding: 10px;
@@ -983,7 +983,7 @@
   align-items: start;
   font-size: 9px;
   line-height: 1.5;
-  color: #7f7164;
+  color: #5f5f5f;
   margin: 11px 0;
 }
 .vs-chat-contact > label input {
@@ -1005,12 +1005,12 @@
   gap: 9px;
   padding: 14px 18px;
   font-size: 10px;
-  background: #f3eee8;
+  background: #f5f5f5;
 }
 .vs-chat-compose {
   display: flex;
   align-items: center;
-  border-top: 1px solid #e9e0d7;
+  border-top: 1px solid #e5e5e5;
   padding: 12px 15px;
   gap: 9px;
 }
@@ -1019,17 +1019,17 @@
   min-width: 0;
   font-size: 12px;
   outline: none;
-  background: #fff;
+  background: #ffffff;
 }
 .vs-chat-compose button {
-  color: #98182a;
+  color: #c40008;
   padding: 6px;
 }
 .vs-chat-retry {
   font-size: 10px;
   padding: 10px;
-  background: #f4efe8;
-  color: #98182a;
+  background: #f5f5f5;
+  color: #c40008;
 }
 @media (max-width: 767px) {
   .vs-chat-root {
@@ -1080,7 +1080,7 @@
 .vs-section h2 em,
 .vs-final-cta h2 em {
   font-style: normal;
-  color: #98182a;
+  color: #c40008;
 }
 .vs-section-heading {
   display: grid;
@@ -1095,13 +1095,13 @@
 .vs-section-heading > p {
   font-size: 14px;
   line-height: 1.85;
-  color: #746a64;
+  color: #5f5f5f;
   max-width: 390px;
   margin-bottom: 3px;
 }
 .vs-hero {
   padding: 45px 0 0;
-  border-top: 4px solid #a01425;
+  border-top: 4px solid #c40008;
 }
 .vs-hero-grid {
   grid-template-columns: 1.1fr 0.9fr;
@@ -1145,7 +1145,7 @@
   margin: 0;
   overflow: hidden;
   border-radius: 4px;
-  border: 1px solid #d8d0c8;
+  border: 1px solid #d0d0d0;
   background: white;
   box-shadow: none;
 }
@@ -1165,11 +1165,11 @@
   left: auto;
   bottom: auto;
   padding: 20px 24px;
-  color: #262326;
-  border-top: 1px solid #e3dbd3;
+  color: #1a1a1a;
+  border-top: 1px solid #e5e5e5;
 }
 .vs-portrait figcaption > span {
-  color: #86766a;
+  color: #777777;
   font-size: 9px;
 }
 .vs-portrait strong {
@@ -1178,14 +1178,14 @@
   margin-top: 4px;
 }
 .vs-portrait p {
-  color: #746a64;
+  color: #5f5f5f;
   font-size: 11px;
   margin-top: 4px;
 }
 .vs-region {
   margin-top: 23px;
   gap: 13px;
-  color: #5d5550;
+  color: #424242;
   font-size: 11px;
   line-height: 1.65;
 }
@@ -1200,27 +1200,27 @@
 }
 .vs-region strong {
   font-size: 12px;
-  color: #302b28;
+  color: #1a1a1a;
 }
 .vs-region small {
   font-size: 10px;
-  color: #746b64;
+  color: #5f5f5f;
 }
 .vs-hero-bottom {
-  border-bottom: 1px solid #ded6cc;
+  border-bottom: 1px solid #d0d0d0;
   margin-top: 30px;
   padding-top: 20px;
   padding-bottom: 20px;
 }
 .vanessa-public #imoveis.vs-listings {
-  background: #f2eee8;
+  background: #f5f5f5;
 }
 .vs-listing-toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 20px;
-  border-top: 1px solid #d9d0c5;
+  border-top: 1px solid #d0d0d0;
   padding: 19px 0 27px;
 }
 .vs-listing-toolbar nav {
@@ -1231,19 +1231,19 @@
 .vs-listing-toolbar nav button {
   padding: 9px 14px;
   font-size: 12px;
-  border: 1px solid #d8cfc3;
+  border: 1px solid #d0d0d0;
   border-radius: 3px;
   background: transparent;
-  color: #6b6056;
+  color: #5f5f5f;
 }
 .vs-listing-toolbar nav button[aria-pressed="true"] {
-  background: #292527;
-  border-color: #292527;
-  color: #fff;
+  background: #1a1a1a;
+  border-color: #1a1a1a;
+  color: #ffffff;
 }
 .vs-listing-toolbar > span {
   font-size: 11px;
-  color: #817367;
+  color: #5f5f5f;
   white-space: nowrap;
 }
 .vs-property-grid {
@@ -1255,9 +1255,9 @@
 .vanessa-public #imoveis article.vs-property-card {
   display: flex;
   flex-direction: column;
-  border: 1px solid #ded5cb;
+  border: 1px solid #d0d0d0;
   border-radius: 4px !important;
-  background: #fff;
+  background: #ffffff;
   overflow: hidden;
 }
 .vs-property-cover {
@@ -1266,7 +1266,7 @@
   width: 100%;
   aspect-ratio: 4/3;
   overflow: hidden;
-  background: #e5dfd8;
+  background: #e5e5e5;
   text-align: left;
 }
 .vs-property-cover > img,
@@ -1284,17 +1284,17 @@
   left: 14px;
   top: 14px;
   padding: 7px 10px;
-  background: #fff;
+  background: #ffffff;
   font-size: 10px;
   font-weight: 600;
-  color: #3f3531;
+  color: #1a1a1a;
   border-radius: 2px;
 }
 .vs-property-media {
   position: absolute;
   right: 14px;
   bottom: 14px;
-  background: #292527dd;
+  background: #1a1a1add;
   color: white;
   padding: 5px 8px;
   border-radius: 2px;
@@ -1308,7 +1308,7 @@
   justify-content: center;
   gap: 12px;
   font-size: 12px;
-  color: #85766a;
+  color: #777777;
 }
 .vs-property-play {
   position: absolute;
@@ -1326,7 +1326,7 @@
   display: flex;
   gap: 6px;
   align-items: center;
-  color: #8d6d5c;
+  color: #5f5f5f;
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 1.2px;
@@ -1339,7 +1339,7 @@
   line-height: 1.3;
   margin: 10px 0 16px;
   min-height: 62px;
-  color: #282326;
+  color: #1a1a1a;
 }
 .vs-property-body h3 button {
   text-align: left;
@@ -1349,9 +1349,9 @@
   flex-wrap: wrap;
   gap: 13px;
   padding: 13px 0;
-  border-top: 1px solid #eee5dc;
-  border-bottom: 1px solid #eee5dc;
-  color: #73665a;
+  border-top: 1px solid #e5e5e5;
+  border-bottom: 1px solid #e5e5e5;
+  color: #5f5f5f;
   font-size: 11px;
 }
 .vs-property-specs > span {
@@ -1362,7 +1362,7 @@
 .vs-property-description {
   font-size: 12px;
   line-height: 1.85;
-  color: #8b7d71;
+  color: #777777;
   margin: 15px 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -1373,13 +1373,13 @@
 .vs-property-price {
   margin-top: auto;
   padding: 17px 0;
-  border-top: 1px solid #eee5dc;
+  border-top: 1px solid #e5e5e5;
   display: grid;
   gap: 6px;
 }
 .vs-property-price > span {
   font-size: 10px;
-  color: #8d7c6e;
+  color: #777777;
   letter-spacing: 0.7px;
   text-transform: uppercase;
 }
@@ -1388,14 +1388,14 @@
   font-size: 27px;
   line-height: 1.25;
   font-weight: 600;
-  color: #98182a;
+  color: #c40008;
   letter-spacing: -1px;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 .vs-property-conditions {
   font-size: 10px;
-  color: #8b7b6d;
+  color: #777777;
   min-height: 82px;
   display: flex;
   flex-direction: column;
@@ -1409,7 +1409,7 @@
   line-height: 1.5;
 }
 .vs-property-conditions dd {
-  color: #51453e;
+  color: #424242;
   font-weight: 500;
   text-align: right;
   white-space: nowrap;
@@ -1417,7 +1417,7 @@
 .vs-property-actions {
   display: flex;
   gap: 9px;
-  border-top: 1px solid #eee5dc;
+  border-top: 1px solid #e5e5e5;
   padding-top: 18px;
 }
 .vs-property-actions .vs-button {
@@ -1430,9 +1430,9 @@
   display: grid;
   place-items: center;
   width: 44px;
-  border: 1px solid #cfc0b2;
+  border: 1px solid #b3b3b3;
   border-radius: 3px;
-  color: #756050;
+  color: #5f5f5f;
 }
 .vs-listings-more {
   display: flex;
@@ -1445,12 +1445,12 @@
   text-align: center;
   font-size: 10px;
   line-height: 1.7;
-  color: #918071;
+  color: #777777;
 }
 .vs-listing-empty {
   padding: 48px;
   background: white;
-  border: 1px solid #ddd1c5;
+  border: 1px solid #d0d0d0;
   text-align: center;
   display: grid;
   justify-items: center;
@@ -1458,31 +1458,31 @@
 }
 .vs-listing-empty p {
   font-size: 13px;
-  color: #867568;
+  color: #777777;
 }
 .vs-benefit-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  border-top: 1px solid #ded5cb;
-  border-left: 1px solid #ded5cb;
+  border-top: 1px solid #d0d0d0;
+  border-left: 1px solid #d0d0d0;
   list-style: none;
 }
 .vs-benefit-grid > li {
   padding: 30px;
-  border-right: 1px solid #ded5cb;
-  border-bottom: 1px solid #ded5cb;
+  border-right: 1px solid #d0d0d0;
+  border-bottom: 1px solid #d0d0d0;
 }
 .vs-benefit-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: #98182a;
+  color: #c40008;
   margin-bottom: 25px;
 }
 .vs-benefit-top > span {
   font-size: 11px;
   letter-spacing: 1px;
-  color: #b5a99c;
+  color: #969696;
 }
 .vs-benefit-grid h3 {
   font-size: 19px;
@@ -1493,11 +1493,11 @@
 .vs-benefit-grid p {
   font-size: 12px;
   line-height: 1.9;
-  color: #897b6f;
+  color: #777777;
 }
 .vs-process {
-  background: #292527;
-  color: #fff;
+  background: #1a1a1a;
+  color: #ffffff;
 }
 .vs-process-layout {
   display: grid;
@@ -1505,16 +1505,16 @@
   gap: 100px;
 }
 .vs-process .vs-eyebrow {
-  color: #ccb49b;
+  color: #b3b3b3;
   margin-bottom: 20px;
 }
 .vs-process h2 em {
-  color: #d1baa1;
+  color: #b3b3b3;
 }
 .vs-process-intro > p:not(.vs-eyebrow) {
   font-size: 14px;
   line-height: 1.9;
-  color: #c0b5ab;
+  color: #b3b3b3;
   margin: 24px 0;
 }
 .vs-process .vs-text-link {
@@ -1536,7 +1536,7 @@
 }
 .vs-process-number {
   font-family: "Playfair Display", serif;
-  color: #c7ad93;
+  color: #b3b3b3;
   font-size: 30px;
   line-height: 1;
 }
@@ -1548,7 +1548,7 @@
   position: absolute;
   right: 0;
   top: 0;
-  color: #bd9a7b;
+  color: #969696;
 }
 .vs-process-list h3 {
   font-family: Inter, sans-serif;
@@ -1560,10 +1560,10 @@
 .vs-process-list p {
   font-size: 12px;
   line-height: 1.85;
-  color: #b9aea5;
+  color: #b3b3b3;
 }
 .vs-testimonials {
-  background: #f8f6f2;
+  background: #ffffff;
 }
 .vs-testimonial-grid {
   display: grid;
@@ -1573,7 +1573,7 @@
 .vs-testimonial-grid > figure {
   margin: 0;
   padding: 25px 25px 0;
-  border-left: 1px solid #d8cec3;
+  border-left: 1px solid #d0d0d0;
   display: flex;
   flex-direction: column;
 }
@@ -1581,7 +1581,7 @@
   font-family: Georgia, serif;
   font-size: 65px;
   line-height: 0.8;
-  color: #a01425;
+  color: #c40008;
 }
 .vs-testimonial-grid blockquote {
   font-family: "Playfair Display", serif;
@@ -1591,7 +1591,7 @@
   flex: 1;
 }
 .vs-testimonial-grid figcaption {
-  border-top: 1px solid #e1d7cc;
+  border-top: 1px solid #d0d0d0;
   padding-top: 18px;
   display: grid;
   gap: 5px;
@@ -1599,10 +1599,10 @@
 }
 .vs-testimonial-grid figcaption > span {
   font-size: 10px;
-  color: #8c7c6d;
+  color: #777777;
 }
 .vanessa-public #faq.vs-faq {
-  background: #eee8e0;
+  background: #e5e5e5;
 }
 .vs-faq-layout {
   display: grid;
@@ -1618,11 +1618,11 @@
 .vs-faq-layout > div:first-child > p:not(.vs-eyebrow) {
   font-size: 13px;
   line-height: 1.85;
-  color: #837364;
+  color: #5f5f5f;
   margin: 22px 0;
 }
 .vs-faq-list > div {
-  border-color: #cfc2b4;
+  border-color: #b3b3b3;
 }
 .vs-faq-list h3 > button {
   font-family: Inter, sans-serif;
@@ -1635,17 +1635,17 @@
 }
 .vs-faq-list h3 > button:hover {
   text-decoration: none;
-  color: #98182a;
+  color: #c40008;
 }
 .vs-faq-list [role="region"] {
   font-size: 12px;
   line-height: 1.9;
-  color: #827264;
+  color: #5f5f5f;
 }
 .vs-final-cta {
   padding: 70px 0;
-  background: #fff;
-  border-top: 1px solid #e2d7ca;
+  background: #ffffff;
+  border-top: 1px solid #d0d0d0;
 }
 .vs-final-cta > .container {
   display: flex;
@@ -1660,7 +1660,7 @@
   max-width: 480px;
   font-size: 13px;
   line-height: 1.85;
-  color: #8a7969;
+  color: #777777;
   margin-top: 20px;
 }
 .vs-final-actions {
@@ -1671,8 +1671,8 @@
   flex-shrink: 0;
 }
 .vanessa-public footer.vs-footer {
-  background: #262225;
-  color: #eee6dc;
+  background: #1a1a1a;
+  color: #e5e5e5;
   padding: 58px 0 25px;
 }
 .vs-footer-grid {
@@ -1691,13 +1691,13 @@
   font-size: 9px;
   letter-spacing: 1.2px;
   text-transform: uppercase;
-  color: #c1a88d;
+  color: #969696;
   margin-top: 9px;
 }
 .vs-footer-brand > p {
   font-size: 12px;
   line-height: 1.9;
-  color: #b4a79b;
+  color: #969696;
   max-width: 340px;
   margin-top: 20px;
 }
@@ -1707,7 +1707,7 @@
   align-items: center;
   font-size: 10px;
   line-height: 1.7;
-  color: #aa9d90;
+  color: #969696;
   margin-top: 20px;
 }
 .vs-footer h3 {
@@ -1715,7 +1715,7 @@
   font-size: 12px;
   font-weight: 500;
   margin-bottom: 22px;
-  color: #d6c2ac;
+  color: #b3b3b3;
 }
 .vs-footer nav > a,
 .vs-footer-contact > a {
@@ -1724,12 +1724,12 @@
   align-items: center;
   font-size: 11px;
   line-height: 1.8;
-  color: #bdafa1;
+  color: #b3b3b3;
   margin: 11px 0;
   overflow-wrap: anywhere;
 }
 .vs-footer a:hover {
-  color: #fff;
+  color: #ffffff;
 }
 .vs-footer-legal {
   border-top: 1px solid #ffffff1f;
@@ -1741,12 +1741,12 @@
 .vs-footer-legal p {
   font-size: 9px;
   line-height: 1.9;
-  color: #958779;
+  color: #777777;
   max-width: 1000px;
 }
 .vs-footer-legal > span {
   font-size: 9px;
-  color: #a49483;
+  color: #969696;
 }
 @media (max-width: 1023px) {
   .vs-hero-grid {
@@ -1988,4 +1988,155 @@
     animation: none !important;
     transition: none !important;
   }
+}
+
+.vs-contact-number {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 11px;
+  line-height: 1.8;
+  color: #b3b3b3;
+  margin: 11px 0;
+}
+
+/* São Paulo identity: black hero, red accents, white content. */
+.vs-header {
+  background: #111;
+  border-color: #333;
+  color: #fff;
+}
+.vs-wordmark span {
+  color: #b3b3b3;
+}
+.vs-desktop-nav > a {
+  color: #ddd;
+}
+.vs-desktop-nav > a:hover {
+  color: #fff;
+}
+.vs-header-contact {
+  color: #fff;
+  border-color: #c40008;
+}
+.vs-menu-toggle,
+.vs-mobile-nav {
+  color: #fff;
+}
+.vs-hero {
+  background: #111;
+  color: #fff;
+}
+.vs-hero .vs-eyebrow {
+  color: #ddd;
+}
+.vs-hero h1 em {
+  color: #ed2536;
+}
+.vs-hero-description {
+  color: #d0d0d0;
+}
+.vs-hero .vs-text-link {
+  color: #fff;
+  border-color: #777;
+}
+.vs-hero-note,
+.vs-hero-note strong {
+  color: #b3b3b3;
+}
+.vs-line {
+  background: #c40008;
+}
+.vs-region strong {
+  color: #fff;
+}
+.vs-region small {
+  color: #b3b3b3;
+}
+.vs-hero-bottom {
+  border-color: #444;
+  color: #b3b3b3;
+}
+.vs-portrait {
+  border-color: #444;
+}
+.vs-portrait figcaption {
+  color: #111;
+}
+.vs-process {
+  background: #a40008;
+}
+.vs-process .vs-eyebrow {
+  color: #f1c5c7;
+}
+.vs-process h2 em {
+  color: #fff;
+}
+.vs-process-intro > p:not(.vs-eyebrow),
+.vs-process-list p {
+  color: #f2dadb;
+}
+.vs-process-list > li {
+  border-color: #ffffff40;
+}
+.vs-process-number,
+.vs-process-list svg {
+  color: #fff;
+}
+.vs-analysis {
+  background: #161616;
+}
+.vs-analysis-intro h2 {
+  color: #fff;
+}
+.vs-analysis-intro h2 em {
+  color: #ed2536;
+  font-style: normal;
+}
+.vs-analysis-intro > p {
+  color: #ccc;
+}
+.vs-analysis-intro .vs-eyebrow {
+  color: #ddd;
+}
+.vs-analysis-intro .vs-form-privacy {
+  color: #aaa;
+}
+.vs-analysis-grid > div:last-child > .vs-form-privacy {
+  color: #bbb;
+}
+.vs-property-actions > a {
+  color: #111;
+  border-color: #aaa;
+}
+.vs-property-price > strong {
+  color: #c40008;
+}
+.vs-listing-toolbar nav button[aria-pressed="true"] {
+  background: #111;
+  border-color: #111;
+}
+.vs-benefit-top {
+  color: #c40008;
+}
+.vs-final-cta {
+  border-top: 5px solid #c40008;
+}
+.vs-footer-brand > span,
+.vs-footer h3 {
+  color: #fff;
+}
+.vs-footer-region {
+  color: #bbb;
+}
+
+.vs-chat-launcher {
+  width: 56px;
+  height: 56px;
+  justify-content: center;
+  padding: 15px;
+  border-radius: 50%;
+}
+.vs-chat-launcher > span {
+  display: none;
 }
