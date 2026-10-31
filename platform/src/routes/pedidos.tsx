@@ -3,6 +3,7 @@ import { useState } from "react";
 import { AppSidebar } from "@/components/dashboard/AppSidebar";
 import { SlimErpWorkspace } from "@/components/erp/SlimErpWorkspace";
 import { VanessaFinancePanel } from "@/components/erp/VanessaFinancePanel";
+import { VanessaGalleryManager } from "@/components/erp/VanessaGalleryManager";
 export const Route = createFileRoute("/pedidos")({
   ssr: false,
   head: () => ({ meta: [{ title: "Negociações · Vanessa Simoni" }] }),
@@ -15,6 +16,9 @@ function NegotiationsPage() {
       <AppSidebar />
       <main className="min-w-0 flex-1 overflow-y-auto">
         <div className="mx-auto max-w-[1500px] space-y-6 p-4 md:p-6">
+          <div className="flex justify-end">
+            <VanessaGalleryManager />
+          </div>
           <div
             role="tablist"
             aria-label="Gestão de negociações"

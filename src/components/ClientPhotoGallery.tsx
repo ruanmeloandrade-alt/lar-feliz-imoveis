@@ -1,16 +1,37 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { vanessaClientPhotos, type ClientPhoto } from "@/lib/client-photos";
+import { type ClientPhoto } from "@/lib/client-photos";
 export default function ClientPhotoGallery() {
   const [selected, setSelected] = useState<ClientPhoto | null>(null);
-  if (!vanessaClientPhotos.length) return null;
+  const [photos, setPhotos] = useState<ClientPhoto[]>([]);
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch("/api/public/client-gallery", { signal: controller.signal })
+      .then((response) => {
+        if (!response.ok) throw Error("Galeria indisponível");
+        return response.json();
+      })
+      .then((result) => {
+        if (Array.isArray(result.photos))
+          setPhotos(
+            result.photos.filter(
+              (photo: ClientPhoto) =>
+                typeof photo.src === "string" &&
+                /^\/api\/client-gallery-media\/[a-f0-9.-]+$/.test(photo.src),
+            ),
+          );
+      })
+      .catch(() => {});
+    return () => controller.abort();
+  }, []);
+  if (!photos.length) return null;
   return (
     <>
       <div
         className="vs-client-gallery"
         aria-label="Fotos da Vanessa com clientes"
       >
-        {vanessaClientPhotos.map((photo, index) => (
+        {photos.map((photo, index) => (
           <button
             type="button"
             key={photo.src}
