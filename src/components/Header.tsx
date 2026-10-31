@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Menu, X, ArrowUpRight } from "lucide-react";
-import { BRAND } from "@/lib/brand";
+import VanessaBrandLogo from "./VanessaBrandLogo";
 import { openVanessaChat } from "@/lib/public-site";
 const Header = () => {
   const [open, setOpen] = useState(false);
@@ -14,8 +14,7 @@ const Header = () => {
     <header className="vs-header">
       <div className="container vs-header-row">
         <a href="#" className="vs-wordmark">
-          <strong>{BRAND.name}</strong>
-          <span>Corretora de imóveis</span>
+          <VanessaBrandLogo />
         </a>
         <nav aria-label="Navegação principal" className="vs-desktop-nav">
           {links.map(([href, label]) => (

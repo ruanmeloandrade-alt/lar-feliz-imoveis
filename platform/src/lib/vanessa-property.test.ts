@@ -2,6 +2,20 @@ import { describe, it, expect } from "vitest";
 import { vanessaPropertySchema } from "./vanessa-property";
 import { productDetailsFromRow, productDetailsPatch } from "./product-import-details";
 describe("Vanessa public property contract", () => {
+  it("persists neighborhood and room counts without guessing absent values", () => {
+    const value = vanessaPropertySchema.parse({
+      neighborhood: "Centro",
+      kitchens: 1,
+      living_rooms: 2,
+    });
+    expect(productDetailsPatch({ property: value }).public_property as any).toMatchObject({
+      neighborhood: "Centro",
+      kitchens: 1,
+      living_rooms: 2,
+    });
+    expect(vanessaPropertySchema.parse({}).kitchens).toBeUndefined();
+    expect(vanessaPropertySchema.safeParse({ kitchens: 1.5 }).success).toBe(false);
+  });
   it("preserves a migrated gallery and private import metadata without exposing it as property fields", () => {
     const row = {
       import_snapshot: {

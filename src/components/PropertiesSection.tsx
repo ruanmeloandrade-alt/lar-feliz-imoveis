@@ -15,6 +15,12 @@ import { isVideoUrl } from "@/lib/media";
 import type { Property } from "@/types/property";
 import PropertyDetailDialog from "./PropertyDetailDialog";
 import verticeVideoCover from "@/assets/vertice-video-cover.jpg";
+import PropertySearchFilters from "./PropertySearchFilters";
+import {
+  emptyPropertyFilters,
+  filterProperties,
+  type PropertyFilters,
+} from "@/lib/property-filters";
 const money = (v: number | null) =>
   v == null
     ? "—"
@@ -50,7 +56,11 @@ const PropertiesSection = () => {
   const [all, setAll] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<Property | null>(null);
-  const [cityFilter, setCityFilter] = useState<string>("Todas");
+  const [filters, setFilters] = useState<PropertyFilters>({
+    ...emptyPropertyFilters,
+  });
+  const [loadError, setLoadError] = useState("");
+  const [retry, setRetry] = useState(0);
   const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
@@ -59,11 +69,14 @@ const PropertiesSection = () => {
       .select("*")
       .eq("published", true)
       .order("created_at", { ascending: false })
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        setLoadError(
+          error ? "Não foi possível carregar os imóveis. Tente novamente." : "",
+        );
         setAll((data ?? []) as unknown as Property[]);
         setLoading(false);
       });
-  }, []);
+  }, [retry]);
 
   useEffect(() => {
     const handler = (e: Event) => {
@@ -74,9 +87,10 @@ const PropertiesSection = () => {
     window.addEventListener("vanessa:view-property", handler);
     return () => window.removeEventListener("vanessa:view-property", handler);
   }, [all]);
-  const cities = ["Todas", ...Array.from(new Set(all.map((p) => p.city)))];
-  const list =
-    cityFilter === "Todas" ? all : all.filter((p) => p.city === cityFilter);
+  const cities = Array.from(
+    new Set(all.map((p) => p.city).filter(Boolean)),
+  ).sort((a, b) => a.localeCompare(b, "pt-BR"));
+  const list = filterProperties(all, filters);
   const INITIAL_LIMIT = 3;
   const visibleList = expanded ? list : list.slice(0, INITIAL_LIMIT);
   const hiddenCount = list.length - INITIAL_LIMIT;
@@ -98,36 +112,40 @@ const PropertiesSection = () => {
             plantas e detalhes antes de conversar com a Vanessa.
           </p>
         </div>
-        {all.length > 0 && (
-          <div className="vs-listing-toolbar">
-            <nav aria-label="Filtrar imóveis por cidade">
-              {cities.map((c) => (
-                <button
-                  key={c}
-                  aria-pressed={cityFilter === c}
-                  onClick={() => {
-                    setCityFilter(c);
-                    setExpanded(false);
-                  }}
-                >
-                  {c}
-                </button>
-              ))}
-            </nav>
-            <span>
-              {list.length}{" "}
-              {list.length === 1 ? "imóvel disponível" : "imóveis disponíveis"}
-            </span>
+        <PropertySearchFilters
+          value={filters}
+          onChange={(next) => {
+            setFilters(next);
+            setExpanded(false);
+          }}
+          cities={cities}
+          resultCount={list.length}
+        />
+        {loadError ? (
+          <div className="vs-listing-empty" role="alert">
+            <p>{loadError}</p>
+            <button
+              className="vs-text-link"
+              onClick={() => {
+                setLoading(true);
+                setRetry((n) => n + 1);
+              }}
+            >
+              Recarregar imóveis
+            </button>
           </div>
-        )}
-        {loading ? (
+        ) : loading ? (
           <p role="status" className="vs-listing-empty">
             Carregando imóveis…
           </p>
         ) : list.length === 0 ? (
           <div className="vs-listing-empty">
             <Building2 size={32} />
-            <h3>Novas oportunidades em breve.</h3>
+            <h3>
+              {all.length
+                ? "Nenhum imóvel corresponde a estes filtros."
+                : "Novas oportunidades em breve."}
+            </h3>
             <p>
               Converse com a Vanessa para saber mais sobre os próximos
               empreendimentos.

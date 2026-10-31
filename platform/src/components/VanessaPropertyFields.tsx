@@ -80,6 +80,7 @@ export function VanessaPropertyFields({
       <div className="grid grid-cols-2 gap-3">
         {[
           ["city", "Cidade"],
+          ["neighborhood", "Bairro"],
           ["address", "Endereço"],
           ["tag", "Destaque / selo"],
         ].map(([key, label]) => (
@@ -98,6 +99,8 @@ export function VanessaPropertyFields({
         {[
           ["bedrooms", "Quartos"],
           ["bathrooms", "Banheiros"],
+          ["kitchens", "Cozinhas"],
+          ["living_rooms", "Salas"],
           ["area_m2", "Área (m²)"],
           ["subsidy_estimate", "Subsídio estimado"],
           ["monthly_parcel", "Parcela mensal"],
@@ -109,7 +112,9 @@ export function VanessaPropertyFields({
               aria-label={label}
               type="number"
               min="0"
-              step={["bedrooms", "bathrooms"].includes(key) ? "1" : "0.01"}
+              step={
+                ["bedrooms", "bathrooms", "kitchens", "living_rooms"].includes(key) ? "1" : "0.01"
+              }
               className={control}
               value={(property[key as keyof VanessaProperty] as number) ?? ""}
               onChange={(e) =>

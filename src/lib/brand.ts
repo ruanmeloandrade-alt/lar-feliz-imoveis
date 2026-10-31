@@ -1,5 +1,6 @@
 export const BRAND = {
   name: "Vanessa Simoni",
+  creci: "CRECI-SP 273754-F",
   role: "Corretora de Imóveis — Especialista Minha Casa Minha Vida",
   whatsappNumber: "5519992250701",
   whatsappDisplay: "(19) 99225-0701",
