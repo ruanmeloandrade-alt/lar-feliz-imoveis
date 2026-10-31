@@ -20,7 +20,7 @@ afterEach(() => {
 it('opens a focused compact registration step instead of placing fields after the property description',()=>{
   render(<PropertyDetailDialog property={{...property,address:null,description:'Descrição extensa do empreendimento.',price:null,subsidy_estimate:null,monthly_parcel:null,down_payment:null,show_parcel:false,show_down_payment:false,bedrooms:2,bathrooms:1,area_m2:50,tag:'Enquadrado MRV',images:[],pdfs:[],plans:[],construction_status:'na_planta',launch_date:null,published:true}} onOpenChange={()=>{}}/>);
   expect(screen.queryByText('Enquadrado MRV')).toBeNull();
-  fireEvent.click(screen.getByRole('button',{name:'Tenho interesse',exact:true}));
+  fireEvent.click(screen.getByRole('button',{name:'Tenho interesse'}));
   expect(screen.getByLabelText('Nome')).toHaveFocus();
   expect(screen.getByLabelText('WhatsApp com DDD')).toBeVisible();
   expect(screen.queryByText('Descrição extensa do empreendimento.')).toBeNull();
