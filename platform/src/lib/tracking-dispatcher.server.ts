@@ -243,6 +243,9 @@ async function toMeta(admin: AnySb, input: DispatchInput): Promise<string | null
   const metaEvent = MAP[input.eventName.toLowerCase()];
   if (!metaEvent) return null;
 
+  const {data: connectedMeta,error: connectionError}=await admin.from('integrations').select('status').eq('workspace_id',input.workspaceId).in('provider',['meta','meta_capi']).in('status',['connected','conectado','active']).limit(1);
+  if(connectionError)throw new Error('Meta connection status unavailable.');
+  if(!connectedMeta?.length)return null;
   const { data: subscription, error: subscriptionError } = await admin
     .from("subscriptions")
     .select("status, trial_ends_at, plan:plans(code)")

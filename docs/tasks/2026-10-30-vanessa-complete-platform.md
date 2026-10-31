@@ -112,3 +112,16 @@ Tracking: site oficial cadastrado por padrão, pixel instalado só no site públ
 Validação: 23 testes de contrato imobiliário e tutoriais passaram; os 12 cadastros originais validaram pelo schema; insert público de imóvel novo, rascunho oculto e ausência de custos no retorno foram testados na própria Vanessa; dados de teste removidos. Upload autenticado no Storage e persistência de parceiro foram testados. Vanessa recebeu 403 na edição de tutorial e suporte inseriu/removeu módulo temporário com sucesso.
 
 DNS: WWW com certificado válido, porém há divergência entre resolvedores e o apex ainda está VALIDATING_OWNERSHIP. Não ignorar avisos. Acesso alternativo Railway permanece disponível.
+
+
+## Página pública profissional, atendimento e VGV
+
+Nova apresentação pública com fotos originais Vanessa, paleta refinada, cabeçalho editorial e formulário de8etapas sem gamificação. Removida a estimativa genérica de crédito baseada em regras antigas; exibido resumo dos dados declarados, sem promessa de aprovação. O formulário só confirma envio após cadastro real e preserva dados ao falhar.
+
+Botão flutuante e CTA do cabeçalho abrem atendimento virtual. Chave própria de IA obrigatória; ausência de chave não produz resposta simulada e mantém captura de nome/WhatsApp com autorização do cliente. Sessões assinadas, limites de corpo/frequência, conversas privadas, imóveis sugeridos restritos ao catálogo público. Registro idempotente na primeira etapa do funil existente; não foi criado gatilho específico, conforme instrução final. As informações explicitamente declaradas preenchem campos da ficha, incluindo idade e cidade. Teste confirmou primeira etapa, duas sessões com mesmo WhatsApp sem duplicar lead e2campos preenchidos; fixtures removidas.
+
+VGV e comissões ligados ao valor do lead e às etapas reais, separado de valor de catálogo. Percentual ou valor fixo, recebimento informado, previsão, imóvel e parceiro. RPC atômica valida acesso e concorrência e mantém trilha de atividade. Teste: R$200.000 ×3%=R$6.000, R$1.500 de recebimento informado; edição concorrente e recebimento acima do combinado rejeitados. Fixtures removidas.
+
+Tracking: compatibilidade real do schema nativo restaurada, visita anônima coletada200, retry deduplicado200/1registro, propriedades/visitante sincronizados; fixtures removidas. Medição adicional somente no site público: botões, imóvel visualizado e segundos com detalhe visível. Sistema interno não carrega o coletor público. Meta não dispara sem conexão configurada.
+
+Verificações:27testes de imóvel/tutoriais/finanças/dados declarados, builds público/nativo e typecheck da página pública passaram. Inferência IA e envio/recebimento WhatsApp ainda dependem de chave própria e pareamento físico. DNS apex pendente na última consulta; WWW certificado válido, mas resolvedores locais divergiram. Não afirmar certificado universal ou nova versão publicada antes de SUCCESS e prova visual no Chrome.

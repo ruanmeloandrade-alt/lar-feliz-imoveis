@@ -1,3 +1,4 @@
+import {trackPublicEvent} from "@/lib/public-site";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,7 @@ const PropertiesSection = () => {
       });
   }, []);
 
+  useEffect(()=>{const handler=(e:Event)=>{const id=(e as CustomEvent<{id:string}>).detail?.id;const property=all.find(p=>p.id===id);if(property)setSelected(property);};window.addEventListener('vanessa:view-property',handler);return()=>window.removeEventListener('vanessa:view-property',handler);},[all]);
   const cities = ["Todas", ...Array.from(new Set(all.map((p) => p.city)))];
   const list = cityFilter === "Todas" ? all : all.filter((p) => p.city === cityFilter);
   const INITIAL_LIMIT = 3;
@@ -371,7 +373,7 @@ const PropertiesSection = () => {
         )}
 
         <p className="text-center text-xs text-background/60 mt-8 max-w-2xl mx-auto">
-          Valores meramente ilustrativos, sujeitos a disponibilidade, análise de crédito e condições da instituição financeira.
+          Valores e disponibilidade sujeitos à confirmação da corretora. O financiamento depende da análise da instituição financeira.
         </p>
       </div>
 

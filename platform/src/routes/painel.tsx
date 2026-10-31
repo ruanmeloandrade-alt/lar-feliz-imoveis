@@ -1,3 +1,4 @@
+import {VanessaFinancePanel} from "@/components/erp/VanessaFinancePanel";
 // SLIM_DASHBOARD_DATA_CONTRACT_V1
 import { SlimErpWorkspace } from "@/components/erp/SlimErpWorkspace";
 import { createFileRoute } from "@tanstack/react-router";
@@ -139,8 +140,9 @@ function DashboardPage() {
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <div className="flex-1 overflow-y-auto">
           <div className="p-5 space-y-5">
+            <VanessaFinancePanel compact/>
             <SlimErpWorkspace mode="summary" />
-            <p className="text-xs text-muted-foreground">Abaixo: indicadores de oportunidades e atendimento do CRM. Os totais de pedidos, recebimentos e cancelamentos estão no bloco Gestão ERP acima.</p>
+            <p className="text-xs text-muted-foreground">Abaixo: indicadores de oportunidades e atendimento do CRM. Os valores de VGV e comissões vêm do funil; os registros comerciais e documentos ficam no histórico de negociações.</p>
             {metrics && !dashboardQuery.error && metrics.read_status !== "error" ? <>
             <DashboardHeader metrics={metrics} onEdit={() => setEditOpen(true)} onPrint={() => window.print()} syncBusy={syncBusy} syncMessage={syncError?.message ?? dashboard?.syncError} onSync={refreshDashboard} periodSlot={<DashboardPeriodPicker value={period} onChange={setPeriod} />} />
             {!!liveData?.issues?.length && <div role="status" className="rounded-lg border border-amber-500/40 bg-amber-500/5 p-3 text-sm">

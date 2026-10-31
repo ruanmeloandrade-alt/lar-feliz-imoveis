@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { MessageSquare, UserCheck, FileText, Key, ArrowRight } from "lucide-react";
 
 const steps = [
-  { icon: MessageSquare, title: "Pré-análise no site", desc: "Você preenche o formulário e recebe uma indicação inicial da sua faixa." },
+  { icon: MessageSquare, title: "Pré-análise no site", desc: "Você compartilha seu perfil e seus planos para uma orientação individual." },
   { icon: UserCheck, title: "Contato com a corretora", desc: "A Vanessa avalia seu perfil e te orienta sobre as possibilidades reais." },
   { icon: FileText, title: "Documentação e simulação oficial", desc: "Ajudamos com os documentos e enviamos para análise da instituição financeira." },
   { icon: Key, title: "Escolha do imóvel e assinatura", desc: "Selecionamos imóveis compatíveis e acompanhamos até a entrega das chaves." },

@@ -11,7 +11,7 @@ import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 
 const Index = () => (
-  <>
+  <div className="vanessa-public">
     <Header />
     <main>
       <HeroSection />
@@ -27,7 +27,7 @@ const Index = () => (
     </main>
     <Footer />
     <WhatsAppFloat />
-  </>
+  </div>
 );
 
 export default Index;
