@@ -44,6 +44,7 @@ const TestimonialsSection = () => (
           </figure>
         ))}
       </div>
+      <ClientPhotoGallery />
     </div>
   </section>
 );

@@ -24,6 +24,10 @@ export default function ClientPhotoGallery() {
               alt={photo.alt}
               loading="lazy"
               decoding="async"
+              style={{
+                objectPosition: photo.position ?? "center",
+                objectFit: photo.fit ?? "cover",
+              }}
             />
           </button>
         ))}

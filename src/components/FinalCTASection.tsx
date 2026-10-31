@@ -1,4 +1,4 @@
-import { ArrowUpRight } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import { openVanessaChat } from "@/lib/public-site";
 const FinalCTASection = () => (
   <section className="vs-final-cta">
@@ -17,10 +17,10 @@ const FinalCTASection = () => (
       </div>
       <div className="vs-final-actions">
         <button className="vs-button" onClick={() => openVanessaChat()}>
-          Começar atendimento <ArrowUpRight size={18} />
+          <MessageCircle size={20} aria-hidden="true" /> Começar atendimento
         </button>
         <a className="vs-text-link" href="#analise">
-          Fazer minha pré-análise <ArrowUpRight size={16} />
+          Fazer minha pré-análise
         </a>
       </div>
     </div>
