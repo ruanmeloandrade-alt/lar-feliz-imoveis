@@ -42,7 +42,7 @@ export const listTrackingEvents = createServerFn({ method: "POST" })
     await assertMember(supabase, data.workspaceId, userId);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let q: any = (supabase as any).from("tracking_events")
-      .select("id, event_name, page_path, page_url, utm_source, utm_medium, utm_campaign, value, created_at")
+      .select("id, event_name, page_path, page_url, utm_source, utm_medium, utm_campaign, value, properties, created_at")
       .eq("workspace_id", data.workspaceId)
       .order("created_at", { ascending: false })
       .limit(data.limit);
