@@ -4,6 +4,7 @@ import { randomBytes } from 'node:crypto';
 import { once } from 'node:events';
 import { fileURLToPath } from 'node:url';
 import { publicPropertyExtras } from './property-metadata.mjs';
+import { handleClientGallery } from './client-gallery.mjs';
 
 const project='fnuhmypmhcwecziswbat';
 const origin=`https://${project}.supabase.co`;
@@ -102,6 +103,7 @@ export function createFullPlatform(){
   return async(req,res,url)=>{
     try{
       const path=url.pathname;
+      if(await handleClientGallery(req,res,url))return true;
       if(String(req.headers.host??'').split(':')[0].toLowerCase()==='corretoravanessasimoni.com'){res.writeHead(308,{Location:'https://www.corretoravanessasimoni.com'+(req.url.startsWith('/')?req.url:'/'),'Cache-Control':'no-store'}).end();return true;}
       if(/^\/(quiz|blog|precos|parceiros|afiliados|checkout|checkout-retorno|completa)(\/|$)/.test(path)||(path==='/auth'&&url.searchParams.get('mode')==='signup')){res.writeHead(404).end();return true;}
       if(path.startsWith('/brand/')&&!['/brand/vanessa.css','/brand/vanessa.jpg'].includes(path)){res.writeHead(404).end();return true;}
