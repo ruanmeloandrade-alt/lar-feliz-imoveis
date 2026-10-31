@@ -110,6 +110,7 @@ const Footer = () => {
                 hospedagem, banco de dados e comunicação processam informações
                 necessárias ao funcionamento desses serviços.
               </p>
+              <p>O site utiliza o Pixel da Meta para medir visitas e resultados de anúncios. Esse recurso pode enviar dados de navegação e informações técnicas do navegador à Meta. Consulte também a <a href="https://www.facebook.com/privacy/policy/" target="_blank" rel="noopener noreferrer">Política de Privacidade da Meta</a>.</p>
               <p>
                 Para solicitar acesso, correção ou eliminação de dados, obter
                 informações sobre seu uso ou interromper o contato, fale com
