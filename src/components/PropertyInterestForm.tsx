@@ -107,6 +107,7 @@ export default function PropertyInterestForm({
         id={"interest-name-" + property.id}
         name="name"
         autoComplete="name"
+        autoFocus
         maxLength={120}
         required
         minLength={2}

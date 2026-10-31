@@ -1,5 +1,5 @@
 import {trackPublicEvent,openVanessaChat} from "@/lib/public-site";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { MapPin, BedDouble, Bath, Ruler, MessageCircle, Sparkles, ChevronLeft, ChevronRight, X, HandCoins, FileText, Image as ImageIcon, Download, ExternalLink, Building2, CheckCircle2, CalendarClock } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -47,8 +47,9 @@ const PropertyDetailDialog = ({ property, onOpenChange }: Props) => {
 
   return (
     <Dialog open={!!property} onOpenChange={(o) => { onOpenChange(o); if (!o) reset(); }}>
-      <DialogContent className="max-w-5xl p-0 overflow-hidden max-h-[92vh] overflow-y-auto">
-        <div className="grid md:grid-cols-5">
+      <DialogContent className={contactOpen ? "w-[92vw] max-w-md p-5 max-h-[92vh] overflow-y-auto" : "max-w-5xl p-0 overflow-hidden max-h-[92vh] overflow-y-auto"} aria-describedby={undefined}>
+        <DialogTitle className="sr-only">{property.title}</DialogTitle>
+        {contactOpen ? <PropertyInterestForm key={property.id} property={property} onBack={()=>setContactOpen(false)}/> : <div className="grid md:grid-cols-5">
           {/* Left column: media or PDF viewer */}
           <div className="md:col-span-3 relative bg-foreground flex flex-col md:min-h-[560px]">
             {/* Toggle bar (only if PDFs exist) */}
@@ -268,16 +269,15 @@ const PropertyDetailDialog = ({ property, onOpenChange }: Props) => {
             )}
 
             <div className="mt-auto pt-6 space-y-2">
-              {contactOpen ? <PropertyInterestForm key={property.id} property={property} onBack={()=>setContactOpen(false)}/> :
                 <Button variant="whatsapp" size="lg" className="w-full" onClick={()=>setContactOpen(true)}>
                   <MessageCircle className="w-4 h-4" /> Tenho interesse
-                </Button>}
+                </Button>
               <p className="text-[10px] text-muted-foreground text-center flex items-center justify-center gap-1">
                 <Sparkles className="w-3 h-3" /> Valores sujeitos a análise oficial da instituição financeira.
               </p>
             </div>
           </div>
-        </div>
+        </div>}
       </DialogContent>
     </Dialog>
   );
