@@ -2829,3 +2829,29 @@
   color: #840122;
   text-decoration: underline;
 }
+
+.vs-final-cta > .container {
+  align-items: center;
+}
+.vs-final-copy {
+  display: grid;
+  justify-items: center;
+  width: 100%;
+  gap: 18px;
+  text-align: center;
+}
+.vs-final-copy > .vs-eyebrow {
+  display: block;
+  width: 100%;
+  margin: 0;
+  text-align: center;
+}
+.vs-final-copy > h2,
+.vs-final-copy > p:not(.vs-eyebrow) {
+  margin: 0;
+  text-align: center;
+}
+.vs-final-actions {
+  align-items: center;
+  text-align: center;
+}

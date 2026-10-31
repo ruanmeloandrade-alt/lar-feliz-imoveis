@@ -3,7 +3,7 @@ import { openVanessaChat } from "@/lib/public-site";
 const FinalCTASection = () => (
   <section className="vs-final-cta">
     <div className="container">
-      <div>
+      <div className="vs-final-copy">
         <p className="vs-eyebrow">Seu próximo passo</p>
         <h2>
           Vamos encontrar

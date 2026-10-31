@@ -147,11 +147,6 @@ const PropertyDetailDialog = ({ property, onOpenChange }: Props) => {
                 ) : (
                   <div className="w-full h-full bg-sp-stripe opacity-30" />
                 )}
-                {property.tag && (
-                  <span className="absolute top-4 left-4 bg-secondary text-secondary-foreground text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded shadow-lg">
-                    {property.tag}
-                  </span>
-                )}
               </div>
             )}
           </div>
