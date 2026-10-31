@@ -297,22 +297,15 @@ const PropertiesSection = () => {
                       >
                         Conhecer imóvel <ArrowRight size={16} />
                       </button>
-                      <a
-                        href={waUrl(
-                          "Olá Vanessa, tenho interesse no imóvel " +
-                            p.title +
-                            " em " +
-                            p.city +
-                            ".",
-                        )}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <button
+                        type="button"
+                        onClick={()=>setSelected(p)}
                         aria-label={
                           "Conversar sobre " + p.title + " no WhatsApp"
                         }
                       >
                         <MessageCircle size={19} />
-                      </a>
+                      </button>
                     </div>
                   </div>
                 </article>

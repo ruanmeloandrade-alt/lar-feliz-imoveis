@@ -130,16 +130,45 @@ export const Route = createFileRoute("/api/public/vanessa-chat")({
             if (error || !data) throw Error("Conversa expirada. Inicie um novo atendimento.");
             chat = data;
           } else if (input.action === "start") {
+            let interest: { id: string; title: string; city: string } | undefined;
+            if (input.propertyId) {
+              const { data: catalog, error: catalogError } = await db.rpc("vanessa_catalog");
+              if (catalogError) throw Error("Não foi possível consultar este imóvel.");
+              interest = Array.isArray(catalog)
+                ? catalog.find((property: any) => property.id === input.propertyId)
+                : undefined;
+              if (!interest)
+                return Response.json(
+                  { error: "Este imóvel não está disponível para atendimento." },
+                  { status: 404, headers },
+                );
+            }
             const { data, error } = await db
               .from("vanessa_site_chats")
               .insert({
                 workspace_id: ws,
+                facts: interest
+                  ? {
+                      property_id: interest.id,
+                      property_title: interest.title,
+                      city: interest.city,
+                      entrypoint: "property-interest",
+                    }
+                  : {},
                 messages: [
                   {
                     role: "assistant",
                     content:
                       "Olá! Vamos encontrar um imóvel que combine com você. Em qual cidade você procura e o que é mais importante no seu próximo lar?",
                   },
+                  ...(interest
+                    ? [
+                        {
+                          role: "user",
+                          content: `Tenho interesse no imóvel "${interest.title}" em ${interest.city}.`,
+                        },
+                      ]
+                    : []),
                 ],
               })
               .select("*")

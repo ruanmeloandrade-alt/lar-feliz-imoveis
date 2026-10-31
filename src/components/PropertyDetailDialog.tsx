@@ -3,9 +3,9 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { MapPin, BedDouble, Bath, Ruler, MessageCircle, Sparkles, ChevronLeft, ChevronRight, X, HandCoins, FileText, Image as ImageIcon, Download, ExternalLink, Building2, CheckCircle2, CalendarClock } from "lucide-react";
 import { useState, useEffect } from "react";
-import { waUrl } from "@/lib/brand";
 import { isVideoUrl, fileNameFromUrl } from "@/lib/media";
 import type { Property } from "@/types/property";
+import PropertyInterestForm from './PropertyInterestForm';
 
 interface Props {
   property: Property | null;
@@ -28,6 +28,8 @@ const PropertyDetailDialog = ({ property, onOpenChange }: Props) => {
   const [idx, setIdx] = useState(0);
   const [mode, setMode] = useState<"media" | "pdf">("media");
   const [pdfIdx, setPdfIdx] = useState(0);
+  const [contactOpen,setContactOpen]=useState(false);
+  useEffect(()=>setContactOpen(false),[property?.id]);
   useEffect(()=>{
     if(!property)return;const current=property;setIdx(0);let since=document.visibilityState==='visible'?performance.now():0;let elapsed=0;
     const flush=()=>{if(since){elapsed+=performance.now()-since;since=document.visibilityState==='visible'?performance.now():0;}const seconds=Math.floor(elapsed/1000);if(seconds>0){trackPublicEvent('product_view_time',{product_id:current.id,product_name:current.title,duration_seconds:seconds});elapsed-=seconds*1000;}};
@@ -146,11 +148,6 @@ const PropertyDetailDialog = ({ property, onOpenChange }: Props) => {
                   </>
                 ) : (
                   <div className="w-full h-full bg-sp-stripe opacity-30" />
-                )}
-                {property.tag && (
-                  <span className="absolute top-4 left-4 bg-secondary text-secondary-foreground text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded shadow-lg">
-                    {property.tag}
-                  </span>
                 )}
               </div>
             )}
@@ -271,15 +268,10 @@ const PropertyDetailDialog = ({ property, onOpenChange }: Props) => {
             )}
 
             <div className="mt-auto pt-6 space-y-2">
-              <a
-                href={waUrl(`Olá Vanessa, tenho interesse no imóvel "${property.title}" em ${property.city}.`)}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Button variant="whatsapp" size="lg" className="w-full">
-                  <MessageCircle className="w-4 h-4" /> Tenho interesse — WhatsApp
-                </Button>
-              </a>
+              {contactOpen ? <PropertyInterestForm key={property.id} property={property} onBack={()=>setContactOpen(false)}/> :
+                <Button variant="whatsapp" size="lg" className="w-full" onClick={()=>setContactOpen(true)}>
+                  <MessageCircle className="w-4 h-4" /> Tenho interesse
+                </Button>}
               <p className="text-[10px] text-muted-foreground text-center flex items-center justify-center gap-1">
                 <Sparkles className="w-3 h-3" /> Valores sujeitos a análise oficial da instituição financeira.
               </p>
