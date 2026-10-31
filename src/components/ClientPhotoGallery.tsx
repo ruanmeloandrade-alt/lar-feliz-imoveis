@@ -17,7 +17,7 @@ export default function ClientPhotoGallery() {
             result.photos.filter(
               (photo: ClientPhoto) =>
                 typeof photo.src === "string" &&
-                /^\/api\/client-gallery-media\/[a-f0-9.-]+$/.test(photo.src),
+                /^\/api\/client-gallery-media\/\d{13}-[a-f0-9-]{36}\.(jpg|png|webp)$/.test(photo.src),
             ),
           );
       })
