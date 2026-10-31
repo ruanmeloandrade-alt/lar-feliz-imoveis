@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { filterProperties, emptyPropertyFilters } from "@/lib/property-filters";
+import {
+  filterProperties,
+  propertyFilterOptions,
+  emptyPropertyFilters,
+} from "@/lib/property-filters";
 import type { Property } from "@/types/property";
 const properties = [
   {
@@ -9,17 +13,14 @@ const properties = [
     neighborhood: "Jardim São José",
     bedrooms: 2,
     bathrooms: 1,
-    kitchens: 1,
-    living_rooms: 2,
   },
   {
     id: "b",
     title: "Casa Jardim",
     city: "Sumaré",
+    neighborhood: "Centro",
     bedrooms: 3,
     bathrooms: 2,
-    kitchens: 2,
-    living_rooms: 1,
   },
   {
     id: "c",
@@ -27,22 +28,26 @@ const properties = [
     city: "Campinas",
     address: "Rua Clara, Centro",
     bedrooms: 2,
+    bathrooms: null,
+  },
+  {
+    id: "d",
+    title: "Casa Central",
+    city: "Campinas",
+    neighborhood: "Centro",
+    bedrooms: 1,
     bathrooms: 1,
-    kitchens: null,
-    living_rooms: null,
   },
 ] as Property[];
 describe("Busca pública de imóveis", () => {
-  it("combina cidade, bairro e todos os cômodos sem ignorar critérios", () => {
+  it("combina cidade, bairro e quantidades cadastradas", () => {
     expect(
       filterProperties(properties, {
         ...emptyPropertyFilters,
         city: "Campinas",
-        neighborhood: "sao jose",
+        neighborhood: "jardim sao jose",
         bedrooms: "2",
         bathrooms: "1",
-        kitchens: "1",
-        living_rooms: "2",
       }).map((p) => p.id),
     ).toEqual(["a"]);
   });
@@ -54,38 +59,59 @@ describe("Busca pública de imóveis", () => {
       }).map((p) => p.id),
     ).toEqual(["b"]);
   });
-  it("não inventa quantidade de cozinhas ou salas quando o cadastro não informa", () => {
+  it("seleciona a quantidade exata sem incluir imóveis maiores", () => {
     expect(
       filterProperties(properties, {
         ...emptyPropertyFilters,
-        kitchens: "1",
+        bedrooms: "2",
       }).map((p) => p.id),
-    ).toEqual(["a", "b"]);
-    expect(
-      filterProperties(properties, {
-        ...emptyPropertyFilters,
-        living_rooms: "2",
-      }).map((p) => p.id),
-    ).toEqual(["a"]);
+    ).toEqual(["a", "c"]);
   });
-  it("busca bairro no endereço público e limpa filtros sem alterar a ordem", () => {
+  it("não inventa bairro a partir do endereço ou quantidade desconhecida", () => {
     expect(
       filterProperties(properties, {
         ...emptyPropertyFilters,
-        neighborhood: "centro",
+        neighborhood: "Centro",
       }).map((p) => p.id),
-    ).toEqual(["c"]);
+    ).toEqual(["b", "d"]);
+    expect(
+      filterProperties(properties, {
+        ...emptyPropertyFilters,
+        bathrooms: "1",
+      }).map((p) => p.id),
+    ).toEqual(["a", "d"]);
+  });
+  it("deriva todas as opções somente dos imóveis cadastrados", () => {
+    expect(propertyFilterOptions(properties, emptyPropertyFilters)).toEqual({
+      cities: ["Campinas", "Sumaré"],
+      neighborhoods: ["Centro", "Jardim São José"],
+      bedrooms: [1, 2, 3],
+      bathrooms: [1, 2],
+    });
+  });
+  it("atualiza as opções conforme cidade, bairro e quartos", () => {
+    expect(
+      propertyFilterOptions(properties, {
+        ...emptyPropertyFilters,
+        city: "Sumaré",
+      }),
+    ).toEqual({
+      cities: ["Campinas", "Sumaré"],
+      neighborhoods: ["Centro"],
+      bedrooms: [3],
+      bathrooms: [2],
+    });
+    expect(
+      propertyFilterOptions(properties, {
+        ...emptyPropertyFilters,
+        city: "Campinas",
+        neighborhood: "Centro",
+      }).bedrooms,
+    ).toEqual([1]);
+  });
+  it("limpa filtros sem alterar a ordem original", () => {
     expect(filterProperties(properties, emptyPropertyFilters)).toEqual(
       properties,
     );
-  });
-  it("retorna vazio para combinações incompatíveis", () => {
-    expect(
-      filterProperties(properties, {
-        ...emptyPropertyFilters,
-        city: "Campinas",
-        bathrooms: "2",
-      }),
-    ).toEqual([]);
   });
 });

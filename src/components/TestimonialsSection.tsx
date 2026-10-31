@@ -1,3 +1,4 @@
+import ClientPhotoGallery from "./ClientPhotoGallery";
 const testimonials = [
   {
     name: "Ana Paula",
@@ -21,7 +22,6 @@ const TestimonialsSection = () => (
     <div className="container">
       <div className="vs-section-heading">
         <div>
-          <p className="vs-eyebrow">Pessoas e novas histórias</p>
           <h2>
             Quem já deu
             <br />

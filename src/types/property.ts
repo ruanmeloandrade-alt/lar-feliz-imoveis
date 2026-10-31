@@ -11,8 +11,6 @@ export type Property = {
   city: string;
   address: string | null;
   neighborhood?: string | null;
-  kitchens?: number | null;
-  living_rooms?: number | null;
   description: string | null;
   price: number | null;
   subsidy_estimate: number | null;

@@ -19,6 +19,7 @@ import PropertySearchFilters from "./PropertySearchFilters";
 import {
   emptyPropertyFilters,
   filterProperties,
+  propertyFilterOptions,
   type PropertyFilters,
 } from "@/lib/property-filters";
 const money = (v: number | null) =>
@@ -87,9 +88,10 @@ const PropertiesSection = () => {
     window.addEventListener("vanessa:view-property", handler);
     return () => window.removeEventListener("vanessa:view-property", handler);
   }, [all]);
-  const cities = Array.from(
-    new Set(all.map((p) => p.city).filter(Boolean)),
-  ).sort((a, b) => a.localeCompare(b, "pt-BR"));
+  const { cities, neighborhoods, bedrooms, bathrooms } = propertyFilterOptions(
+    all,
+    filters,
+  );
   const list = filterProperties(all, filters);
   const INITIAL_LIMIT = 3;
   const visibleList = expanded ? list : list.slice(0, INITIAL_LIMIT);
@@ -119,6 +121,9 @@ const PropertiesSection = () => {
             setExpanded(false);
           }}
           cities={cities}
+          neighborhoods={neighborhoods}
+          bedrooms={bedrooms}
+          bathrooms={bathrooms}
           resultCount={list.length}
         />
         {loadError ? (

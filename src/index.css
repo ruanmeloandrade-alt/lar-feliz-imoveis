@@ -2597,3 +2597,143 @@
     font-size: 8px;
   }
 }
+
+/* Compact selectors: only values present in the current registered catalogue. */
+.vs-property-search {
+  padding: 16px 0;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid #d9d4d6;
+  border-bottom: 1px solid #d9d4d6;
+  border-radius: 0;
+  margin-bottom: 24px;
+}
+.vs-search-compact {
+  display: grid;
+  grid-template-columns:
+    minmax(210px, 1.8fr) minmax(135px, 1fr) minmax(135px, 1fr)
+    minmax(90px, 0.65fr) minmax(90px, 0.65fr);
+  gap: 12px;
+}
+.vs-property-search input,
+.vs-property-search select {
+  height: 40px;
+  font-size: 11px;
+}
+.vs-search-query svg {
+  top: 12px;
+}
+.vs-search-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-top: 12px;
+  font-size: 10px;
+  color: #807278;
+}
+.vs-search-summary button {
+  color: #840122;
+  border-bottom: 1px solid #c99736;
+  padding-bottom: 2px;
+}
+.vs-property-search select:disabled {
+  opacity: 0.6;
+}
+.vs-property-search label {
+  gap: 6px;
+}
+@media (max-width: 900px) {
+  .vs-search-compact {
+    grid-template-columns: minmax(170px, 1.4fr) repeat(4, minmax(0, 1fr));
+    gap: 9px;
+  }
+}
+@media (max-width: 767px) {
+  .vs-search-compact {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .vs-search-query {
+    grid-column: 1/-1;
+  }
+  .vs-property-search {
+    padding: 15px 0;
+  }
+  .vs-property-search input,
+  .vs-property-search select {
+    font-size: 12px;
+    height: 43px;
+  }
+}
+
+.vs-testimonials {
+  padding-top: 64px;
+}
+.vs-testimonials .vs-section-heading {
+  margin-bottom: 30px;
+}
+@media (max-width: 767px) {
+  .vs-testimonials {
+    padding-top: 46px;
+  }
+}
+
+.vs-client-gallery {
+  columns: 3;
+  column-gap: 16px;
+  margin-top: 40px;
+}
+.vs-client-gallery > button {
+  display: block;
+  width: 100%;
+  break-inside: avoid;
+  margin-bottom: 16px;
+  border: 1px solid #ded7da;
+  border-radius: 3px;
+  overflow: hidden;
+  background: #f5f3f4;
+  cursor: zoom-in;
+}
+.vs-client-gallery img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.vs-client-lightbox {
+  width: min(94vw, 1100px);
+  max-width: none;
+  padding: 18px;
+  background: #181316;
+  border-color: #c99736;
+  color: white;
+}
+.vs-client-lightbox > img {
+  display: block;
+  width: 100%;
+  max-height: 85dvh;
+  object-fit: contain;
+}
+.vs-client-lightbox > button {
+  color: white;
+  background: #840122;
+  border-radius: 50%;
+  opacity: 1;
+  padding: 4px;
+}
+@media (max-width: 767px) {
+  .vs-client-gallery {
+    columns: 2;
+    column-gap: 12px;
+    margin-top: 28px;
+  }
+  .vs-client-gallery > button {
+    margin-bottom: 12px;
+  }
+  .vs-client-lightbox {
+    padding: 10px;
+  }
+}
+
+/* Client photo feed: three equal columns, no profile header. */
+.vs-client-gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;columns:unset}.vs-client-gallery>button{aspect-ratio:3/4;margin:0;border:0;border-radius:0}.vs-client-gallery img{width:100%;height:100%;object-fit:cover}@media(max-width:767px){.vs-client-gallery{grid-template-columns:repeat(3,minmax(0,1fr));gap:3px;columns:unset}.vs-client-gallery>button{margin:0}}
