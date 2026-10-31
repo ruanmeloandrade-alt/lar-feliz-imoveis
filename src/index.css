@@ -2736,4 +2736,96 @@
 }
 
 /* Client photo feed: three equal columns, no profile header. */
-.vs-client-gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;columns:unset}.vs-client-gallery>button{aspect-ratio:3/4;margin:0;border:0;border-radius:0}.vs-client-gallery img{width:100%;height:100%;object-fit:cover}@media(max-width:767px){.vs-client-gallery{grid-template-columns:repeat(3,minmax(0,1fr));gap:3px;columns:unset}.vs-client-gallery>button{margin:0}}
+.vs-client-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  columns: unset;
+}
+.vs-client-gallery > button {
+  aspect-ratio: 1/1;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+}
+.vs-client-gallery img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+@media (max-width: 767px) {
+  .vs-client-gallery {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 3px;
+    columns: unset;
+  }
+  .vs-client-gallery > button {
+    margin: 0;
+  }
+}
+
+/* Keep the final invitation and its actions together. */
+.vs-final-cta > .container {
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  gap: 28px;
+  max-width: 780px;
+}
+.vs-final-cta p:not(.vs-eyebrow) {
+  margin-left: auto;
+  margin-right: auto;
+}
+.vs-final-actions {
+  gap: 18px;
+  width: 100%;
+}
+.vs-final-actions .vs-button {
+  min-height: 58px;
+  padding: 18px 32px;
+  background: #840122;
+  color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 22px #84012222;
+}
+.vs-final-actions .vs-text-link {
+  color: #840122;
+}
+
+.vs-header,
+.vanessa-public footer.vs-footer {
+  background: #111113;
+}
+.vs-header {
+  border-bottom-color: #393237;
+}
+.vs-policy-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 24px;
+  margin-bottom: 22px;
+}
+.vs-policy-links button {
+  color: #eee;
+  font-size: 12px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.vs-policy-links button:hover {
+  color: #ffd66b;
+}
+.vs-legal-dialog {
+  max-width: 680px;
+  max-height: 85dvh;
+  overflow-y: auto;
+  background: white;
+  color: #30272b;
+}
+.vs-legal-dialog p {
+  font-size: 14px;
+  line-height: 1.8;
+}
+.vs-legal-dialog a {
+  color: #840122;
+  text-decoration: underline;
+}
