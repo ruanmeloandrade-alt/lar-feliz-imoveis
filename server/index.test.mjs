@@ -18,6 +18,10 @@ test('SPA routes, missing assets and private files have distinct responses', asy
       const response = await fetch(base + route);
       assert.equal(response.status, 200);
       assert.match(await response.text(), /Vanessa Simoni/);
+      const policy=response.headers.get('content-security-policy');
+      assert.equal(policy.includes('https://connect.facebook.net'),route==='/');
+      assert.equal(policy.includes('https://www.facebook.com'),route==='/');
+      assert.doesNotMatch(policy,/unsafe-eval|script-src[^;]*unsafe-inline/);
     }
     for (const route of ['/.env', '/%2eenv', '/assets/missing.js', '/api/missing', '/login', '/login/']) {
       assert.equal((await fetch(base + route)).status, 404);
