@@ -15,10 +15,12 @@ export function createAppServer(root = defaultRoot, options = {}) {
   const api = options.store ? createApi(options.store, options) : null;
   const fullPlatform=options.fullPlatform?createFullPlatform():null;
   return createServer(async (req, res) => {
+    const url = new URL(req.url, 'http://localhost');
+    const metaScripts = url.pathname === '/' ? ' https://connect.facebook.net' : '';
+    const metaEvents = url.pathname === '/' ? ' https://www.facebook.com' : '';
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-    res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; connect-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; frame-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; base-uri 'self'; form-action 'self'; frame-ancestors 'self'");
-    const url = new URL(req.url, 'http://localhost');
+    res.setHeader('Content-Security-Policy', `default-src 'self'; script-src 'self'${metaScripts}; connect-src 'self'${metaScripts}${metaEvents}; img-src 'self' data: blob:${metaEvents}; media-src 'self' blob:; frame-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; base-uri 'self'; form-action 'self'; frame-ancestors 'self'`);
     if(fullPlatform&&await fullPlatform(req,res,url))return;
     if (api && await api(req, res, url)) return;
     if (!['GET', 'HEAD'].includes(req.method)) {
