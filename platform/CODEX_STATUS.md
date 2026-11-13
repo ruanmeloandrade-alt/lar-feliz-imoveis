@@ -75,3 +75,11 @@ Testes com conta real ficam com o responsável pela operação. A recuperação 
 ### Linguagem imobiliária em Negociações e no Copiloto
 
 O registro, o histórico e a revisão de negociações usam termos de corretagem para imóveis, valores e unidades disponíveis. Os controles de entrega e pagamento continuam disponíveis com os contratos existentes. Os exemplos de consulta do Copiloto usam a carteira de imóveis e o funil imobiliário.
+
+### Cérebro da IA e segmentação imobiliária
+
+A visualização 3D usa a malha anatômica licenciada do Cérebro da FG Tech, com cinco regiões da Vanessa e cores mais saturadas ao selecionar. O modelo gira por arraste ou teclado. Os cartões continuam disponíveis para abrir as mesmas fontes, documentos, links, promoções e palavras proibidas, com o menu inferior e a lógica de gravação existente.
+
+Seis públicos foram cadastrados com filtros por etapa e telefone. Os seis novos campos são opcionais. As novas tags ficam no catálogo da operação e aparecem nos seletores de Público e SalesBot antes de serem aplicadas a contatos. Não houve disparos nem alterações nos leads.
+
+Arquivos: `src/components/crm/BrainAtlas.tsx`, `src/components/crm/BrainModel.tsx`, `src/routes/crm.agente-ia.tsx`, `src/assets/vanessa-cerebro.bin`, `src/lib/crm-tag-catalog.server.ts`, `src/lib/slim-audience-options.server.ts`, `src/lib/leads.functions.legacy.ts` e este registro.
