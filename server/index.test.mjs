@@ -62,6 +62,10 @@ test('the certified www host serves the site and apex redirects without losing t
     assert.equal(admin.location, '/admin?next=%2Fcrm%2Fpublicos');
     assert.equal(admin.robots, 'noindex, nofollow');
     assert.equal((await read('admin.corretoravanessasimoni.com', '/', 'HEAD')).location, '/admin');
+    const shortcut = await read('lar-feliz-web-production.up.railway.app', '/acesso-vanessa?next=https://example.com');
+    assert.equal(shortcut.status, 302);
+    assert.equal(shortcut.location, 'https://www.corretoravanessasimoni.com/admin');
+    assert.equal(shortcut.robots, 'noindex, nofollow');
   } finally {
     await new Promise(done => server.close(done));
     await rm(root, { recursive: true, force: true });

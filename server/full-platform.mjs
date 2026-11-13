@@ -9,6 +9,7 @@ import { handleClientGallery } from './client-gallery.mjs';
 const project='fnuhmypmhcwecziswbat';
 const origin=`https://${project}.supabase.co`;
 const adminHost = 'admin.corretoravanessasimoni.com';
+const railwayHost = 'lar-feliz-web-production.up.railway.app';
 const port=Number(process.env.VANESSA_INTERNAL_PORT||8090);
 function publicHeaders(){
   if(process.env.SUPABASE_URL!==origin)throw Error('Banco exclusivo da Vanessa obrigatório.');
@@ -106,6 +107,14 @@ export function createFullPlatform(){
       const path=url.pathname;
       if(await handleClientGallery(req,res,url))return true;
       const host = String(req.headers.host ?? '').split(':')[0].toLowerCase();
+      if (host === railwayHost && path === '/acesso-vanessa' && ['GET', 'HEAD'].includes(req.method)) {
+        res.writeHead(302, {
+          Location: 'https://www.corretoravanessasimoni.com/admin',
+          'Cache-Control': 'no-store',
+          'X-Robots-Tag': 'noindex, nofollow',
+        }).end();
+        return true;
+      }
       if(host==='corretoravanessasimoni.com'){res.writeHead(308,{Location:'https://www.corretoravanessasimoni.com'+(req.url.startsWith('/')?req.url:'/'),'Cache-Control':'no-store'}).end();return true;}
       if (host === adminHost) {
         res.setHeader('X-Robots-Tag', 'noindex, nofollow');
