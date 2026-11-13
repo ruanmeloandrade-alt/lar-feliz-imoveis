@@ -43,9 +43,9 @@ const MODE_LABEL: Record<Mode, { label: string; icon: React.ReactNode; hint: str
 
 const SUGGESTIONS: Record<Module, string[]> = {
   support_robot: [
-    "Consulte o estoque atual dos produtos",
-    "Mostre o relatório de vendas dos últimos 30 dias",
-    "Quero preparar uma mudança de etapa para um lead",
+    "Quais imóveis estão cadastrados na carteira?",
+    "Mostre as negociações fechadas nos últimos 30 dias",
+    "Quero preparar uma mudança de etapa no funil",
     "Liste os SalesBots disponíveis"
   ],
   gestor_trafego: [

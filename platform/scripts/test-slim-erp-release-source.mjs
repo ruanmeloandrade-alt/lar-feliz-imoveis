@@ -6,10 +6,10 @@ const root=new URL('../',import.meta.url),read=p=>fs.readFileSync(new URL(p,root
 function test(name,fn){fn();n++;console.log('PASS ERP source: '+name);}
 const routes=['src/routes/pedidos.tsx','src/routes/saude-slim.tsx','src/routes/painel.tsx'];
 const sources=routes.map(read),server=read('src/lib/slim-erp-release.functions.ts'),ui=read('src/components/erp/SlimErpWorkspace.tsx');
-test('three existing destinations connected',()=>{for(const [i,mode] of ['checkout','history','summary'].entries())assert(sources[i].includes(`mode="${mode}"`));});
+test('negotiations manage finance and checkout while history remains available',()=>{assert(sources[0].includes('mode="checkout"'));assert(sources[0].includes('<VanessaFinancePanel />'));assert(sources[1].includes('mode="history"'));});
 test('no old nonatomic creator in new checkout',()=>{for(const t of ['createSaudeSlimLead','addSaudeSlimOrderProduct','createSaudeSlimProduct'])assert(!sources[0].includes(t));});
 test('one operational history without mounting legacy readers',()=>{assert.equal(sources[1].split('mode="history"').length-1,1);for(const old of ['getSaudeSlimSalesHistory','getSaudeSlimSalesProducts','<details','sales-history-products'])assert(!sources[1].includes(old));});
-test('CRM opportunity counts are not mixed with ERP revenue',()=>assert(sources[2].includes('indicadores de oportunidades e atendimento do CRM')));
+test('dashboard renders the CRM board without duplicating negotiations',()=>{assert(sources[2].includes('<DashboardV4ConnectedBoard'));assert(!sources[2].includes('SlimErpWorkspace'));assert(!sources[2].includes('VanessaFinancePanel'));});
 test('patch is idempotent over the real sources',()=>{const paths=[...routes,'src/lib/slim-checkout-session.core.ts'];const before=paths.map(read);execFileSync(process.execPath,[fileURLToPath(new URL('./apply-slim-erp-release.mjs',import.meta.url))],{stdio:'inherit'});assert.deepEqual(paths.map(read),before);});
 test('confirmation and cancellation use authenticated atomic RPCs',()=>{assert(server.includes("sb.rpc('slim_confirm_order'"));assert(server.includes("sb.rpc('slim_cancel_order'"));});
 test('no privileged client, direct mutations or provider transport',()=>{const hashing="createHash('sha256').update(pdf)";assert.equal(server.split(hashing).length-1,1);const operations=server.replace(hashing,'HASH_DOCUMENT_BYTES');for(const forbidden of ['supabaseAdmin','.insert(','.update(','.delete(','fetch(','process.env','get_evolution_credentials_service'])assert(!operations.includes(forbidden),forbidden);});
