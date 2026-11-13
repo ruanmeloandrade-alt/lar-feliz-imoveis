@@ -71,3 +71,7 @@ Arquivos: `src/components/crm/SlimMassBroadcastPanel.tsx`, `src/components/crm/B
 A Dashboard apresenta contatos, negociações, resultados por corretor e vendas por imóvel. O catálogo da Dashboard mostra valores e categorias em vez de estoque. A configuração dos indicadores mantém as preferências existentes. A tela Imóveis usa referências, fotos e valores no cadastro, na busca e na organização dos catálogos. Os contratos de persistência e de importação e exportação de planilhas permanecem compatíveis.
 
 Testes com conta real ficam com o responsável pela operação. A recuperação de senha do painel do Supabase é independente da recuperação de acesso no site da Vanessa.
+
+### Linguagem imobiliária em Negociações e no Copiloto
+
+O registro, o histórico e a revisão de negociações usam termos de corretagem para imóveis, valores e unidades disponíveis. Os controles de entrega e pagamento continuam disponíveis com os contratos existentes. Os exemplos de consulta do Copiloto usam a carteira de imóveis e o funil imobiliário.

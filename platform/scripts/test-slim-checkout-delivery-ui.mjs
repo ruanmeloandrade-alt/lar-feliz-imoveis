@@ -64,32 +64,32 @@ await test('delivery exposes the required bounded fields and optional complement
  assert(!h.field('Complemento de entrega').props.required);assert.equal(h.field('Complemento de entrega').props.maxLength,120);assert(!h.field('Observações de entrega').props.required);assert.equal(h.field('Observações de entrega').props.maxLength,500);
 });
 await test('incomplete delivery cannot open a confirmation or send a request',()=>{
- const h=checkout();h.choose('Entrega no endereço');h.click('Revisar pedido');assert(!h.html().includes('>Confirmar pedido<'));assert.equal(h.calls.length,0);assert(h.html().includes('role="alert"'));
+ const h=checkout();h.choose('Entrega no endereço');h.click('Revisar negociação');assert(!h.html().includes('>Confirmar negociação<'));assert.equal(h.calls.length,0);assert(h.html().includes('role="alert"'));
 });
 await test('review renders normalized recipient, address, freight and final total',()=>{
- const h=checkout();fillDelivery(h);h.click('Revisar pedido');const html=h.html();assert(html.includes('Destinatário Teste'));assert(html.includes('5511999999999'));assert(html.includes('Avenida Paulista'));assert(html.includes('São Paulo/SP'));assert(html.includes('CEP 01310100'));assert(html.includes('Receber na portaria'));assert(html.includes('R$ 12,34'));assert(html.includes('R$ 32,33'));assert.equal(h.find(e=>e.type==='fieldset').props.disabled,true);assert.equal(h.calls.length,0);
+ const h=checkout();fillDelivery(h);h.click('Revisar negociação');const html=h.html();assert(html.includes('Destinatário Teste'));assert(html.includes('5511999999999'));assert(html.includes('Avenida Paulista'));assert(html.includes('São Paulo/SP'));assert(html.includes('CEP 01310100'));assert(html.includes('Receber na portaria'));assert(html.includes('R$ 12,34'));assert(html.includes('R$ 32,33'));assert.equal(h.find(e=>e.type==='fieldset').props.disabled,true);assert.equal(h.calls.length,0);
 });
 await test('confirmation submits the reviewed delivery snapshot once',async()=>{
- const h=checkout();fillDelivery(h);h.click('Revisar pedido');h.click('Confirmar pedido');await settle(h);assert.equal(h.calls.length,1);assert.deepEqual(h.calls[0].fulfillment,delivery);assert.equal(h.calls[0].shippingCents,1234);assert.equal(h.calls[0].totalCents,3233);assert(h.html().includes('Pedido SL-TESTE confirmado'));
+ const h=checkout();fillDelivery(h);h.click('Revisar negociação');h.click('Confirmar negociação');await settle(h);assert.equal(h.calls.length,1);assert.deepEqual(h.calls[0].fulfillment,delivery);assert.equal(h.calls[0].shippingCents,1234);assert.equal(h.calls[0].totalCents,3233);assert(h.html().includes('Negociação SL-TESTE confirmada'));
 });
 await test('return to editing refreshes the reviewed address and freight',()=>{
- const h=checkout();fillDelivery(h);h.click('Revisar pedido');h.click('Voltar e corrigir');h.change('Número de entrega','200');h.change('Frete em reais','0');h.click('Revisar pedido');const html=h.html();assert(html.includes('200'));assert(html.includes('R$ 19,99'));assert.match(html,/<dt>Frete<\/dt><dd>R\$ 0,00/);
+ const h=checkout();fillDelivery(h);h.click('Revisar negociação');h.click('Voltar e corrigir');h.change('Número de entrega','200');h.change('Frete em reais','0');h.click('Revisar negociação');const html=h.html();assert(html.includes('200'));assert(html.includes('R$ 19,99'));assert.match(html,/<dt>Frete<\/dt><dd>R\$ 0,00/);
 });
 await test('switching back to pickup submits no delivery address or stale freight',async()=>{
- const h=checkout();fillDelivery(h);h.choose('Retirada');h.click('Revisar pedido');h.click('Confirmar pedido');await settle(h);assert.deepEqual(h.calls[0].fulfillment,{mode:'pickup'});assert.equal(h.calls[0].shippingCents,0);assert.equal(h.calls[0].totalCents,1999);
+ const h=checkout();fillDelivery(h);h.choose('Retirada');h.click('Revisar negociação');h.click('Confirmar negociação');await settle(h);assert.deepEqual(h.calls[0].fulfillment,{mode:'pickup'});assert.equal(h.calls[0].shippingCents,0);assert.equal(h.calls[0].totalCents,1999);
 });
 await test('invalid freight blocks review instead of becoming zero',()=>{
- const h=checkout();fillDelivery(h);h.change('Frete em reais','-1');h.click('Revisar pedido');assert(h.html().includes('role="alert"'));assert(!h.html().includes('>Confirmar pedido<'));assert.equal(h.calls.length,0);
+ const h=checkout();fillDelivery(h);h.change('Frete em reais','-1');h.click('Revisar negociação');assert(h.html().includes('role="alert"'));assert(!h.html().includes('>Confirmar negociação<'));assert.equal(h.calls.length,0);
 });
 function history(patch={}){
  const order={version:1,workspaceId:ws,orderId,requestId,number:'SL-TESTE',status:'confirmed',confirmedAt:'2026-10-17T22:00:00Z',cancelledAt:null,cancellationReason:null,customer:{id:customerId,name:'Cliente Teste',email:'',phone:''},issuer:{name:'Saúde Slim',legalName:'',document:''},items:[{productId,sku:'TESTE',name:'Produto Teste',description:'',quantity:1,unitPriceCents:1999,subtotalCents:1999,discountCents:0,totalCents:1999}],subtotalCents:1999,discountCents:0,totalCents:3233,payment:{method:'pix',status:'pending',installments:1},notes:'',fulfillment:delivery,shippingCents:1234,...patch};
  const h=harness('src/components/erp/SlimOrderHistory.tsx','SlimOrderHistory',{workspaceId:ws,response:{workspaceId:ws,complete:true,orders:[order]},loading:false,onDocument:()=>{}});h.click('Detalhes');return h;
 }
 await test('history displays stored delivery and separate freight alongside the final total',()=>{
- const html=history().html();assert(html.includes('Entrega no endereço'));assert(html.includes('Destinatário Teste'));assert(html.includes('Avenida Paulista'));assert(html.includes('Sala 2'));assert(html.includes('Receber na portaria'));assert(html.includes('Frete: R$ 12,34'));assert(html.includes('Total do pedido: R$ 32,33'));
+ const html=history().html();assert(html.includes('Entrega no endereço'));assert(html.includes('Destinatário Teste'));assert(html.includes('Avenida Paulista'));assert(html.includes('Sala 2'));assert(html.includes('Receber na portaria'));assert(html.includes('Frete: R$ 12,34'));assert(html.includes('Total da negociação: R$ 32,33'));
 });
 await test('legacy order keeps absent modality and zero freight without inventing pickup',()=>{
- const html=history({fulfillment:undefined,shippingCents:undefined,totalCents:1999}).html();assert(html.includes('Modalidade de entrega não registrada neste pedido.'));assert(!html.includes('Retirada'));assert(html.includes('Frete: R$ 0,00'));assert(html.includes('Total do pedido: R$ 19,99'));
+ const html=history({fulfillment:undefined,shippingCents:undefined,totalCents:1999}).html();assert(html.includes('Modalidade de entrega não registrada nesta negociação.'));assert(!html.includes('Retirada'));assert(html.includes('Frete: R$ 0,00'));assert(html.includes('Total da negociação: R$ 19,99'));
 });
 await test('pickup history is explicitly identified and has no address',()=>{
  const html=history({fulfillment:{mode:'pickup'},shippingCents:0,totalCents:1999}).html();assert(html.includes('Retirada'));assert(!html.includes('Avenida Paulista'));assert(html.includes('Frete: R$ 0,00'));
