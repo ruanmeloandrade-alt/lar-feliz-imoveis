@@ -56,7 +56,8 @@ await check('recovery is recognized in query and callback hash only on the auth 
 
 function harness(f,extra={}){
  const slots=[],effects=[];let cursor=0,tree,changed=false;const redirects=[],events=new Map();
- const previousWindow=globalThis.window;globalThis.window={location:{pathname:'/saude-slim/funil',search:'?view=board',replace:value=>redirects.push(value)},addEventListener:(type,fn)=>events.set(type,fn),removeEventListener:type=>events.delete(type)};
+ const sessionStorage=new Map();
+ const previousWindow=globalThis.window;globalThis.window={location:{pathname:'/saude-slim/funil',search:'?view=board',replace:value=>redirects.push(value)},sessionStorage:{getItem:key=>sessionStorage.get(key)??null,setItem:(key,value)=>sessionStorage.set(key,value),removeItem:key=>sessionStorage.delete(key)},addEventListener:(type,fn)=>events.set(type,fn),removeEventListener:type=>events.delete(type)};
  const equal=(a,b)=>Array.isArray(a)&&Array.isArray(b)&&a.length===b.length&&a.every((v,i)=>Object.is(v,b[i]));
  const hooks={...React,useState(initial){const i=cursor++;if(!(i in slots))slots[i]=typeof initial==='function'?initial():initial;return[slots[i],v=>{const next=typeof v==='function'?v(slots[i]):v;if(!Object.is(next,slots[i]))changed=true;slots[i]=next}]},useRef(value){const i=cursor++;if(!(i in slots))slots[i]={current:value};return slots[i]},useEffect(fn,deps){const i=cursor++;if(!(i in slots)||!equal(slots[i].deps,deps)){const old=slots[i];slots[i]={deps,cleanup:old?.cleanup};effects.push(()=>{old?.cleanup?.();slots[i].cleanup=fn()})}}};
  const compiled=ts.transpileModule(fs.readFileSync(root+'src/components/auth/SlimSessionGate.tsx','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,jsx:ts.JsxEmit.ReactJSX}}).outputText;
@@ -66,7 +67,7 @@ function harness(f,extra={}){
  const all=(node,out=[])=>{if(Array.isArray(node))node.forEach(n=>all(n,out));else if(React.isValidElement(node)){out.push(node);all(node.props.children,out)}return out};
  const text=node=>node==null||typeof node==='boolean'?'':Array.isArray(node)?node.map(text).join(''):React.isValidElement(node)?text(node.props.children):String(node);
  const find=fn=>{const n=all(tree).find(fn);assert(n,'UI node missing');return n};
- return{render,redirects,events,async settle(){for(let i=0;i<8;i++){await flush(1);if(changed||!tree)render()}},text:()=>text(tree),html:()=>renderToStaticMarkup(tree),find,code(value){find(n=>n.type==='input'&&n.props['aria-label']==='Código de seis números').props.onChange({target:{value}})},submit(){find(n=>n.type==='form').props.onSubmit({preventDefault(){}})},click(label){const n=find(n=>n.type==='button'&&text(n)===label);n.props.onClick?.({preventDefault(){}})},unmount(){slots.forEach(s=>s?.cleanup?.());globalThis.window=previousWindow}};
+ return{render,redirects,events,beginLogin:mod.exports.beginLoginVerification,async settle(){for(let i=0;i<8;i++){await flush(1);if(changed||!tree)render()}},text:()=>text(tree),html:()=>renderToStaticMarkup(tree),find,code(value){find(n=>n.type==='input'&&n.props['aria-label']==='Código de seis números').props.onChange({target:{value}})},submit(){find(n=>n.type==='form').props.onSubmit({preventDefault(){}})},click(label){const n=find(n=>n.type==='button'&&text(n)===label);n.props.onClick?.({preventDefault(){}})},unmount(){slots.forEach(s=>s?.cleanup?.());globalThis.window=previousWindow}};
 }
 async function panel(config={},props={}){const f=fixture(config),h=harness(f,props);h.render();await h.settle();return{f,h}}
 await check('real gate never mounts private children before both native and central validation',async()=>{const slow=deferred(),{f,h}=await panel({security:()=>slow.promise});assert(!h.html().includes('PRIVATE_CHILD'));slow.resolve(true);await h.settle();assert(h.html().includes('PRIVATE_CHILD'));f.state.factors=[factor()];f.emit();h.render();assert(h.html().includes('PRIVATE_CHILD'));await h.settle();assert(h.text().includes('Verifique sua identidade'));assert(!h.html().includes('PRIVATE_CHILD'));h.unmount()});
@@ -74,5 +75,25 @@ await check('real challenge clears submitted code, blocks private content on err
 await check('real signed-out routing preserves the private destination, while recovery stays visible',async()=>{const first=await panel({who:null});assert.equal(first.h.redirects.length,1);assert(first.h.redirects[0].includes('next=%2Fsaude-slim%2Ffunil'));assert(!first.h.html().includes('PRIVATE_CHILD'));first.h.unmount();const recovery=await panel({who:null},{allowSignedOut:true});assert(recovery.h.html().includes('PRIVATE_CHILD'));assert.equal(recovery.h.redirects.length,0);recovery.h.unmount()});
 await check('real revoked session stays blocked until an explicit local exit',async()=>{let exits=0;const{h}=await panel({security:async()=>{throw{code:'SLIM_SESSION_INVALID'}}},{exit:async()=>{exits++}});assert(!h.html().includes('PRIVATE_CHILD'));assert.equal(h.redirects.length,0);h.click('Sair desta sessão');h.click('Sair desta sessão');await h.settle();assert.equal(exits,1);assert.deepEqual(h.redirects,['/auth']);h.unmount()});
 await check('focus revalidates security and errors never expose private children',async()=>{const{f,h}=await panel();assert(h.html().includes('PRIVATE_CHILD'));f.state.security=async()=>{throw{code:'SLIM_SECURITY_UNAVAILABLE'}};h.events.get('focus')();h.render();assert(h.html().includes('PRIVATE_CHILD'));await h.settle();assert(h.text().includes('Não foi possível confirmar'));assert(!h.html().includes('PRIVATE_CHILD'));h.unmount()});
+
+await check('fresh login keeps verification visible for five seconds even when access is already authorized', async () => {
+ const f = fixture();
+ const h = harness(f);
+ try {
+  h.beginLogin();
+  const startedAt = performance.now();
+  h.render();
+  await h.settle();
+  assert.equal(f.controller.getState().phase, 'ready');
+  assert(h.text().includes('Verificação de segurança'));
+  assert(!h.html().includes('PRIVATE_CHILD'));
+  await new Promise(resolve => setTimeout(resolve, Math.max(0, 4_850 - (performance.now() - startedAt))));
+  h.render();
+  assert(!h.html().includes('PRIVATE_CHILD'));
+  await new Promise(resolve => setTimeout(resolve, Math.max(0, 5_100 - (performance.now() - startedAt))));
+  await h.settle();
+  assert(h.html().includes('PRIVATE_CHILD'));
+ } finally { h.unmount(); }
+});
 
 console.log(`Slim auth MFA gate: ${count} passed; only synthetic identities and transports.`);

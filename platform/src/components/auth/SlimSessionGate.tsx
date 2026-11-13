@@ -7,10 +7,36 @@ const makeBrowserController = createClientOnlyFn(() => createBrowserSlimAuthGate
 const exitBrowser = createClientOnlyFn(() => exitSlimAuthGate());
 const initial: SlimAuthGateState = { phase: 'loading', snapshot: null, message: '', revision: 0 };
 const button = 'rounded-md border border-border px-4 py-2 text-sm font-medium hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50';
+const loginTransitionKey = 'vanessa-login-transition';
+const verificationDuration = 5_000;
+
+export function beginLoginVerification() {
+  try { window.sessionStorage.setItem(loginTransitionKey, String(Date.now())); } catch { /* Storage may be unavailable. */ }
+}
+
 export function SlimSessionGate({ children, allowSignedOut = false, onReady, makeController = makeBrowserController, exit = exitBrowser }: { children: ReactNode; allowSignedOut?: boolean; onReady?: () => void; makeController?: () => SlimAuthGateController; exit?: () => Promise<void> }) {
   const controller = useRef<SlimAuthGateController | null>(null);
   const [state, setState] = useState(initial), [code, setCode] = useState(''), [factorId, setFactorId] = useState(''), [exitError, setExitError] = useState(''), [leaving, setLeaving] = useState(false);
   const leavingRef = useRef(false), mounted = useRef(true);
+  const [showLoginVerification, setShowLoginVerification] = useState(false);
+  const startedVerification = useRef<number | null>(null);
+  useEffect(() => {
+    if (allowSignedOut) return;
+    try {
+      const requested = Number(window.sessionStorage.getItem(loginTransitionKey));
+      window.sessionStorage.removeItem(loginTransitionKey);
+      const now = Date.now();
+      if (requested > 0 && now - requested >= 0 && now - requested < 60_000) {
+        startedVerification.current = now;
+      }
+    } catch { /* Continue with the normal security check. */ }
+    if (startedVerification.current === null) return;
+    const remaining = verificationDuration - (Date.now() - startedVerification.current);
+    if (remaining <= 0) return;
+    setShowLoginVerification(true);
+    const timer = setTimeout(() => setShowLoginVerification(false), remaining);
+    return () => clearTimeout(timer);
+  }, [allowSignedOut]);
   useEffect(() => {
     mounted.current = true;
     const active = makeController(); controller.current = active;
@@ -26,8 +52,21 @@ export function SlimSessionGate({ children, allowSignedOut = false, onReady, mak
     const next = safeSlimAuthReturn(window.location.pathname + window.location.search);
     window.location.replace(`/auth${next ? '?' + new URLSearchParams({ next }).toString() : ''}`);
   }, [state.phase, state.message, allowSignedOut]);
-  if (state.phase === 'ready' || (state.phase === 'signed_out' && allowSignedOut && !state.message)) return <>{children}</>;
-  const selected = factorId || factors[0]?.id || '', waiting = state.phase === 'loading' || state.phase === 'working';
+  if ((state.phase === 'ready' && !showLoginVerification) || (state.phase === 'signed_out' && allowSignedOut && !state.message)) return <>{children}</>;
+  if (state.phase === 'loading' || state.phase === 'ready') {
+    return (
+      <main className="grid min-h-dvh place-items-center bg-background px-4 py-8 text-foreground" data-slim-session-gate>
+        <section role="status" className="w-full max-w-sm rounded-2xl border border-border bg-card px-7 py-8 text-center shadow-sm">
+          <span className="mx-auto grid size-12 place-items-center rounded-full border border-primary/30 bg-primary/10 text-primary"><ShieldCheck size={23} aria-hidden="true" /></span>
+          <p className="mt-4 text-sm text-muted-foreground">Vanessa Simoni</p>
+          <h1 className="mt-1 text-xl font-semibold tracking-tight">Verificação de segurança</h1>
+          <p className="mt-2 text-sm text-muted-foreground">Estamos conferindo seu acesso.</p>
+          <Loader2 className="mx-auto mt-5 size-5 animate-spin text-primary motion-reduce:animate-none" aria-hidden="true" />
+        </section>
+      </main>
+    );
+  }
+  const selected = factorId || factors[0]?.id || '', waiting = state.phase === 'working';
   async function leave() {
     if (leavingRef.current) return; leavingRef.current = true; setLeaving(true); setExitError(''); setCode('');
     try { await exit(); if (mounted.current) window.location.replace('/auth'); }
@@ -36,7 +75,7 @@ export function SlimSessionGate({ children, allowSignedOut = false, onReady, mak
   }
   return <main className="grid min-h-screen place-items-center bg-background px-4 py-8 text-foreground" data-slim-session-gate>
     <section className="w-full max-w-md min-w-0 rounded-xl border border-border bg-card p-6 shadow-sm space-y-5" aria-labelledby="slim-session-title">
-      <div className="flex items-center gap-3"><span className="rounded-lg bg-primary/15 p-3 text-primary"><ShieldCheck className="h-6 w-6" /></span><div><p className="text-xs text-muted-foreground">Vanessa Simoni</p><h1 id="slim-session-title" className="text-xl font-semibold">{waiting ? 'Conferindo sua sessão' : state.phase === 'challenge' ? 'Verifique sua identidade' : 'Acesso ainda não liberado'}</h1></div></div>
+      <div className="flex items-center gap-3"><span className="rounded-lg bg-primary/15 p-3 text-primary"><ShieldCheck className="h-6 w-6" /></span><div><p className="text-xs text-muted-foreground">Vanessa Simoni</p><h1 id="slim-session-title" className="text-xl font-semibold">{waiting ? 'Verificação de segurança' : state.phase === 'challenge' ? 'Verifique sua identidade' : 'Acesso ainda não liberado'}</h1></div></div>
       {waiting ? <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 shrink-0 animate-spin" />{state.phase === 'working' ? 'Confirmando o código do autenticador…' : 'Aguarde a confirmação de segurança.'}</p> : state.phase === 'challenge' ? <>
         <p className="text-sm leading-relaxed text-muted-foreground">Sua conta possui verificação em dois fatores. Informe o código atual do aplicativo autenticador para continuar.</p>
         <form className="space-y-4" onSubmit={event => { event.preventDefault(); const value = code; setCode(''); void controller.current?.verify(selected, value); }}>

@@ -8,6 +8,7 @@ import { AccessField, accessInputClass, accessLinkClass, PasswordRecoveryContext
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
+import { beginLoginVerification } from "@/components/auth/SlimSessionGate";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
@@ -120,6 +121,7 @@ function AuthPage() {
       const { data, error: signInError } = await supabase.auth.signInWithPassword({ email: cleanEmail, password });
       if (signInError) throw signInError;
       if (!data.session) throw new Error("Não foi possível iniciar sua sessão.");
+      beginLoginVerification();
       window.location.replace(destination);
     } catch (err) {
       const message = slimAuthFailureMessage(err);

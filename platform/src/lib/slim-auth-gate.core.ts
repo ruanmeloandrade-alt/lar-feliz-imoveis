@@ -4,7 +4,7 @@ import { slimMfaTokenIdentity } from './slim-mfa-transport.core.ts';
 export type SlimAuthGateState = { phase: 'loading' | 'ready' | 'signed_out' | 'challenge' | 'unsupported' | 'working' | 'uncertain' | 'unavailable'; snapshot: SlimMfaSnapshot | null; message: string; revision: number };
 export function safeSlimAuthReturn(value?: string): string | null {
   if (!value || !value.startsWith('/') || value.startsWith('//') || /[\\\u0000-\u001f\u007f]/.test(value)) return null;
-  try { const url = new URL(value, 'https://slim-return.invalid'); return url.origin === 'https://slim-return.invalid' && !['/auth', '/admin'].includes(url.pathname) ? url.pathname + url.search + url.hash : null; } catch { return null; }
+  try { const url = new URL(value, 'https://slim-return.invalid'); return url.origin === 'https://slim-return.invalid' && !['/auth', '/admin', '/login'].includes(url.pathname) ? url.pathname + url.search + url.hash : null; } catch { return null; }
 }
 export function isSlimRecoveryLocation(path: string, search = '', hash = ''): boolean {
   return path === '/auth' && (new URLSearchParams(search).get('mode') === 'recovery' || new URLSearchParams(hash.replace(/^#/, '')).get('type') === 'recovery');
