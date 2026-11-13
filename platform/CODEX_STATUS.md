@@ -17,3 +17,9 @@ Changed: server/client-gallery.mjs, server/client-gallery.test.mjs, server/full-
 Property details now collect only name and WhatsApp before opening WhatsApp. Reuses the existing signed site-chat registration RPC, atomic phone deduplication, first pipeline stage and CRM automation dispatch. Start validates the published property and saves canonical context in the conversation. Direct card contact opens property details instead of bypassing capture. Removed public MRV tag and aligned all final CTA elements on the same center axis.
 Validation: root typecheck/build, native build, three focused tests passed; real compiled endpoint start 200, nonexistent property 404, registration 200, correct exclusive pipeline/first stage and canonical property context confirmed. Own QA records removed. No active bot/stage automation exists and Evolution session is erro_qr; no WhatsApp delivery claimed. No dependencies or schema changes.
 Changed: PropertyInterestForm, PropertyDetailDialog, PropertiesSection, FinalCTASection, index.css, property-interest test, native public vanessa-chat route, this status file.
+
+## Vanessa · 2026-11-13 · Acesso compacto
+
+Acesso interno em cartão único, com e-mail, senha, Avançar e recuperação. `/admin` conserva o tratamento das contas legadas. `/auth` respeita o destino interno solicitado e usa `/painel` como entrada padrão. A redefinição usa o evento de recuperação do Supabase com a proteção de sessão existente e oferece novo link quando o anterior expirou.
+
+Arquivos: `src/components/auth/VanessaAccessCard.tsx`, `src/routes/auth.tsx`, `src/routes/login.tsx`, `src/routes/__root.tsx` e este registro. A verificação de autenticação passou em 11 casos e a árvore de rotas passou. A primeira compilação esbarrou na leitura de diretórios do Windows. A execução com acesso autorizado compilou o site público e seguiu para o sistema interno. A entrega de e-mail e a redefinição com a conta da Vanessa exigem validação em produção.
