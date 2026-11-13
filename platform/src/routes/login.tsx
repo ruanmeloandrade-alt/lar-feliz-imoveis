@@ -6,6 +6,7 @@ import {slimAuthFailureMessage} from "@/lib/slim-auth-network.core";
 import { AccessField, accessInputClass, accessLinkClass, VanessaAccessCard } from "@/components/auth/VanessaAccessCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { beginLoginVerification } from "@/components/auth/SlimSessionGate";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -74,6 +75,7 @@ function LoginPage() {
     try {
       await signInExistingAccount(cleanEmail, password);
 
+      beginLoginVerification();
       navigate({ to: "/painel", replace: true });
     } catch (err) {
       const message = slimAuthFailureMessage(err);

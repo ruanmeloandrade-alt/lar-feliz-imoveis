@@ -23,3 +23,11 @@ Changed: PropertyInterestForm, PropertyDetailDialog, PropertiesSection, FinalCTA
 Acesso interno em cartão único, com e-mail, senha, Avançar e recuperação. `/admin` conserva o tratamento das contas legadas. `/auth` respeita o destino interno solicitado e usa `/painel` como entrada padrão. A redefinição usa o evento de recuperação do Supabase com a proteção de sessão existente e oferece novo link quando o anterior expirou.
 
 Arquivos: `src/components/auth/VanessaAccessCard.tsx`, `src/routes/auth.tsx`, `src/routes/login.tsx`, `src/routes/__root.tsx` e este registro. A verificação de autenticação passou em 11 casos e a árvore de rotas passou. A primeira compilação esbarrou na leitura de diretórios do Windows. A execução com acesso autorizado compilou o site público e seguiu para o sistema interno. A entrega de e-mail e a redefinição com a conta da Vanessa exigem validação em produção.
+
+## Vanessa · 2026-11-13 · Menu inferior e verificação
+
+Menu inferior com ícones da Vanessa e opções em sanfona. A Home oferece a Dashboard detalhada. O menu usa termos como Conversas, Imóveis e Origem dos leads. A entrada após o login mostra a verificação por cinco segundos e só libera conteúdo depois da validação real. O retorno de login ignora a rota legada `/login`, que não está disponível no domínio publicado.
+
+Próximas etapas: páginas internas e Inbox na paleta Vanessa, Gestor de CRM, Cérebro da IA e Públicos. O Cérebro da IA usará as seis referências visuais enviadas em 13/11 para orientar volume, silhueta e divisão do modelo 3D. As regiões serão acionáveis e abrirão Informações, Documentos, Links, Promoções e Palavras proibidas, com preenchimento baseado no conteúdo já salvo.
+Validação: 28 verificações de segurança passaram, incluindo o intervalo real de cinco segundos com sessão de teste, além de 11 verificações de autenticação e a árvore de 147 rotas.
+Referência do menu recebida em 13/11: barra inferior escura inspirada no OSD do monitor AOC, com ícones alinhados, módulo ativo em vermelho e uma faixa acoplada para opções.
