@@ -131,7 +131,7 @@ function IntegracoesPage() {
   const summary = summarizeStatus(catalog);
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-background text-foreground">
+    <div data-vanessa-light-surface className="flex h-dvh w-full overflow-hidden bg-background text-foreground">
       <AppSidebar />
       <main className="min-w-0 flex-1 overflow-y-auto"><div className="mx-auto max-w-[1480px] space-y-5 px-4 py-5 sm:px-6 lg:px-8">
         <header className="flex flex-col gap-4 border-b border-border pb-5 lg:flex-row lg:items-end lg:justify-between"><div className="min-w-0"><div className="mb-2 flex items-center gap-2 text-xs font-medium text-muted-foreground"><Plug className="h-4 w-4" />Central de Integrações</div><h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Conexões da operação</h1><p className="mt-1.5 max-w-3xl text-sm text-muted-foreground">Meta, WhatsApp Web, IA, webhooks e Central Google reunidos para a Vanessa Simoni.</p></div><div className="grid min-w-0 grid-cols-2 gap-2 sm:min-w-[360px]"><Metric label="Conectadas" value={summary.conectado} icon={<CheckCircle2 className="h-4 w-4" />} /><Metric label="Disponíveis" value={summary.desconectado} icon={<CircleDashed className="h-4 w-4" />} /></div></header>

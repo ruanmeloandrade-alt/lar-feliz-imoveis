@@ -185,7 +185,7 @@ function ConfigPage() {
               <p className="text-sm text-muted-foreground">{currentSub.sub}</p>
             </header>
 
-            <div className="rounded-2xl border border-border bg-card shadow-sm p-6">
+            <div className="rounded-2xl border border-border bg-card shadow-sm p-4 sm:p-6">
               {bundleQ.isLoading && <div className="text-sm text-muted-foreground py-10 text-center">Carregando…</div>}
               {bundleQ.isError && <div role="alert" className="text-sm text-destructive">Falha ao carregar configurações. Nenhuma alteração pode ser feita com dados desatualizados.<button type="button" onClick={()=>bundleQ.refetch()} className="block mt-3 underline">Tentar novamente</button></div>}
               {bundleQ.data && !bundleQ.isError && (
@@ -195,7 +195,13 @@ function ConfigPage() {
                   {sub === "equipe" && (
                     <div className="space-y-6">
                       <EquipeTab bundle={bundleQ.data} isOwner={isOwner} onToast={showToast} />
-                      <AccountEmailChangeControl />
+                      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
+                        <div>
+                          <h3 className="text-sm font-semibold">E-mail de acesso</h3>
+                          <p className="mt-1 text-xs text-muted-foreground">Altere o e-mail usado para entrar na sua conta.</p>
+                        </div>
+                        <AccountEmailChangeControl />
+                      </div>
                     </div>
                   )}
                   {sub === "expediente" && <ExpedienteTab workspace={workspace} canManage={!!bundleQ.data?.canManageRegionalSettings} onToast={showToast} />}

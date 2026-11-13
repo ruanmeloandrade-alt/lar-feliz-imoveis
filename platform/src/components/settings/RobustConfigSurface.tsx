@@ -14,13 +14,9 @@ export function RobustConfigSurface({ children }: { children: ReactNode }) {
   return (
     <div
       data-operational-surface="configuracoes"
+      data-vanessa-light-surface
       className={cn(
         "min-h-screen bg-background",
-        "[&>div>main]:[--background:#fff] [&>div>main]:[--card:#fff]",
-        "[&>div>main]:[--foreground:#252126] [&>div>main]:[--card-foreground:#252126]",
-        "[&>div>main]:[--muted:#f7f3f4] [&>div>main]:[--muted-foreground:#665a61]",
-        "[&>div>main]:[--border:#e7dde1] [&>div>main]:[--input:#e7dde1]",
-        "[&>div>main]:[--primary:#a01b36] [&>div>main]:[--primary-foreground:#fff] [&>div>main]:[--ring:#a01b36]",
         "[&>div>main]:bg-background [&>div>main]:text-foreground",
         "[&_input]:focus-visible:outline-none [&_textarea]:focus-visible:outline-none",
         "[&_button]:focus-visible:outline-none [&_button]:focus-visible:ring-2",

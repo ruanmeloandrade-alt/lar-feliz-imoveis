@@ -77,11 +77,11 @@ export function AccountEmailChangeControl() {
           setError(null);
           setSuccess(null);
         }}
-        className="fixed right-5 top-5 z-[70] inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-foreground shadow-md transition hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35"
+        className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-foreground transition hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35"
         aria-label="Trocar e-mail de acesso"
       >
         <Mail className="h-4 w-4 text-primary" />
-        <span className="hidden sm:inline">Trocar e-mail</span>
+        <span>Trocar e-mail</span>
       </button>
 
       {open && (

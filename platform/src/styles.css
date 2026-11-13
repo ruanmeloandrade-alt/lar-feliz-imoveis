@@ -712,13 +712,15 @@
 
 
 
-body:has([data-vanessa-inbox], [data-vanessa-brain]) {
+body:has([data-vanessa-inbox], [data-vanessa-brain], [data-vanessa-light-surface]) {
  --background: #fff;
  --card: #fff;
  --foreground: #252126;
  --card-foreground: #252126;
  --muted: #f7f2f4;
  --muted-foreground: #655861;
+ --secondary: #f3e5e9;
+ --secondary-foreground: #3f2632;
  --border: #e7dde1;
  --input: #e7dde1;
  --accent: #f3e5e9;

@@ -27,8 +27,11 @@ const modules = [
     { label: "Integrações", to: "/integracoes" },
     { label: "Tutoriais", to: "/tutoriais" },
   ] },
-  { label: "Origem dos leads", icon: VanessaIcons.tracking, items: [
-    { label: "Fontes e eventos", to: "/modulos/tracking" },
+  { label: "Tracking e Analytics", icon: VanessaIcons.tracking, items: [
+    { label: "Visão geral", to: "/modulos/tracking", search: { secao: undefined } },
+    { label: "Fontes", to: "/modulos/tracking", search: { secao: "fontes" } },
+    { label: "Eventos", to: "/modulos/tracking", search: { secao: "eventos" } },
+    { label: "UTMs e campanhas", to: "/modulos/tracking", search: { secao: "utms" } },
   ] },
 ] as const;
 
@@ -53,6 +56,7 @@ async function handleLogout() {
 export function AppSidebar() {
   useSessionHeartbeat();
   const currentPath = useRouterState({ select: state => state.location.pathname });
+  const trackingSection = useRouterState({ select: state => (state.location.search as { secao?: string }).secao });
   const [expanded, setExpanded] = useState<ModuleLabel | null>(null);
   const navRef = useRef<HTMLElement>(null);
   const activeTrigger = useRef<HTMLButtonElement | null>(null);
@@ -113,11 +117,11 @@ export function AppSidebar() {
                 <span>{label}</span>
               </button>
               <div id={panelId} aria-labelledby={`${panelId}-trigger`} className="vanessa-module-panel" hidden={!open}>
-                {items.map(item => (
-                  <Link key={item.to} to={item.to} className="vanessa-module-link" aria-current={matches(currentPath, item.to) ? "page" : undefined} onClick={() => setExpanded(null)}>
-                    {item.label}
-                  </Link>
-                ))}
+                {items.map(item => {
+                  const search = "search" in item ? item.search : undefined;
+                  const selected = matches(currentPath, item.to) && (!search || search.secao === trackingSection);
+                  return <Link key={item.label} to={item.to} search={search} className="vanessa-module-link" aria-current={selected ? "page" : undefined} onClick={() => setExpanded(null)}>{item.label}</Link>;
+                })}
                 {label === "Configurações" && (
                   <button type="button" onClick={handleLogout} className="vanessa-module-link vanessa-module-logout"><LogOut size={16} aria-hidden="true" /> Sair</button>
                 )}
