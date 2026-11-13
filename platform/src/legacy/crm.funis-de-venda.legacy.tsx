@@ -55,6 +55,7 @@ import {
  Check,
 } from "lucide-react";
 import { AppSidebar } from "@/components/dashboard/AppSidebar";
+import { CrmManagerButton } from "@/components/crm/CrmManagerButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -1284,8 +1285,9 @@ function CrmFunisPage() {
         onClick={enterAutomatize}
         className="h-8 text-xs gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90"
       >
-        <Zap className="w-3.5 h-3.5" /> Automatize
+        <Zap className="w-3.5 h-3.5" /> Automações
       </Button>
+      <CrmManagerButton />
     </div>
   ) : (
   <>

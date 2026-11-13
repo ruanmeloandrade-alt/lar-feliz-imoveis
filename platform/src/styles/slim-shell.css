@@ -144,6 +144,36 @@ body[data-app-shell="1"] [data-chat-surface] {
 .vanessa-module-logout { color: #dfdce2; }
 [data-vanessa-navigation] :is(button, a):focus-visible { outline: 2px solid #ffec00; outline-offset: -2px; }
 
+body[data-app-shell="1"] :where(
+  [data-vanessa-button]:not([data-vanessa-button="link"], [data-vanessa-button="ghost"]),
+  button[class~="bg-primary"], button[class~="bg-card"][class~="border"],
+  button[role="tab"], button[aria-current="true"]
+) {
+  background-image: linear-gradient(165deg, #ffffff26, #ffffff06 50%, #211b2310);
+  box-shadow: inset 0 1px #ffffff54, inset 0 -1px #211b2324, 0 2px 5px #211b231c;
+}
+
+body[data-app-shell="1"] :where(
+  [data-vanessa-button="outline"], [data-vanessa-button="secondary"], button[class~="bg-card"][class~="border"]
+) {
+  background-color: color-mix(in srgb, var(--card) 86%, transparent);
+  backdrop-filter: blur(9px) saturate(125%);
+}
+
+body[data-app-shell="1"] :where(
+  [data-vanessa-button="outline"], [data-vanessa-button="secondary"], button[class~="bg-card"][class~="border"]
+):hover {
+  background-color: var(--accent);
+}
+
+@media (forced-colors: active) {
+  body[data-app-shell="1"] :where([data-vanessa-button]:not([data-vanessa-button="link"])) {
+    border: 1px solid ButtonText;
+    background: ButtonFace;
+    color: ButtonText;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .vanessa-module-panel { animation: none; }
 }

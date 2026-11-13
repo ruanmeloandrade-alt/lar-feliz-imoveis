@@ -51,3 +51,9 @@ Arquivos: `src/routes/inbox.tsx`, `src/styles.css`, `src/components/inbox/InboxP
 Modelo original inspirado nas referências de silhueta, volume e divisão por regiões. Arrastar gira o modelo e tocar uma região abre seu editor. Os botões das regiões também operam por teclado. Cada região é preenchida a partir das fontes ativas e palavras cadastradas. Os rascunhos de texto são independentes por região. As fontes e os termos usam o armazenamento que já existia.
 
 Arquivos: `src/components/crm/BrainAtlas.tsx`, `src/routes/crm.agente-ia.tsx`, `src/styles.css` e este registro.
+
+### Navegação e acabamento das páginas internas
+
+Gestor de CRM movido do Cérebro da IA para o Funil de Vendas, ao lado de Automações. Tracking e Analytics abre Visão geral, Fontes, Eventos e UTMs e campanhas pela sanfona inferior. Configurações gerais, Integrações e Tutoriais usam a mesma superfície branca. A troca de e-mail faz parte da seção Equipe. Tutoriais abre um player escuro somente ao iniciar o vídeo. A Dashboard detalhada apresenta os indicadores e gráficos, e o painel de VGV e comissões fica em Gestão imobiliária.
+
+Os botões de ação do sistema interno recebem reflexo sutil. Contornos e botões secundários usam uma superfície translúcida com desfoque. As cores de texto, ícones, foco e ações destrutivas mantêm os papéis existentes.

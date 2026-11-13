@@ -35,6 +35,7 @@ export function TutorialsPage() {
   const [userId, setUserId] = useState<string | null>(null);
   const [authError, setAuthError] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [playingId, setPlayingId] = useState<string | null>(null);
   const [editing, setEditing] = useState<Editor | null>(null);
   const [removing, setRemoving] = useState<Removal | null>(null);
   const [busy, setBusy] = useState(false);
@@ -207,9 +208,9 @@ export function TutorialsPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div data-vanessa-light-surface className="flex min-h-screen bg-background text-foreground">
       <AppSidebar />
-      <main className="min-w-0 flex-1 p-5 pt-16 md:p-8">
+      <main className="min-w-0 flex-1 p-5 md:p-8">
         <header className="mb-7 flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-primary">
@@ -367,15 +368,11 @@ export function TutorialsPage() {
             >
               {selected ? (
                 <>
-                  <iframe
-                    key={selected.video_id}
-                    className="aspect-video w-full border-0 bg-black"
-                    src={`https://www.youtube-nocookie.com/embed/${selected.video_id}`}
-                    title={selected.title}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowFullScreen
-                    referrerPolicy="strict-origin-when-cross-origin"
-                  />
+                  <div className="grid aspect-video w-full place-items-center bg-[#f7f2f4] p-5 text-center">
+                    <Button type="button" size="lg" onClick={() => setPlayingId(selected.id)}>
+                      <PlayCircle aria-hidden="true" /> Assistir vídeo
+                    </Button>
+                  </div>
                   <div className="p-5">
                     <p className="text-xs text-muted-foreground">
                       {selectedModule?.title} · Aula {selectedIndex + 1} de {orderedLessons.length}
@@ -419,6 +416,17 @@ export function TutorialsPage() {
             </section>
           </div>
         )}
+
+        <Dialog open={Boolean(selected && playingId === selected.id)} onOpenChange={open => { if (!open) setPlayingId(null); }}>
+          {selected && <DialogContent aria-describedby={undefined} className="max-w-5xl gap-3 rounded-xl border-white/15 bg-[#1b161a] p-4 text-white sm:p-6">
+            <DialogTitle className="pr-8 text-white">{selected.title}</DialogTitle>
+            <iframe className="aspect-video w-full rounded-lg border-0 bg-black"
+              src={`https://www.youtube-nocookie.com/embed/${selected.video_id}?autoplay=1`}
+              title={selected.title}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen referrerPolicy="strict-origin-when-cross-origin" />
+          </DialogContent>}
+        </Dialog>
 
         <Dialog
           open={Boolean(editing) && canEdit}
