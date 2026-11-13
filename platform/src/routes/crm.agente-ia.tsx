@@ -158,12 +158,14 @@ function BrainPage() {
   return (
     <div data-vanessa-brain className="flex min-h-screen bg-background text-foreground">
       <AppSidebar />
-      <main className="mx-auto w-full min-w-0 max-w-6xl space-y-5 p-4 md:p-6">
+      <main className="mx-auto w-full min-w-0 max-w-[1450px] space-y-5 p-4 md:p-6">
         <header>
           <h1 className="flex items-center gap-2 text-2xl font-bold"><BrainCircuit aria-hidden="true" /> Cérebro da IA</h1>
           <p className="mt-2 text-sm text-muted-foreground">Base de conhecimento da operação imobiliária.</p>
         </header>
+        <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,1fr)]">
         <BrainAtlas selected={kind} counts={counts} onSelect={selectRegion} />
+        <div className="min-w-0 space-y-4">
         <section id="brain-region-editor" aria-labelledby="brain-region-title" className="w-full rounded-xl border bg-card p-4 md:p-5">
           <h2 id="brain-region-title" className="mb-4 font-semibold">{currentRegion.label}</h2>
           {kind === "blocked" ? (<div>
@@ -195,6 +197,8 @@ function BrainPage() {
             <button type="button" aria-label={`Excluir ${source.title}`} onClick={() => remove(source)} className="rounded border p-2 text-destructive"><Trash2 size={14} /></button>
           </li>)}</ul>
         </section>}
+        </div>
+        </div>
       </main>
     </div>
   );

@@ -8,6 +8,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { attachSupabaseAuth } from "@/integrations/supabase/auth-attacher";
 import { loadEffectivePermissions } from "@/lib/permissions-core.functions";
 import { allowedPipelines, scopeOf, requireAllowed } from "@/lib/permissions-core";
+import { listCrmTagCatalog } from "@/lib/crm-tag-catalog.server";
 
 type AnySb = {
   from: (t: string) => any;
@@ -2251,7 +2252,11 @@ export const listWorkspaceTags = createServerFn({ method: "GET" })
       if (s) set.add(s);
     };
 
-    const { data, error } = await sb.from("leads").select("tags").eq("workspace_id", wsId);
+    const [{ data, error }, tagCatalog] = await Promise.all([
+      sb.from("leads").select("tags").eq("workspace_id", wsId),
+      listCrmTagCatalog(sb, wsId),
+    ]);
+    for (const tag of tagCatalog) push(tag);
     if (error) throw new Error(error.message);
     for (const row of (data ?? []) as Array<{ tags: unknown }>) {
       if (Array.isArray(row.tags)) for (const t of row.tags) push(t);
