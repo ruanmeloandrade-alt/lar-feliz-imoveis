@@ -30,3 +30,4 @@ Menu inferior com ícones da Vanessa e opções em sanfona. A Home oferece a Das
 
 Próximas etapas: páginas internas e Inbox na paleta Vanessa, Gestor de CRM, Cérebro da IA e Públicos. O Cérebro da IA usará as seis referências visuais enviadas em 13/11 para orientar volume, silhueta e divisão do modelo 3D. As regiões serão acionáveis e abrirão Informações, Documentos, Links, Promoções e Palavras proibidas, com preenchimento baseado no conteúdo já salvo.
 Validação: 28 verificações de segurança passaram, incluindo o intervalo real de cinco segundos com sessão de teste, além de 11 verificações de autenticação e a árvore de 147 rotas.
+Referência do menu recebida em 13/11: barra inferior escura inspirada no OSD do monitor AOC, com ícones alinhados, módulo ativo em vermelho e uma faixa acoplada para opções.
