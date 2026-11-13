@@ -55,10 +55,10 @@ const SUGGESTIONS: Record<Module, string[]> = {
     "Liste minhas contas, páginas e pixels conectados",
   ],
   kommo_manager: [
-    "Onde meu funil está travando agora?",
-    "Quais leads precisam de follow-up hoje e por quê?",
-    "Por que os leads da etapa de proposta não avançam?",
-    "Me dá o relatório da operação dos últimos 7 dias",
+    "Quais negociações imobiliárias precisam de atenção hoje?",
+    "Quais clientes estão esperando meu retorno?",
+    "Em quais etapas as propostas de imóveis estão paradas?",
+    "Mostre o resumo das negociações dos últimos 7 dias",
   ],
   salesbot: ["Como monto um fluxo de qualificação?"],
   inbox: ["Quais conversas estão sem resposta?"],
@@ -81,7 +81,7 @@ const SUGGESTIONS: Record<Module, string[]> = {
 const TITLE: Record<Module, string> = {
   support_robot: "Copiloto Vanessa Simoni",
   gestor_trafego: "Chat Marketing",
-  kommo_manager: "Chat CRM",
+  kommo_manager: "Acompanhamento de negociações",
   salesbot: "Assistente Salesbot",
   inbox: "Assistente Inbox",
   dashboard: "Assistente Dashboard",
@@ -401,7 +401,7 @@ function AiAgentChatSession({
   const rawMode = settingsQ.data?.mode as string | undefined;
   const currentMode: Mode = hideModeToggle
     ? "consultor"
-    : (rawMode === "consultor" ? "consultor" : "gestor");
+    : rawMode === "consultor" || (agentModule === "kommo_manager" && !rawMode) ? "consultor" : "gestor";
 
   const autoGestorModeDoneRef = useRef(false);
   useEffect(() => {
@@ -464,7 +464,9 @@ function AiAgentChatSession({
             <div className="text-[11px] text-muted-foreground truncate">
               {agentModule === "support_robot"
                 ? "Conversa contínua · ações executadas após sua aprovação"
-                : <>Conversa contínua · lê seus dados, imagens e executa ações no modo {isSocialMedia ? "Social Media" : "Gestor"}</>}
+                : agentModule === "kommo_manager"
+                  ? "Clientes, propostas e próximos retornos"
+                  : <>Conversa contínua · lê seus dados, imagens e executa ações no modo {isSocialMedia ? "Social Media" : "Gestor"}</>}
             </div>
 
           </div>
@@ -477,7 +479,9 @@ function AiAgentChatSession({
                   key={m}
                   onClick={() => modeM.mutate(m)}
                   disabled={modeM.isPending}
-                  title={MODE_LABEL[m].hint}
+                  title={agentModule === "kommo_manager"
+                    ? (m === "consultor" ? "Consulta clientes e negociações." : "Usa as ações disponíveis no CRM.")
+                    : MODE_LABEL[m].hint}
                   className={`inline-flex items-center gap-1 rounded-[6px] px-2 py-1 text-[11px] font-medium transition ${
                     currentMode === m
                       ? "bg-primary text-primary-foreground shadow-sm"

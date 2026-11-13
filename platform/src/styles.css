@@ -712,6 +712,44 @@
 
 
 
+body:has([data-vanessa-inbox]) {
+ --background: #fff;
+ --card: #fff;
+ --foreground: #252126;
+ --card-foreground: #252126;
+ --muted: #f7f2f4;
+ --muted-foreground: #655861;
+ --border: #e7dde1;
+ --input: #e7dde1;
+ --accent: #f3e5e9;
+ --accent-foreground: #3f2632;
+ --primary: #a01b36;
+ --primary-foreground: #fff;
+ --ring: #a01b36;
+ --popover: #fff;
+ --popover-foreground: #252126;
+}
+
+[data-vanessa-inbox] [data-chat-surface] {
+ --chat-panel: #fff;
+ --chat-panel-hover: #f9f2f4;
+ --chat-panel-active: #f4e4e9;
+ --chat-bg: #fff;
+ --chat-thread-bg: #faf7f8;
+ --chat-pattern: #9f24431a;
+ --chat-bubble-in: #fff;
+ --chat-bubble-out: #f1dce4;
+ --chat-text: #252126;
+ --chat-text-muted: #655861;
+ --chat-divider: #e7dde1;
+ --chat-accent: #a01b36;
+ --chat-accent-fg: #fff;
+ --chat-group-avatar: #f3e5e9;
+ --chat-audio-control: #edd5df;
+ --chat-unread: #a01b36;
+ --chat-unread-fg: #fff;
+}
+
 [data-chat-thread-bg] {
  background-color: var(--chat-thread-bg);
  color: var(--chat-text);

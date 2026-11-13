@@ -1115,7 +1115,7 @@ export function InboxPage({ channel, selectedId }: InboxPageProps) {
 
   async function createLabel(groupName:string,labelName:string,color?:string):Promise<void>{
     const name=labelName.trim();if(!name)throw new Error('Informe o nome da etiqueta.');
-    try{await upsertInboxLabelFn({data:{group_name:groupName.trim()||'Geral',name,color:color||'oklch(0.78 0.14 162)'}});await refreshInboxLabels();toast.success('Etiqueta criada.');}
+    try{await upsertInboxLabelFn({data:{group_name:groupName.trim()||'Geral',name,color:color||'#a01b36'}});await refreshInboxLabels();toast.success('Etiqueta criada.');}
     catch(error){toast.error(error instanceof Error?error.message:'Falha ao criar etiqueta.');throw error;}
   }
 
@@ -1570,8 +1570,8 @@ const LABEL_COLOR_PALETTE = [
   "oklch(0.58 0.22 27)", // vermelho
   "oklch(0.72 0.16 65)", // laranja
   "oklch(0.82 0.16 95)", // amarelo
-  "oklch(0.72 0.17 145)", // verde
-  "oklch(0.78 0.14 162)", // teal
+  "#a01b36", // vinho
+  "#946575", // malva
   "oklch(0.65 0.15 220)", // azul
   "oklch(0.55 0.15 235)", // azul escuro
   "oklch(0.52 0.18 280)", // roxo
@@ -1579,6 +1579,12 @@ const LABEL_COLOR_PALETTE = [
   "oklch(0.58 0.20 340)", // rosa
   "oklch(0.55 0.02 260)", // cinza
 ];
+
+function inboxLabelDisplayColor(color: string) {
+  if (color === "oklch(0.72 0.17 145)") return "#a01b36";
+  if (color === "oklch(0.78 0.14 162)") return "#946575";
+  return color;
+}
 
 function InboxActionsMenu({
   labelGroups,
@@ -1722,6 +1728,7 @@ function InboxActionsMenu({
                 <div className="flex flex-wrap gap-1.5">
                   {group.labels.map((label) => {
                     const active = selectedConversationLabels.includes(label.id);
+                    const displayColor = inboxLabelDisplayColor(label.color);
                     const isEditing =
                       editingLabel?.groupId === group.id && editingLabel?.labelId === label.id;
                     return (
@@ -1740,15 +1747,15 @@ function InboxActionsMenu({
                           }}
                           className="inline-flex items-center gap-1 rounded-full border pl-2 pr-1 py-1 text-[11px] disabled:opacity-40"
                           style={{
-                            borderColor: active ? label.color : "var(--chat-divider)",
+                            borderColor: active ? displayColor : "var(--chat-divider)",
                             backgroundColor: active
-                              ? `color-mix(in oklch, ${label.color} 18%, transparent)`
+                              ? `color-mix(in oklch, ${displayColor} 18%, transparent)`
                               : "transparent",
                           }}
                         >
                           <span
                             className="w-2 h-2 rounded-full"
-                            style={{ backgroundColor: label.color }}
+                            style={{ backgroundColor: displayColor }}
                           />
                           {label.name}
                           <span
@@ -1794,7 +1801,7 @@ function InboxActionsMenu({
                                   style={{
                                     backgroundColor: c,
                                     borderColor:
-                                      label.color === c ? "var(--chat-text)" : "transparent",
+                                      displayColor === c ? "var(--chat-text)" : "transparent",
                                   }}
                                   aria-label="Escolher cor"
                                 />
@@ -2015,14 +2022,14 @@ function LabelFilterRail({
                 onClick={() => onChange(activeLabel === label.id ? null : label.id)}
                 className="inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[11px]"
                 style={{
-                  borderColor: activeLabel === label.id ? label.color : "var(--chat-divider)",
+                  borderColor: activeLabel === label.id ? inboxLabelDisplayColor(label.color) : "var(--chat-divider)",
                   backgroundColor:
                     activeLabel === label.id
-                      ? `color-mix(in oklch, ${label.color} 18%, transparent)`
+                      ? `color-mix(in oklch, ${inboxLabelDisplayColor(label.color)} 18%, transparent)`
                       : "transparent",
                 }}
               >
-                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: label.color }} />{" "}
+                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: inboxLabelDisplayColor(label.color) }} />{" "}
                 {label.name}
               </button>
             ))}
@@ -2090,7 +2097,7 @@ function ConversationRow({
             {chatPreviewTime(conv.lastMessageAt)}
           </span>
         </div>
-        {conv.whatsappOrigin && <div className="mt-1 truncate text-[10px] font-semibold text-emerald-600">WhatsApp de origem: {conv.whatsappOrigin}</div>}
+        {conv.whatsappOrigin && <div className="mt-1 truncate text-[10px] font-semibold" style={{ color: "var(--chat-accent)" }}>WhatsApp de origem: {conv.whatsappOrigin}</div>}
         {conv.subtitle && (
           <div className="text-[10px] truncate mt-0.5" style={{ color: "var(--chat-meta)" }}>
             {conv.subtitle}
