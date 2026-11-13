@@ -51,7 +51,7 @@ export const Route = createFileRoute("/crm/produtos")({
       { title: "Catálogos · CRM Vanessa Simoni" },
       {
         name: "description",
-        content: "Crie catálogos, adicione produtos com SKU, valores, fotos e exporte para usar no CRM.",
+        content: "Organize imóveis por catálogo e categoria, com referências, valores e fotos.",
       },
     ],
   }),
@@ -304,7 +304,7 @@ function CrmProdutosPage() {
       await reload();
       setSelectedId(targetId);
       showToast(
-        `${imported.length} produto(s) importado(s) para "${targetName}".` +
+        `${imported.length} imóvel(is) importado(s) para "${targetName}".` +
           (skipped > 0 ? ` ${skipped} linha(s) ignorada(s).` : ""),
       );
       setImportError(null);
@@ -341,7 +341,7 @@ function CrmProdutosPage() {
       });
       await reload();
       setEditingProduct(null);
-      showToast(p.id ? "Produto atualizado." : "Produto adicionado.");
+      showToast(p.id ? "Imóvel atualizado." : "Imóvel adicionado.");
     } catch (e) {
       onError(e);
     }
@@ -351,7 +351,7 @@ function CrmProdutosPage() {
     try {
       await deleteProductFn({ data: { id } });
       await reload();
-      showToast("Produto removido.");
+      showToast("Imóvel removido.");
     } catch (e) {
       onError(e);
     }
@@ -412,7 +412,7 @@ function CrmProdutosPage() {
         });
       }
       await reload();
-      showToast(`Catálogo duplicado com ${c.products.length} produto(s).`);
+      showToast(`Catálogo duplicado com ${c.products.length} imóvel(is).`);
     } catch (e) {
       onError(e);
     }
@@ -424,7 +424,7 @@ function CrmProdutosPage() {
     try {
       const res = await renameCategoryFn({ data: { from, to } });
       await reload();
-      showToast(`${res.updated} produto(s) agora na categoria "${res.category}".`);
+      showToast(`${res.updated} imóvel(is) agora na categoria "${res.category}".`);
     } catch (e) {
       onError(e);
     }
@@ -477,15 +477,15 @@ function CrmProdutosPage() {
               )}
               <div>
                 <div className="text-[10px] font-semibold tracking-widest text-muted-foreground">
-                  CRM · {selected ? "PRODUTOS DO CATÁLOGO" : "CATÁLOGOS"}
+                  CRM · {selected ? "IMÓVEIS DO CATÁLOGO" : "CATÁLOGOS"}
                 </div>
                 <h1 className="mt-1 text-2xl font-semibold tracking-tight">
-                  {selected ? selected.name : "Catálogos de produtos"}
+                  {selected ? selected.name : "Catálogos de imóveis"}
                 </h1>
                 <p className="mt-1 max-w-xl text-sm text-muted-foreground">
                   {selected
-                    ? selected.description || "Adicione e organize os produtos deste catálogo."
-                    : "Crie catálogos para organizar ofertas e vincule produtos ao CRM."}
+                    ? selected.description || "Adicione e organize os imóveis deste catálogo."
+                    : "Organize os imóveis da sua carteira por catálogo."}
                 </p>
               </div>
             </div>
@@ -508,7 +508,7 @@ function CrmProdutosPage() {
                     onClick={() => setEditingProduct({ ...EMPTY_PRODUCT })}
                     className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
                   >
-                    <Plus className="h-4 w-4" /> Adicionar produto
+                    <Plus className="h-4 w-4" /> Adicionar imóvel
                   </button>
                 </>
               ) : (
@@ -559,7 +559,7 @@ function CrmProdutosPage() {
             <>
               <section className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <Stat icon={Layers} label="Catálogos" value={String(catalogs.length)} />
-                <Stat icon={Package} label="Produtos" value={String(totalProducts)} />
+                <Stat icon={Package} label="Imóveis" value={String(totalProducts)} />
                 <Stat icon={DollarSign} label="Valor somado" value={formatBRL(totalValue)} />
               </section>
 
@@ -581,7 +581,7 @@ function CrmProdutosPage() {
                     tab === "produtos" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
                   )}
                 >
-                  Produtos ({totalProducts})
+                  Imóveis ({totalProducts})
                 </button>
                 <button
                   onClick={() => setTab("categorias")}
@@ -634,12 +634,12 @@ function CrmProdutosPage() {
                       <input
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
-                        placeholder="Buscar produto, SKU ou categoria…"
+                        placeholder="Buscar imóvel, referência ou categoria…"
                         className="w-full rounded-md border border-border bg-card py-2 pl-9 pr-3 text-sm outline-none focus:ring-2 focus:ring-primary/30"
                       />
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      {allProducts.length} produto(s) em {catalogs.length} catálogo(s)
+                      {allProducts.length} imóveis em {catalogs.length} catálogo(s)
                     </div>
                   </div>
 
@@ -726,7 +726,7 @@ function CrmProdutosPage() {
                       ))}
                     {allProducts.length === 0 && (
                       <div className="px-5 py-10 text-center text-sm text-muted-foreground">
-                        Nenhum produto cadastrado ainda.
+                        Nenhum imóvel cadastrado.
                       </div>
                     )}
                   </div>
@@ -744,12 +744,12 @@ function CrmProdutosPage() {
                   <input
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Buscar produto, SKU ou categoria…"
+                    placeholder="Buscar imóvel, referência ou categoria…"
                     className="w-full rounded-md border border-border bg-card py-2 pl-9 pr-3 text-sm outline-none focus:ring-2 focus:ring-primary/30"
                   />
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  {selected.products.length} produto(s)
+                  {selected.products.length} imóveis
                 </div>
               </div>
 
@@ -781,13 +781,13 @@ function CrmProdutosPage() {
                     <Package className="mx-auto h-8 w-8 text-muted-foreground" />
                     <div className="mt-3 text-sm font-semibold">Catálogo vazio</div>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      Adicione o primeiro produto deste catálogo.
+                      Adicione o primeiro imóvel deste catálogo.
                     </p>
                     <button
                       onClick={() => setEditingProduct({ ...EMPTY_PRODUCT })}
                       className="mt-4 inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
                     >
-                      <Plus className="h-4 w-4" /> Adicionar produto
+                      <Plus className="h-4 w-4" /> Adicionar imóvel
                     </button>
                   </div>
                 )}
@@ -880,7 +880,7 @@ function CatalogCard({
         <div className="relative h-28 overflow-hidden bg-gradient-to-br from-primary/15 via-primary/5 to-card">
           <img src={catalog.cover} alt="" className="h-full w-full object-cover opacity-80" />
           <div className="absolute right-2 top-2 rounded-full bg-background/90 px-2 py-0.5 text-[10px] font-semibold tabular-nums">
-            {catalog.products.length} produtos
+            {catalog.products.length} imóveis
           </div>
         </div>
         <div className="p-4">
@@ -907,7 +907,7 @@ function CatalogCard({
         </button>
         <button
           onClick={onDuplicate}
-          title="Duplicar catálogo com todos os produtos"
+          title="Duplicar catálogo com todos os imóveis"
           className="inline-flex items-center gap-1 rounded px-2 py-1 text-[11px] text-muted-foreground hover:bg-muted hover:text-foreground"
         >
           <Copy className="h-3 w-3" /> Duplicar
@@ -951,7 +951,7 @@ function ProductCard({
         {hasPromo && (
           <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-destructive px-2 py-0.5 text-[10px] font-semibold text-destructive-foreground">
             <Percent className="h-2.5 w-2.5" />
-            PROMO
+            Valor especial
           </span>
         )}
         {!product.active && (
@@ -963,7 +963,7 @@ function ProductCard({
       <div className="p-3.5">
         <div className="flex items-center justify-between gap-2">
           <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
-            {product.sku || "SEM SKU"}
+            {product.sku || "SEM REFERÊNCIA"}
           </span>
           <span className="text-[10px] tracking-widest text-muted-foreground">
             {product.category}
@@ -1006,7 +1006,7 @@ function ProductCard({
         </button>
         <button
           onClick={onDuplicate}
-          title="Duplicar produto"
+          title="Duplicar imóvel"
           className="inline-flex items-center gap-1 rounded px-2 py-1 text-[11px] text-muted-foreground hover:bg-muted hover:text-foreground"
         >
           <Copy className="h-3 w-3" /> Duplicar
@@ -1137,7 +1137,7 @@ function CategoriesPanel({
   if (stats.length === 0) {
     return (
       <section className="rounded-2xl border border-dashed border-border bg-muted/20 px-6 py-12 text-center text-sm text-muted-foreground">
-        Nenhuma categoria ainda. Ao cadastrar produtos, as categorias com o mesmo nome são
+        Nenhuma categoria ainda. Ao cadastrar imóveis, as categorias com o mesmo nome são
         vinculadas automaticamente.
       </section>
     );
@@ -1187,16 +1187,16 @@ function CategoriesPanel({
           </div>
 
           <div className="grid grid-cols-2 gap-2 text-xs">
-            <MiniStat label="Produtos" value={String(c.products)} />
+            <MiniStat label="Imóveis" value={String(c.products)} />
             <MiniStat label="Ativos" value={`${c.active}/${c.products}`} />
-            <MiniStat label="Ticket médio" value={formatBRL(c.avgPrice)} />
+            <MiniStat label="Valor médio" value={formatBRL(c.avgPrice)} />
           </div>
 
           <button
             onClick={() => onOpen(c.key)}
             className="mt-3 w-full rounded-md border border-border py-1.5 text-xs text-muted-foreground transition-colors hover:border-primary hover:text-primary"
           >
-            Ver produtos desta categoria
+            Ver imóveis desta categoria
           </button>
         </div>
       ))}
@@ -1321,7 +1321,7 @@ function ProductDialog({
         <div className="flex items-start justify-between border-b border-border px-6 py-4">
           <div>
             <div className="text-[10px] font-semibold tracking-widest text-muted-foreground">
-              {product.id ? "EDITAR PRODUTO" : "NOVO PRODUTO"}
+              {product.id ? "EDITAR IMÓVEL" : "NOVO IMÓVEL"}
             </div>
             <h2 className="mt-1 text-lg font-semibold tracking-tight">
               {form.name || "Sem nome"}
@@ -1336,7 +1336,7 @@ function ProductDialog({
           {/* Imagem */}
           <div>
             <label className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-              Foto do produto
+              Foto do imóvel
             </label>
             <div className="mt-2 flex items-center gap-3">
               <div className="h-24 w-24 overflow-hidden rounded-lg border border-border bg-muted">
@@ -1350,11 +1350,11 @@ function ProductDialog({
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <FormField label="SKU">
+            <FormField label="Referência">
               <input
                 value={form.sku}
                 onChange={(e) => update("sku", e.target.value.toUpperCase())}
-                placeholder="MKT-CRM-001"
+                placeholder="IMV-001"
                 className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:ring-2 focus:ring-primary/30"
               />
             </FormField>
@@ -1368,11 +1368,11 @@ function ProductDialog({
 
           </div>
 
-          <FormField label="Nome do produto">
+          <FormField label="Nome do imóvel">
             <input
               value={form.name}
               onChange={(e) => update("name", e.target.value)}
-              placeholder="Nome comercial do produto"
+              placeholder="Ex.: Apartamento no Centro"
               className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:ring-2 focus:ring-primary/30"
             />
           </FormField>
@@ -1382,12 +1382,12 @@ function ProductDialog({
               value={form.description}
               onChange={(e) => update("description", e.target.value)}
               rows={3}
-              placeholder="O que o cliente recebe com este produto?"
+              placeholder="Descreva o imóvel, a localização e os diferenciais."
               className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:ring-2 focus:ring-primary/30 resize-y"
             />
           </FormField>
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <FormField label="Valor">
               <input
                 type="text"
@@ -1398,7 +1398,7 @@ function ProductDialog({
                 className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:ring-2 focus:ring-primary/30 tabular-nums"
               />
             </FormField>
-            <FormField label="Valor promocional">
+            <FormField label="Valor especial">
               <input
                 type="text"
                 inputMode="decimal"
@@ -1412,7 +1412,7 @@ function ProductDialog({
           </div>
 
           <VanessaPropertyFields value={form.property} onChange={v=>update('property',v)} onCoverChange={v=>update('image',v||PLACEHOLDER_IMG)} onBusy={setMediaBusy}/>
-          {form.importSnapshot && <section className="rounded-lg border border-border p-3 text-xs"><h3 className="font-semibold">Histórico importado</h3><p className="mt-1 text-muted-foreground">Valores da planilha de origem. Não representam novos pedidos.</p><dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2">{Object.entries((form.importSnapshot.raw ?? {}) as Record<string, string>).map(([label, value]) => <div key={label}><dt className="text-muted-foreground">{label}</dt><dd className="font-medium break-words">{value === "" ? "Não informado" : value}</dd></div>)}</dl></section>}
+          {form.importSnapshot && <section className="rounded-lg border border-border p-3 text-xs"><h3 className="font-semibold">Histórico importado</h3><p className="mt-1 text-muted-foreground">Valores registrados na planilha de origem.</p><dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2">{Object.entries((form.importSnapshot.raw ?? {}) as Record<string, string>).map(([label, value]) => <div key={label}><dt className="text-muted-foreground">{label}</dt><dd className="font-medium break-words">{value === "" ? "Não informado" : value}</dd></div>)}</dl></section>}
 
           <label className="flex items-center gap-2 text-xs">
             <input
@@ -1440,7 +1440,7 @@ function ProductDialog({
             onClick={saveValidated}
             className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
           >
-            <Box className="h-3.5 w-3.5" /> {saving ? "Salvando..." : "Salvar produto"}
+            <Box className="h-3.5 w-3.5" /> {saving ? "Salvando..." : "Salvar imóvel"}
           </button>
         </div>
       </div>

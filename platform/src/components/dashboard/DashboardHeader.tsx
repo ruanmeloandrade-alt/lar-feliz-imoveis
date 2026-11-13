@@ -93,7 +93,7 @@ export function DashboardHeader({ metrics, onEdit, onPrint, syncBusy = false, sy
  <span className="text-foreground font-semibold tabular-nums">
  {metrics.leads_loaded}
  </span>{" "}
- leads no período
+ contatos no período
  </span>
  <span className="text-muted-foreground/40">·</span>
  <span className="truncate">{syncMessage?? `Período: ${metrics.period_label}`}</span>

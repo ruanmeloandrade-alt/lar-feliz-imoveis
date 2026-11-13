@@ -65,3 +65,9 @@ O formulário aceita até 50 frases e 50 intervalos em segundos, um por linha. A
 O teste local em PostgreSQL confirmou a sequência, as permissões, a origem de WhatsApp e a compatibilidade com a fila anterior. A migração foi aplicada ao banco exclusivo da Vanessa em 13/11. A leitura posterior confirmou os três campos da fila, a rotina de rotação e as permissões de execução esperadas.
 
 Arquivos: `src/components/crm/SlimMassBroadcastPanel.tsx`, `src/components/crm/BroadcastRotationFields.tsx`, `src/lib/slim-broadcast-rotation.ts`, `src/lib/crm-audiences.functions.ts`, `src/lib/slim-audience-queue.functions.ts`, `src/lib/slim-audience-runtime.server.ts`, `supabase/migrations/20261113095700_vanessa_audience_rotation.sql`, `scripts/test-vanessa-audience-rotation.mjs` e este registro.
+
+### Linguagem imobiliária na Dashboard e em Imóveis
+
+A Dashboard apresenta contatos, negociações, resultados por corretor e vendas por imóvel. O catálogo da Dashboard mostra valores e categorias em vez de estoque. A configuração dos indicadores mantém as preferências existentes. A tela Imóveis usa referências, fotos e valores no cadastro, na busca e na organização dos catálogos. Os contratos de persistência e de importação e exportação de planilhas permanecem compatíveis.
+
+Testes com conta real ficam com o responsável pela operação. A recuperação de senha do painel do Supabase é independente da recuperação de acesso no site da Vanessa.
