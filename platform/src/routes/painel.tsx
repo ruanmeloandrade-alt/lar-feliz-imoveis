@@ -34,7 +34,7 @@ const MEDIA_KPIS = [
 ] as const;
 
 export const Route = createFileRoute("/painel")({
-  head: () => ({ meta: [{ title: "Painel comercial · Vanessa Simoni" }, { name: "description", content: "Painel executivo da operação comercial Vanessa Simoni: CRM, mídia, tracking, social e execução." }] }),
+  head: () => ({ meta: [{ title: "Painel comercial · Vanessa Simoni" }, { name: "description", content: "Painel de negociações, imóveis e atendimento da Vanessa Simoni." }] }),
   component: DashboardPage,
 });
 
@@ -118,7 +118,7 @@ function DashboardPage() {
       return;
     }
     const tag = uniqueLabels(drilldownLeads.flatMap((lead) => lead.crm_tags)).find((name) => includesLabel(text, name));
-    if (tag) openDrilldown(leadDrilldown(`Tag · ${tag}`, "Leads que possuem esta tag", drilldownLeads.filter((lead) => lead.crm_tags.some((item) => normalize(item) === normalize(tag))), "Vanessa Simoni"));
+    if (tag) openDrilldown(leadDrilldown(`Etiqueta · ${tag}`, "Contatos com esta etiqueta", drilldownLeads.filter((lead) => lead.crm_tags.some((item) => normalize(item) === normalize(tag))), "Vanessa Simoni"));
   }
 
   const refreshDashboard = () => refreshEnabledDashboardQueries([
@@ -184,7 +184,7 @@ function filterKpiLeads(kpi: Pick<KpiCardData, "kpi_key" | "label"> | undefined,
     if (suffix === "leads_perdidos") return leads.filter((lead) => lead.status_key === "lost");
     if (suffix === "taxa_conversao") return leads;
     if (suffix.startsWith("stage.")) { const stageId = suffix.match(/^stage\.([^.]+)\./)?.[1]; if (stageId) return leads.filter((lead) => lead.stage_id === stageId); }
-    if (suffix.startsWith("tag.")) { const tagName = label.replace(/^Tag\s*·\s*/i, "").trim().toLowerCase(); if (tagName) return leads.filter((lead) => lead.crm_tags.some((tag) => tag.trim().toLowerCase() === tagName)); }
+    if (suffix.startsWith("tag.")) { const tagName = label.replace(/^(?:Tag|Etiqueta)\s*·\s*/i, "").trim().toLowerCase(); if (tagName) return leads.filter((lead) => lead.crm_tags.some((tag) => tag.trim().toLowerCase() === tagName)); }
     return [];
   }
   switch (kpiKey) { case "vendas_ganhas": return leads.filter((lead) => lead.status_key === "won"); case "vendas_perdidas": return leads.filter((lead) => lead.status_key === "lost"); case "em_atendimento": case "valor_pipeline": return leads.filter((lead) => lead.status_key === "open"); case "sem_tarefa_futura": case "leads_urgentes": return []; default: return leads; }
