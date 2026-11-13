@@ -12,7 +12,7 @@ export const Route = createFileRoute("/inbox")({
 
 function InboxLayout() {
   return (
-    <div className="min-h-screen flex bg-background text-foreground">
+    <div data-vanessa-inbox className="min-h-screen flex bg-background text-foreground">
       <AppSidebar />
       <main className="min-w-0 flex-1">
         <Outlet />

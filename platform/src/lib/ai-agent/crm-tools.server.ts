@@ -5,6 +5,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 type CrmToolsContext = {
   supabase: SupabaseClient;
   workspaceId: string;
+  mode: "consultor" | "gestor";
 };
 
 function displayValue(value: unknown): string {
@@ -18,8 +19,8 @@ function displayValue(value: unknown): string {
   return String(value);
 }
 
-export function buildCrmTools({ supabase, workspaceId }: CrmToolsContext) {
-  return {
+export function buildCrmTools({ supabase, workspaceId, mode }: CrmToolsContext) {
+  const tools = {
     list_custom_fields: tool({
       description: "Lista os campos personalizados disponíveis neste CRM. Use para descobrir os IDs e nomes antes de consultar ou atualizar um valor.",
       inputSchema: z.object({}),
@@ -150,7 +151,7 @@ export function buildCrmTools({ supabase, workspaceId }: CrmToolsContext) {
 
         const [companyRes, productsRes, formsRes, actsRes] = await Promise.all([
           l.company_id
-            ? supabase.from("companies").select("id,name,site").eq("id", l.company_id).maybeSingle()
+            ? supabase.from("companies").select("id,name,site").eq("workspace_id", workspaceId).eq("id", l.company_id).maybeSingle()
             : Promise.resolve({ data: null } as { data: unknown }),
           supabase
             .from("lead_products")
@@ -190,5 +191,12 @@ export function buildCrmTools({ supabase, workspaceId }: CrmToolsContext) {
         };
       },
     }),
+  };
+  if (mode === "gestor") return tools;
+  return {
+    list_custom_fields: tools.list_custom_fields,
+    get_lead_custom_fields: tools.get_lead_custom_fields,
+    list_products: tools.list_products,
+    get_lead_overview: tools.get_lead_overview,
   };
 }

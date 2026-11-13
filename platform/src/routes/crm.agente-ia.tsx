@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { AppSidebar } from "@/components/dashboard/AppSidebar";
 import { supabase } from "@/integrations/supabase/client";
 import { BrainSourceActions, BrainBlockedTermEditor } from "@/components/crm/BrainSourceEditors";
+import { AiAgentChat } from "@/components/ai-agent/AiAgentChat";
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { BrainCircuit, FileText, Link2, Megaphone, Plus, Trash2, Upload } from "lucide-react";
 
 type Source = {
@@ -136,8 +138,24 @@ function BrainPage() {
     <div className="flex min-h-screen bg-background text-foreground">
       <AppSidebar />
       <main className="min-w-0 flex-1 space-y-6 p-4 md:p-6">
-        <header><h1 className="flex items-center gap-2 text-2xl font-bold"><BrainCircuit /> Cérebro IA</h1>
-          <p className="mt-2 text-sm text-muted-foreground">Base de conhecimento da Vanessa Simoni. Os agentes de atendimento são criados separadamente em Automações.</p>
+        <header className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h1 className="flex items-center gap-2 text-2xl font-bold"><BrainCircuit aria-hidden="true" /> Cérebro da IA</h1>
+            <p className="mt-2 text-sm text-muted-foreground">Base de conhecimento da operação imobiliária.</p>
+          </div>
+          <Dialog>
+            <DialogTrigger asChild>
+              <button type="button" disabled={!workspaceId} className="inline-flex min-h-11 items-center gap-2 rounded-md border border-[#d4a8b4] bg-white px-4 text-sm font-semibold text-[#8d1934] hover:bg-[#fbf1f4] disabled:opacity-50">
+                <BrainCircuit size={17} aria-hidden="true" /> Gestor de CRM
+              </button>
+            </DialogTrigger>
+            <DialogContent aria-describedby={undefined} className="flex h-[min(44rem,calc(100dvh-2rem))] max-w-3xl flex-col gap-0 overflow-hidden rounded-xl p-0">
+              <DialogTitle className="border-b border-border px-5 py-4">Gestor de CRM</DialogTitle>
+              <div className="min-h-0 flex-1">
+                {workspaceId && <AiAgentChat key={workspaceId} workspaceId={workspaceId} module="kommo_manager" fullscreen />}
+              </div>
+            </DialogContent>
+          </Dialog>
         </header>
         <section className="w-full rounded-lg border bg-card p-5">
           <h2 className="mb-4 font-semibold">Adicionar conhecimento</h2>

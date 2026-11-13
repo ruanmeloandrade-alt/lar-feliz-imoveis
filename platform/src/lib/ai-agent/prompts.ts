@@ -40,7 +40,7 @@ Formato de resposta ao executar:
 - Antes da execução: 1 linha do que vai fazer + par-metros essenciais.
 - Depois: "✅ Feito. Campanha [nome] criada (status: PAUSED). IDs: campaign=..., adset=..., ad=..." + próxima ação sugerida.
 - Se falhou: mensagem de erro exata da Meta + o que precisa ajustar.`,
-  kommo_manager: `Você é o GESTOR DE CRM da MKTOn, um administrador do funil deste workspace, não um agente de atendimento. Você NÃO conversa com lead, cliente ou qualquer pessoa de fora: você organiza, corrige e mantém o CRM funcionando conforme as regras definidas pelo dono da operação. Você conhece cada funil, cada etapa, cada lead, o histórico de conversas e o motivo pelo qual cada negócio avançou ou travou, e usa isso para administrar, nunca para responder o lead.
+  kommo_manager: `Você é o Gestor de CRM da operação imobiliária da Vanessa Simoni. Ajude a corretora a acompanhar clientes, visitas, propostas e negociações com base no histórico disponível no CRM. Seu trabalho é interno e segue as regras definidas pelo responsável pela operação.
 
 O QUE VOCÊ FAZ:
 1. Diagnostica o funil: onde os leads travam, tempo médio por etapa, taxa de passagem, valor parado, previsão de fechamento.
@@ -57,7 +57,7 @@ REGRAS DURAS:
 - Em modo somente leitura ou relatório, você NÃO executa e NÃO promete executar, você informa.
 - Fora do horário/dia de operação, avise que está fora da janela configurada antes de agir automaticamente.
 - Ao apontar um problema, sempre traga a ação recomendada e o responsável sugerido.
-- Fale pt-BR, direto, com números em formato brasileiro.`,
+- Fale em português do Brasil, com a linguagem de corretagem de imóveis e valores no formato brasileiro.`,
   salesbot: `Você é o assistente do construtor de Salesbot da MKTOn. Ajuda a desenhar fluxos de bot.`,
   inbox: `Você é o assistente da Inbox unificada. Ajuda o usuário a responder conversas e organizar a caixa.`,
   dashboard: `Você é o assistente do Dashboard Comercial. Ajuda a interpretar KPIs e priorizar o dia.`,
@@ -208,10 +208,20 @@ export function buildSystemPrompt(opts: {
   moduleContext?: string;
   extra?: string | null;
 }): string {
+  const isCrmManager = opts.module === "kommo_manager";
+  const isCopilot = opts.module === "support_robot";
+  const identity = isCrmManager ? "Assistente interno da Vanessa Simoni. Use apenas dados disponíveis no CRM desta operação imobiliária."
+    : isCopilot ? "Assistente operacional da Vanessa Simoni. Consulte dados autorizados e prepare propostas; a aprovação ocorre somente na interface e é verificada no servidor."
+    : IDENTITY;
+  const mode = isCrmManager ? (opts.mode === "consultor"
+    ? "Modo Consultor: consulte os dados e sugira próximos passos. A operação de escrita está indisponível neste modo."
+    : "Modo Gestor: use as ações disponíveis mediante pedido explícito do operador e conforme as regras da operação.")
+    : isCopilot ? "Modo do Copiloto: consultas e propostas com aprovação persistida do operador."
+    : MODE_HINT[opts.mode];
   return [
-    opts.module === "support_robot" ? "Assistente operacional da Vanessa Simoni. Consulte dados autorizados e prepare propostas; a aprovação ocorre somente na interface e é verificada no servidor." : IDENTITY,
+    identity,
     MODULE_ROLES[opts.module],
-    opts.module === "support_robot" ? "Modo do Copiloto: consultas e propostas com aprovação persistida do operador." : MODE_HINT[opts.mode],
+    mode,
     opts.workspaceName ? `Workspace: ${opts.workspaceName}` : "",
     opts.userName ? `Falando com: ${opts.userName}` : "",
     opts.moduleContext ? `\n---\n${opts.moduleContext}\n---` : "",

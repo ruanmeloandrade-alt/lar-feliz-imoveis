@@ -1116,7 +1116,7 @@ function KeepFilesToggle({ leadId, initial }: { leadId: string; initial: boolean
         aria-checked={keep}
         className={cn(
           "relative w-9 h-5 rounded-full transition-colors flex-shrink-0",
-          keep ? "bg-emerald-500" : "bg-white/15",
+          keep ? "bg-[var(--chat-accent,var(--primary))]" : "bg-[var(--chat-divider,var(--border))]",
           saving && "opacity-60"
         )}
       >

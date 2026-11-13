@@ -39,3 +39,9 @@ Cartão de acesso reduzido para até 304 px. A verificação após a senha ganho
 A barra inferior é a navegação principal das páginas internas novas e reformuladas. A barra compacta tem efeito de vidro fumê e fica centralizada na largura dos cinco botões. A sanfona acompanha essa largura. O desenho dos cinco ícones combina formas próprias para Home, CRM, Gestão imobiliária, Configurações e Origem dos leads. Configurações gerais usa fundo branco, destaque vinho e seções horizontais acima do conteúdo, respeitando as permissões e os links existentes.
 
 Arquivos: `src/components/auth/SlimSessionGate.tsx`, `src/components/auth/VanessaAccessCard.tsx`, `src/routes/auth.tsx`, `src/routes/login.tsx`, `src/styles.css`, `src/components/dashboard/AppSidebar.tsx`, `src/components/dashboard/VanessaIcons.tsx`, `src/styles/slim-shell.css`, `src/legacy/configuracoes.legacy.tsx`, `src/components/settings/RobustConfigSurface.tsx` e este registro.
+
+### Inbox e Gestor de CRM
+
+Inbox em branco, vinho e malva, incluindo lista, mensagens, controles, não lidos e cores das etiquetas legadas na tela. As conversas e atribuições continuam nos mesmos registros. O Gestor de CRM abre no Cérebro da IA e usa o serviço existente e o CRM da empresa ativa, com linguagem imobiliária. O modo Consultor disponibiliza apenas ferramentas de consulta.
+
+Arquivos: `src/routes/inbox.tsx`, `src/styles.css`, `src/components/inbox/InboxPage.legacy.tsx`, `src/components/inbox/LeadProfilePanel.tsx`, `src/components/inbox/LeadWhatsappOrigin.tsx`, `src/routes/crm.agente-ia.tsx`, `src/components/ai-agent/AiAgentChat.tsx`, `src/lib/ai-agent/prompts.ts`, `src/lib/ai-agent/crm-tools.server.ts`, `src/routes/api/ai-agent/chat.ts` e este registro.

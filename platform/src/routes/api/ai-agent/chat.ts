@@ -188,7 +188,7 @@ export const Route = createFileRoute("/api/ai-agent/chat")({
         const allTools = (enableGestorTools || enableStrategistTools)
           ? buildGestorTools({ supabase: ctx.supabase, userId: ctx.userId, workspaceId, turnImages })
           : moduleName === "kommo_manager"
-            ? buildCrmTools({ supabase: ctx.supabase, workspaceId })
+            ? buildCrmTools({ supabase: ctx.supabase, workspaceId, mode })
             : undefined;
 
         const STRATEGIST_TOOL_ALLOWLIST = new Set([

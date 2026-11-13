@@ -53,7 +53,7 @@ export function LeadWhatsappOrigin({
   const phone = origin.data.phone_number?.replace(/\D/g, "");
   return (
     <div
-      className="min-w-0 rounded-lg border border-emerald-500/20 px-3 py-2 text-[11px]"
+      className="min-w-0 rounded-lg border border-[var(--chat-divider,var(--border))] px-3 py-2 text-[11px]"
       aria-label="Conexão de origem do atendimento"
     >
       <p className="font-semibold">
