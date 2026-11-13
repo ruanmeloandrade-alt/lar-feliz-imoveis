@@ -1,11 +1,13 @@
 // SLIM_APPROVED_UI_COMMERCE_V1
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AppSidebar } from "@/components/dashboard/AppSidebar";
 import { supabase } from "@/integrations/supabase/client";
 import { BrainSourceActions, BrainBlockedTermEditor } from "@/components/crm/BrainSourceEditors";
 import { BrainAtlas, brainRegions, type BrainRegion } from "@/components/crm/BrainAtlas";
-import { BrainCircuit, Plus, Trash2 } from "lucide-react";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import meshLicense from "@/assets/vanessa-cerebro-license.txt?url&no-inline";
+import { BrainCircuit, List, Plus, Trash2 } from "lucide-react";
 
 type Source = {
   id: string;
@@ -23,7 +25,10 @@ type SourceDraft = { title: string; content: string; url: string; file: File | n
 const emptyDraft: SourceDraft = { title: "", content: "", url: "", file: null };
 
 export const Route = createFileRoute("/crm/agente-ia")({
-  head: () => ({ meta: [{ title: "Cérebro IA · Vanessa Simoni" }] }),
+  head: () => ({
+    meta: [{ title: "Cérebro IA · Vanessa Simoni" }],
+    links: [{ rel: "license", href: meshLicense }],
+  }),
   component: BrainPage,
 });
 
@@ -34,6 +39,9 @@ function BrainPage() {
   const [newBlockedTerm, setNewBlockedTerm] = useState("");
   const [drafts, setDrafts] = useState<Partial<Record<SourceType, SourceDraft>>>({});
   const [kind, setKind] = useState<BrainRegion>("text");
+  const [panel, setPanel] = useState<"settings" | "records" | "pin" | null>(null);
+  const [pinId, setPinId] = useState<string | null>(null);
+  const panelOpener = useRef<HTMLElement | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -44,6 +52,8 @@ function BrainPage() {
     return result;
   }, [sources, blockedTerms.length]);
   const visibleSources = sources.filter(source => source.source_type === kind);
+  const informationSources = sources.filter(source => source.source_type === "text");
+  const pinnedSource = informationSources.find(source => source.id === pinId);
   const currentRegion = brainRegions.find(region => region.id === kind)!;
   const { title, content, url, file } = kind === "blocked" ? emptyDraft : drafts[kind] ?? emptyDraft;
 
@@ -58,6 +68,19 @@ function BrainPage() {
     setError("");
     setNotice("");
     if (kind === "document") updateDraft({ file: null });
+  }
+
+  function configureRegion(region: BrainRegion) {
+    if (busy) return;
+    selectRegion(region);
+    openPanel("settings");
+  }
+
+  function openPanel(next: "settings" | "records" | "pin") {
+    if (!panel && document.activeElement instanceof HTMLElement) {
+      panelOpener.current = document.activeElement;
+    }
+    setPanel(next);
   }
 
   async function reload(wid: string) {
@@ -158,16 +181,31 @@ function BrainPage() {
   return (
     <div data-vanessa-brain className="flex min-h-screen bg-background text-foreground">
       <AppSidebar />
-      <main className="mx-auto w-full min-w-0 max-w-[1450px] space-y-5 p-4 md:p-6">
-        <header>
-          <h1 className="flex items-center gap-2 text-2xl font-bold"><BrainCircuit aria-hidden="true" /> Cérebro da IA</h1>
-          <p className="mt-2 text-sm text-muted-foreground">Base de conhecimento da operação imobiliária.</p>
+      <main className="mx-auto w-full min-w-0 space-y-5 px-4 pb-24 pt-5 md:px-6">
+        <header className="text-center">
+          <h1 className="flex items-center justify-center gap-2 text-2xl font-bold"><BrainCircuit aria-hidden="true" /> Cérebro da IA</h1>
         </header>
-        <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,1fr)]">
-        <BrainAtlas selected={kind} counts={counts} onSelect={selectRegion} />
-        <div className="min-w-0 space-y-4">
-        <section id="brain-region-editor" aria-labelledby="brain-region-title" className="w-full rounded-xl border bg-card p-4 md:p-5">
-          <h2 id="brain-region-title" className="mb-4 font-semibold">{currentRegion.label}</h2>
+        {error && !panel && <p role="alert" className="text-center text-sm text-destructive">{error}</p>}
+        <BrainAtlas selected={kind} counts={counts} pins={informationSources} onSelect={selectRegion} onConfigure={configureRegion} onOpenPin={pin => { setPinId(pin.id); openPanel("pin"); }} />
+        <div className="flex justify-center">
+          <button type="button" aria-haspopup="dialog" onClick={() => openPanel("records")} className="inline-flex items-center gap-2 rounded-lg border border-primary/25 bg-white px-4 py-2.5 text-sm font-semibold text-primary hover:bg-secondary">
+            <List size={16} aria-hidden="true" /> Registros de informações ({informationSources.length})
+          </button>
+        </div>
+        <Dialog open={panel !== null} onOpenChange={open => { if (!open && !busy) setPanel(null); }}>
+        <DialogContent aria-describedby={undefined} onCloseAutoFocus={event => {
+          if (!panelOpener.current?.isConnected) return;
+          event.preventDefault();
+          panelOpener.current.focus();
+        }} className="max-h-[84dvh] w-[calc(100%-2rem)] max-w-2xl overflow-y-auto rounded-xl p-5">
+          <DialogTitle className="pr-8">{panel === "pin" ? pinnedSource?.title ?? "Registro" : panel === "records" ? "Registros de informações" : currentRegion.label}</DialogTitle>
+          {panel === "pin" && pinnedSource && (
+            <div className="space-y-3">
+              <p className="whitespace-pre-wrap break-words text-sm">{pinnedSource.content || "Sem conteúdo complementar."}</p>
+              <p className="text-xs font-medium text-muted-foreground">{pinnedSource.enabled ? "Ativo" : "Pausado"}</p>
+            </div>
+          )}
+          {panel === "settings" && <section id="brain-region-editor" className="min-w-0">
           {kind === "blocked" ? (<div>
           {error && <p role="alert" className="mb-3 text-sm text-destructive">{error}</p>}
           <p className="mb-3 text-xs text-muted-foreground">Termos que os agentes não devem usar. O bloqueio automático antes do envio ainda precisa ser integrado ao backend.</p>
@@ -186,19 +224,23 @@ function BrainPage() {
           {error && <p role="alert" className="mt-3 text-sm text-destructive">{error}</p>}
           {notice && <p className="mt-3 text-sm text-muted-foreground">{notice}</p>}
           </>)}
-        </section>
-        {kind !== "blocked" && <section className="w-full rounded-xl border bg-card p-4 md:p-5">
-          <h2 className="mb-2 font-semibold">Registros em {currentRegion.label.toLocaleLowerCase("pt-BR")} ({visibleSources.length})</h2>
-          {visibleSources.length === 0 && <p className="py-4 text-sm text-muted-foreground">Nenhum registro nesta região.</p>}
-          <ul className="divide-y">{visibleSources.map(source => <li key={source.id} className="flex flex-wrap items-center gap-3 py-3">
-            <div className="min-w-0 flex-1"><strong className="block break-words text-sm">{source.title}</strong><p className="mt-1 line-clamp-3 whitespace-pre-wrap break-words text-sm text-muted-foreground">{source.content || source.url || source.file_name || "Sem conteúdo complementar"}</p><span className="text-xs text-muted-foreground">{source.source_type === "promotion" ? "Promoção" : source.source_type === "document" ? "Documento" : source.source_type === "url" ? "Link" : "Texto"}{source.file_name ? ` · ${source.file_name}` : ""}</span></div>
+        </section>}
+        {(panel === "records" || (panel === "settings" && kind !== "blocked" && kind !== "text")) && <section className="min-w-0">
+          {panel === "settings" && <h2 className="mb-2 font-semibold">Registros em {currentRegion.label.toLocaleLowerCase("pt-BR")} ({visibleSources.length})</h2>}
+          {(panel === "records" ? informationSources : visibleSources).length === 0 && <p className="py-4 text-sm text-muted-foreground">Nenhum registro nesta região.</p>}
+          {panel === "records" && error && <p className="text-sm text-destructive" role="alert">{error}</p>}
+          <ul className="divide-y">{(panel === "records" ? informationSources : visibleSources).map(source => <li key={source.id} className="flex flex-wrap items-center gap-3 py-3">
+            <div className="min-w-0 flex-1">
+              {panel === "records" ? <button type="button" className="block break-words text-left text-sm font-semibold text-primary hover:underline" onClick={() => { setPinId(source.id); setPanel("pin"); }}>{source.title}</button> : <strong className="block break-words text-sm">{source.title}</strong>}
+              <p className="mt-1 line-clamp-3 whitespace-pre-wrap break-words text-sm text-muted-foreground">{source.content || source.url || source.file_name || "Sem conteúdo complementar"}</p>
+            </div>
             <BrainSourceActions source={source} workspaceId={workspaceId} onSaved={() => reload(workspaceId!)} />
             <button type="button" onClick={() => toggle(source)} className="rounded border px-3 py-1.5 text-xs">{source.enabled ? "Ativo" : "Pausado"}</button>
             <button type="button" aria-label={`Excluir ${source.title}`} onClick={() => remove(source)} className="rounded border p-2 text-destructive"><Trash2 size={14} /></button>
           </li>)}</ul>
         </section>}
-        </div>
-        </div>
+        </DialogContent>
+        </Dialog>
       </main>
     </div>
   );
