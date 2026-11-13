@@ -8,6 +8,7 @@ import { handleClientGallery } from './client-gallery.mjs';
 
 const project='fnuhmypmhcwecziswbat';
 const origin=`https://${project}.supabase.co`;
+const adminHost = 'admin.corretoravanessasimoni.com';
 const port=Number(process.env.VANESSA_INTERNAL_PORT||8090);
 function publicHeaders(){
   if(process.env.SUPABASE_URL!==origin)throw Error('Banco exclusivo da Vanessa obrigatório.');
@@ -104,7 +105,15 @@ export function createFullPlatform(){
     try{
       const path=url.pathname;
       if(await handleClientGallery(req,res,url))return true;
-      if(String(req.headers.host??'').split(':')[0].toLowerCase()==='corretoravanessasimoni.com'){res.writeHead(308,{Location:'https://www.corretoravanessasimoni.com'+(req.url.startsWith('/')?req.url:'/'),'Cache-Control':'no-store'}).end();return true;}
+      const host = String(req.headers.host ?? '').split(':')[0].toLowerCase();
+      if(host==='corretoravanessasimoni.com'){res.writeHead(308,{Location:'https://www.corretoravanessasimoni.com'+(req.url.startsWith('/')?req.url:'/'),'Cache-Control':'no-store'}).end();return true;}
+      if (host === adminHost) {
+        res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+        if ((path === '/' || path === '/index.html') && ['GET', 'HEAD'].includes(req.method)) {
+          res.writeHead(302, { Location: '/admin' + url.search, 'Cache-Control': 'no-store' }).end();
+          return true;
+        }
+      }
       if(/^\/(quiz|blog|precos|parceiros|afiliados|checkout|checkout-retorno|completa)(\/|$)/.test(path)||(path==='/auth'&&url.searchParams.get('mode')==='signup')){res.writeHead(404).end();return true;}
       if(path.startsWith('/brand/')&&!['/brand/vanessa.css','/brand/vanessa.jpg'].includes(path)){res.writeHead(404).end();return true;}
       if(path.startsWith('/system-assets/')&&!path.startsWith('/system-assets/assets/')){res.writeHead(404).end();return true;}

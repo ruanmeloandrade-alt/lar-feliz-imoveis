@@ -3,13 +3,13 @@ import { createContext, type ReactNode } from "react";
 export const PasswordRecoveryContext = createContext(false);
 
 export const accessInputClass = "h-10 bg-background";
-export const accessLinkClass = "font-medium text-foreground underline-offset-4 hover:underline focus-visible:underline";
+export const accessLinkClass = "font-medium text-primary underline underline-offset-4 decoration-primary/35 hover:decoration-current focus-visible:decoration-current";
 
 export function VanessaAccessCard({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <main className="grid min-h-dvh place-items-center bg-background px-4 py-8 text-foreground">
+    <main data-vanessa-light-surface className="grid min-h-dvh place-items-center bg-[radial-gradient(ellipse_at_top,#f8e9ed,#fff_65%)] px-4 py-8 text-foreground">
       <section aria-labelledby="vanessa-access-title" className="w-full max-w-[19rem] rounded-xl border border-border bg-card p-4 shadow-sm">
-        <p className="text-xs text-muted-foreground">Vanessa Simoni</p>
+        <p className="text-xs font-semibold text-primary">Vanessa Simoni</p>
         <h1 id="vanessa-access-title" className="mt-0.5 text-lg font-semibold tracking-tight">{title}</h1>
         {children}
       </section>

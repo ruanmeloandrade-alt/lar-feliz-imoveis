@@ -40,11 +40,11 @@ test('the certified www host serves the site and apex redirects without losing t
   await writeFile(join(root, 'index.html'), '<h1>Vanessa Simoni</h1>');
   const server = createAppServer(root, { fullPlatform: true });
   await new Promise(done => server.listen(0, '127.0.0.1', done));
-  const read = (host, path) => new Promise((resolve, reject) => {
-    const req = request({ hostname: '127.0.0.1', port: server.address().port, path, headers: { Host: host } }, res => {
+  const read = (host, path, method = 'GET') => new Promise((resolve, reject) => {
+    const req = request({ hostname: '127.0.0.1', port: server.address().port, path, method, headers: { Host: host } }, res => {
       let body = '';
       res.on('data', chunk => { body += chunk; });
-      res.on('end', () => resolve({ status: res.statusCode, location: res.headers.location, body }));
+      res.on('end', () => resolve({ status: res.statusCode, location: res.headers.location, robots: res.headers['x-robots-tag'], body }));
     });
     req.on('error', reject); req.end();
   });
@@ -56,6 +56,12 @@ test('the certified www host serves the site and apex redirects without losing t
     assert.equal(primary.status, 200);
     assert.equal(primary.location, undefined);
     assert.match(primary.body, /Vanessa Simoni/);
+    assert.equal(primary.robots, undefined);
+    const admin = await read('admin.corretoravanessasimoni.com', '/?next=%2Fcrm%2Fpublicos');
+    assert.equal(admin.status, 302);
+    assert.equal(admin.location, '/admin?next=%2Fcrm%2Fpublicos');
+    assert.equal(admin.robots, 'noindex, nofollow');
+    assert.equal((await read('admin.corretoravanessasimoni.com', '/', 'HEAD')).location, '/admin');
   } finally {
     await new Promise(done => server.close(done));
     await rm(root, { recursive: true, force: true });
