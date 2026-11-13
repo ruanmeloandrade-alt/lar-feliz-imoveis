@@ -62,6 +62,6 @@ Os botões de ação do sistema interno recebem reflexo sutil. Contornos e botõ
 
 O formulário aceita até 50 frases e 50 intervalos em segundos, um por linha. As duas listas rodam em sequência independente. O intervalo histórico de 0,5 a 15 segundos segue disponível, com vírgula ou ponto para decimais. A fila atribui frase e intervalo a cada destinatário elegível na ordem do público, preserva a origem do WhatsApp, bloqueios de contato e deduplicação, e mantém o formato dos disparos antigos.
 
-O teste local em PostgreSQL confirmou a sequência, as permissões e a compatibilidade com a fila anterior. A publicação desta etapa depende da aplicação da migração no projeto exclusivo da Vanessa.
+O teste local em PostgreSQL confirmou a sequência, as permissões, a origem de WhatsApp e a compatibilidade com a fila anterior. A migração foi aplicada ao banco exclusivo da Vanessa em 13/11. A leitura posterior confirmou os três campos da fila, a rotina de rotação e as permissões de execução esperadas.
 
 Arquivos: `src/components/crm/SlimMassBroadcastPanel.tsx`, `src/components/crm/BroadcastRotationFields.tsx`, `src/lib/slim-broadcast-rotation.ts`, `src/lib/crm-audiences.functions.ts`, `src/lib/slim-audience-queue.functions.ts`, `src/lib/slim-audience-runtime.server.ts`, `supabase/migrations/20261113095700_vanessa_audience_rotation.sql`, `scripts/test-vanessa-audience-rotation.mjs` e este registro.
