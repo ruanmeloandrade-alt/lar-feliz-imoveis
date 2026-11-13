@@ -36,6 +36,6 @@ Referência do menu recebida em 13/11: barra inferior escura inspirada no OSD do
 
 Cartão de acesso reduzido para até 304 px. A verificação após a senha ganhou um painel escuro com escudo, cadeado, barra de cinco segundos e indicação da validação da sessão. A recuperação e o autenticador continuam ligados ao fluxo de acesso existente.
 
-A barra inferior é a navegação principal das páginas internas novas e reformuladas. O desenho dos cinco ícones combina formas próprias para Home, CRM, Gestão imobiliária, Configurações e Origem dos leads. Configurações gerais usa fundo branco, destaque vinho e seções horizontais acima do conteúdo, respeitando as permissões e os links existentes.
+A barra inferior é a navegação principal das páginas internas novas e reformuladas. A barra compacta tem efeito de vidro fumê e fica centralizada na largura dos cinco botões. A sanfona acompanha essa largura. O desenho dos cinco ícones combina formas próprias para Home, CRM, Gestão imobiliária, Configurações e Origem dos leads. Configurações gerais usa fundo branco, destaque vinho e seções horizontais acima do conteúdo, respeitando as permissões e os links existentes.
 
 Arquivos: `src/components/auth/SlimSessionGate.tsx`, `src/components/auth/VanessaAccessCard.tsx`, `src/routes/auth.tsx`, `src/routes/login.tsx`, `src/styles.css`, `src/components/dashboard/AppSidebar.tsx`, `src/components/dashboard/VanessaIcons.tsx`, `src/styles/slim-shell.css`, `src/legacy/configuracoes.legacy.tsx`, `src/components/settings/RobustConfigSurface.tsx` e este registro.

@@ -1,6 +1,9 @@
 /* Shared shell for the Vanessa Simoni internal pages. */
 :root {
-  --vanessa-navigation-height: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+  --vanessa-navigation-row: 3.25rem;
+  --vanessa-navigation-inset: calc(.5rem + env(safe-area-inset-bottom, 0px));
+  --vanessa-navigation-gutter: max(.75rem, env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
+  --vanessa-navigation-height: calc(var(--vanessa-navigation-row) + var(--vanessa-navigation-inset) + 2px);
   --slim-layer-sidebar:40;
   --slim-layer-modal:1000;
   --slim-layer-floating:1100;
@@ -17,21 +20,21 @@ body[data-app-shell="1"] [data-chat-surface] {
 
 [data-vanessa-navigation] {
   position: fixed;
-  inset: auto 0 0;
+  inset: auto 0 var(--vanessa-navigation-inset);
   z-index: var(--slim-layer-sidebar);
-  background: linear-gradient(180deg, #30272b, #211b20);
+  width: min(calc(100% - var(--vanessa-navigation-gutter) - var(--vanessa-navigation-gutter)), 38rem);
+  margin-inline: auto;
+  background: linear-gradient(180deg, #4b3b44e8, #261d23ed);
   color: #fff;
-  border-top: 1px solid #59454e;
-  padding-inline: max(.25rem, env(safe-area-inset-left, 0px)) max(.25rem, env(safe-area-inset-right, 0px));
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  border: 1px solid #ffffff4a;
+  border-radius: .875rem;
+  box-shadow: inset 0 1px #ffffff24, 0 5px 18px #211b2045;
 }
 
 .vanessa-navigation-modules {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  width: min(100%, 62rem);
-  margin-inline: auto;
-  height: calc(4.5rem - 1px);
+  height: var(--vanessa-navigation-row);
 }
 
 .vanessa-navigation-modules > div + div { border-inline-start: 1px solid #ffffff12; }
@@ -41,11 +44,12 @@ body[data-app-shell="1"] [data-chat-surface] {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: .3rem;
+  gap: .18rem;
   width: 100%;
   height: 100%;
   position: relative;
-  padding: .25rem .1rem;
+  border-radius: .65rem;
+  padding: .2rem .1rem;
   color: #dfdce2;
   font-size: clamp(.625rem, 2.8vw, .75rem);
   line-height: 1.15;
@@ -62,24 +66,28 @@ body[data-app-shell="1"] [data-chat-surface] {
   color: #ff9b9d;
 }
 
+.vanessa-module-trigger svg { width: 1.25rem; height: 1.25rem; }
+
 .vanessa-module-trigger:is([aria-expanded="true"], [data-active="true"])::after {
   position: absolute;
-  inset: 0 0 auto;
+  inset: auto calc(50% - .6rem) 2px;
   height: 2px;
-  background: #e76573;
+  border-radius: 2px;
+  background: #f28891;
   content: "";
 }
 
 .vanessa-module-panel {
   position: absolute;
-  inset: auto 0 100%;
+  inset: auto -1px calc(100% + .35rem);
   max-height: min(65dvh, 24rem);
   overflow: auto;
   overscroll-behavior: contain;
-  padding: .55rem max(.6rem, calc((100% - 62rem) / 2));
-  background: #211b20;
-  border-top: 1px solid #59454e;
-  box-shadow: 0 -10px 28px #0004;
+  padding: .4rem;
+  background: linear-gradient(155deg, #43333eea, #261d23ed);
+  border: 1px solid #ffffff42;
+  border-radius: .875rem;
+  box-shadow: inset 0 1px #ffffff1c, 0 5px 20px #0003;
   animation: vanessa-menu-rise .16s ease-out;
 }
 
@@ -87,6 +95,29 @@ body[data-app-shell="1"] [data-chat-surface] {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
   gap: .3rem;
+}
+
+@supports (backdrop-filter: blur(1px)) {
+  [data-vanessa-navigation] { background: transparent; }
+
+  [data-vanessa-navigation]::before {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(180deg, #4b3b44c9, #261d23d9);
+    backdrop-filter: blur(16px) saturate(135%);
+    content: "";
+  }
+
+  .vanessa-module-panel {
+    background: linear-gradient(155deg, #43333edb, #261d23e6);
+    backdrop-filter: blur(16px) saturate(135%);
+  }
+}
+
+@media (max-width: 350px) {
+  .vanessa-module-trigger { font-size: .5625rem; }
 }
 
 @keyframes vanessa-menu-rise {
