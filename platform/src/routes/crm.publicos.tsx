@@ -124,14 +124,14 @@ function PublicosPage() {
   }, [audiences, audienceQuery]);
 
   return (
-    <div className="flex h-screen w-full bg-background text-foreground overflow-hidden">
+    <div data-vanessa-light-surface className="flex h-screen w-full bg-background text-foreground overflow-hidden">
       <AppSidebar />
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <div className="flex-1 overflow-y-auto">
           <div className="w-full px-3 py-4 sm:px-4 md:px-6 md:py-6 space-y-4">
             <header className="flex flex-col gap-4 border-b border-border pb-4 lg:flex-row lg:items-end lg:justify-between">
               <div className="min-w-0">
-                <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                <div className="flex items-center gap-2 text-xs font-semibold text-primary">
                   <Target className="h-3.5 w-3.5" />
                   CRM · Públicos
                 </div>
@@ -152,7 +152,7 @@ function PublicosPage() {
               </div>
             </header>
             <nav role="tablist" aria-label="Navegação de Públicos" className="flex flex-wrap gap-2 border-b border-border pb-3">
-              {([['listas','Listas'],['disparos','Disparo em massa'],['relatorio','Relatório detalhado']] as const).map(([id,label])=><Button key={id} id={`publicos-tab-${id}`} type="button" role="tab" aria-selected={tab===id} aria-controls={`publicos-panel-${id}`} variant={tab===id?'secondary':'ghost'} size="sm" disabled={broadcastPending} onClick={()=>selectTab(id)}>{label}</Button>)}
+              {([['listas','Listas'],['disparos','Disparo em massa'],['relatorio','Relatório detalhado']] as const).map(([id,label])=><Button key={id} id={`publicos-tab-${id}`} type="button" role="tab" aria-selected={tab===id} aria-controls={`publicos-panel-${id}`} variant={tab===id?'secondary':'ghost'} size="sm" className="aria-selected:text-primary" disabled={broadcastPending} onClick={()=>selectTab(id)}>{label}</Button>)}
             </nav>
             {scopeQuery.error?<p role="alert" className="text-sm text-destructive">{scopeQuery.error instanceof Error?scopeQuery.error.message:'Não foi possível conferir a empresa ativa.'}</p>:!scope?<p role="status" className="text-sm text-muted-foreground">Conferindo a empresa ativa...</p>:null}
             <div id="publicos-panel-listas" role="tabpanel" aria-labelledby="publicos-tab-listas" hidden={tab!=='listas'||!scope} style={{display:tab==='listas'&&scope?'block':'none'}} className="space-y-4">
