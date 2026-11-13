@@ -109,7 +109,7 @@ export function AppSidebar() {
                   setExpanded(current => current === label ? null : label);
                 }}
               >
-                <Icon size={21} aria-hidden="true" />
+                <Icon size={24} aria-hidden="true" />
                 <span>{label}</span>
               </button>
               <div id={panelId} aria-labelledby={`${panelId}-trigger`} className="vanessa-module-panel" hidden={!open}>

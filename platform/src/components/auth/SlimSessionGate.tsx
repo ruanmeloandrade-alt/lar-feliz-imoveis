@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { createClientOnlyFn } from '@tanstack/react-start';
-import { Loader2, ShieldCheck } from 'lucide-react';
+import { Loader2, LockKeyhole, ShieldCheck } from 'lucide-react';
 import { createBrowserSlimAuthGateController, exitSlimAuthGate } from '@/lib/slim-auth-gate.client';
 import { safeSlimAuthReturn, type SlimAuthGateController, type SlimAuthGateState } from '@/lib/slim-auth-gate.core';
 const makeBrowserController = createClientOnlyFn(() => createBrowserSlimAuthGateController());
@@ -53,15 +53,30 @@ export function SlimSessionGate({ children, allowSignedOut = false, onReady, mak
     window.location.replace(`/auth${next ? '?' + new URLSearchParams({ next }).toString() : ''}`);
   }, [state.phase, state.message, allowSignedOut]);
   if ((state.phase === 'ready' && !showLoginVerification) || (state.phase === 'signed_out' && allowSignedOut && !state.message)) return <>{children}</>;
-  if (state.phase === 'loading' || state.phase === 'ready') {
+  if (state.phase === 'loading' || state.phase === 'ready' || (showLoginVerification && state.phase === 'challenge')) {
     return (
-      <main className="grid min-h-dvh place-items-center bg-background px-4 py-8 text-foreground" data-slim-session-gate>
-        <section role="status" className="w-full max-w-sm rounded-2xl border border-border bg-card px-7 py-8 text-center shadow-sm">
-          <span className="mx-auto grid size-12 place-items-center rounded-full border border-primary/30 bg-primary/10 text-primary"><ShieldCheck size={23} aria-hidden="true" /></span>
-          <p className="mt-4 text-sm text-muted-foreground">Vanessa Simoni</p>
-          <h1 className="mt-1 text-xl font-semibold tracking-tight">Verificação de segurança</h1>
-          <p className="mt-2 text-sm text-muted-foreground">Estamos conferindo seu acesso.</p>
-          <Loader2 className="mx-auto mt-5 size-5 animate-spin text-primary motion-reduce:animate-none" aria-hidden="true" />
+      <main className="vanessa-verification grid min-h-dvh place-items-center px-4 py-8 text-white" data-slim-session-gate>
+        <section className="w-full max-w-xs rounded-xl border border-[#513438] bg-[#20191c] p-5 shadow-2xl" aria-labelledby="vanessa-verification-title">
+          <div className="flex items-center justify-between border-b border-white/10 pb-3 text-xs font-semibold text-[#e1cbd0]">
+            Vanessa Simoni
+            <LockKeyhole size={14} aria-hidden="true" />
+          </div>
+          <div className="flex items-center gap-3 py-5">
+            <span className="grid size-11 shrink-0 place-items-center rounded-lg border border-[#975157] bg-[#462429] text-[#ffb8b5]">
+              <ShieldCheck size={23} aria-hidden="true" />
+            </span>
+            <div className="min-w-0">
+              <h1 id="vanessa-verification-title" className="text-base font-semibold tracking-tight">Verificação de segurança</h1>
+              <p role="status" className="mt-0.5 text-sm text-[#d6bec4]">{state.phase === 'ready' ? 'Sessão confirmada.' : 'Conferindo sua sessão…'}</p>
+            </div>
+          </div>
+          {!showLoginVerification ? (
+            <Loader2 className="size-4 animate-spin text-[#ffd17a] motion-reduce:animate-none" aria-hidden="true" />
+          ) : (
+            <div className="h-1 overflow-hidden rounded-full bg-white/10" aria-hidden="true">
+              <div className="vanessa-verification-progress h-full rounded-full" style={{ animationDuration: `${verificationDuration}ms` }} />
+            </div>
+          )}
         </section>
       </main>
     );
