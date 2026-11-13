@@ -31,3 +31,11 @@ Menu inferior com ícones da Vanessa e opções em sanfona. A Home oferece a Das
 Próximas etapas: páginas internas e Inbox na paleta Vanessa, Gestor de CRM, Cérebro da IA e Públicos. O Cérebro da IA usará as seis referências visuais enviadas em 13/11 para orientar volume, silhueta e divisão do modelo 3D. As regiões serão acionáveis e abrirão Informações, Documentos, Links, Promoções e Palavras proibidas, com preenchimento baseado no conteúdo já salvo.
 Validação: 28 verificações de segurança passaram, incluindo o intervalo real de cinco segundos com sessão de teste, além de 11 verificações de autenticação e a árvore de 147 rotas.
 Referência do menu recebida em 13/11: barra inferior escura inspirada no OSD do monitor AOC, com ícones alinhados, módulo ativo em vermelho e uma faixa acoplada para opções.
+
+### Refinamento do acesso e da navegação
+
+Cartão de acesso reduzido para até 304 px. A verificação após a senha ganhou um painel escuro com escudo, cadeado, barra de cinco segundos e indicação da validação da sessão. A recuperação e o autenticador continuam ligados ao fluxo de acesso existente.
+
+A barra inferior é a navegação principal das páginas internas novas e reformuladas. O desenho dos cinco ícones combina formas próprias para Home, CRM, Gestão imobiliária, Configurações e Origem dos leads. Configurações gerais usa fundo branco, destaque vinho e seções horizontais acima do conteúdo, respeitando as permissões e os links existentes.
+
+Arquivos: `src/components/auth/SlimSessionGate.tsx`, `src/components/auth/VanessaAccessCard.tsx`, `src/routes/auth.tsx`, `src/routes/login.tsx`, `src/styles.css`, `src/components/dashboard/AppSidebar.tsx`, `src/components/dashboard/VanessaIcons.tsx`, `src/styles/slim-shell.css`, `src/legacy/configuracoes.legacy.tsx`, `src/components/settings/RobustConfigSurface.tsx` e este registro.

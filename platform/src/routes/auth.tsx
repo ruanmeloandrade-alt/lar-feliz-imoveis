@@ -149,7 +149,7 @@ function AuthPage() {
           <button type="button" className={accessLinkClass} onClick={returnToLogin}>Voltar ao login</button>
         </div>
       ) : (
-        <form onSubmit={submit} className="mt-5 space-y-4">
+        <form onSubmit={submit} className="mt-3 space-y-2.5">
           {redefinida === "sim" && !isRecovery && !isForgot && <p role="status" className="text-sm">Senha redefinida. Entre com a nova senha.</p>}
           {!isRecovery && <AccessField label="E-mail" id="access-email">
             <Input id="access-email" type="email" autoComplete="email" required value={email} onChange={e => setEmail(e.target.value)} className={accessInputClass} />
@@ -162,7 +162,7 @@ function AuthPage() {
           </AccessField>}
           {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
           {slowLogin && !error && <p role="status" className="text-sm text-muted-foreground">O acesso está demorando. Aguarde a resposta.</p>}
-          <Button type="submit" disabled={loading} className="h-11 w-full">
+          <Button type="submit" disabled={loading} className="h-10 w-full">
             {loading ? "Aguarde…" : isRecovery ? "Salvar nova senha" : isForgot ? "Enviar link" : "Avançar"}
           </Button>
           {!isRecovery && <div className="text-center text-sm">

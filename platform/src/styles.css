@@ -900,27 +900,23 @@
 .mkton-landing .ml-float { animation: ml-float 6s ease-in-out infinite; }
 .mkton-landing ::selection { background: var(--ml-neon); color: #050505; }
 
-/* ============================================================
-   Responsividade global (mobile)
-   AppSidebar marca body[data-app-shell="1"] em telas autenticadas;
-   no mobile, reservamos 3rem no topo do main para o botão hamburger
-   flutuante não cobrir o conteúdo.
-   ============================================================ */
-@media (max-width: 767px) {
-  body[data-app-shell="1"] main {
-    padding-top: 3rem;
-  }
-  body[data-app-shell="1"] [data-chat-surface] {
-    padding-top: 0;
-  }
+.vanessa-verification {
+  background: radial-gradient(ellipse at 50% 42%, #352024, #141114 67%);
 }
 
-@media (max-width: 767px) {
-  /* Empurra a primeira linha (header/breadcrumb/h1) para a direita do botão hambúrguer */
-  body[data-app-shell="1"] main > div > :first-child,
-  body[data-app-shell="1"] main > div > div > :first-child:where(header) {
-    padding-left: 3rem;
-  }
+.vanessa-verification-progress {
+  background: linear-gradient(90deg, #d7626b, #ffd17a);
+  transform-origin: left center;
+  animation: vanessa-verification-fill linear both;
+}
+
+@keyframes vanessa-verification-fill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vanessa-verification-progress { animation-timing-function: steps(1, end); }
 }
 
 /* Utility: hide scrollbars while keeping scroll behavior */

@@ -87,7 +87,7 @@ function LoginPage() {
 
   return (
     <VanessaAccessCard title="Acesso ao sistema">
-      <form className="mt-5 space-y-4" onSubmit={submit}>
+      <form className="mt-3 space-y-2.5" onSubmit={submit}>
         <AccessField label="E-mail" id="admin-email">
           <Input id="admin-email" type="email" autoComplete="email" required value={email} onChange={event => setEmail(event.target.value)} className={accessInputClass} />
         </AccessField>
@@ -95,7 +95,7 @@ function LoginPage() {
           <PasswordInput id="admin-password" autoComplete="current-password" required value={password} onChange={event => setPassword(event.target.value)} className={accessInputClass} />
         </AccessField>
         {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
-        <Button type="submit" disabled={loading} className="h-11 w-full">{loading ? "Aguarde…" : "Avançar"}</Button>
+        <Button type="submit" disabled={loading} className="h-10 w-full">{loading ? "Aguarde…" : "Avançar"}</Button>
         <div className="text-center text-sm">
           <Link to="/auth" search={{ mode: "forgot" }} className={accessLinkClass}>Esqueci minha senha</Link>
         </div>

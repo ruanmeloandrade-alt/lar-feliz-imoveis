@@ -139,50 +139,49 @@ function ConfigPage() {
   
 
   return (
-    <div className="flex h-screen w-full bg-background text-foreground overflow-hidden">
+    <div className="flex h-dvh w-full overflow-hidden bg-background text-foreground">
       <AppSidebar />
-      <main className="flex-1 overflow-y-auto">
-
-        <div className="max-w-[1240px] mx-auto px-8 py-8 grid grid-cols-1 lg:grid-cols-[236px_1fr] gap-8">
-          <aside className="lg:sticky lg:top-8 lg:self-start space-y-5">
+      <main className="min-w-0 flex-1 overflow-y-auto">
+        <div className="mx-auto max-w-6xl space-y-5 px-4 py-5 sm:px-6 sm:py-7">
+          <header>
+            <h1 className="text-2xl font-semibold tracking-tight">Configurações gerais</h1>
+          </header>
+          <nav aria-label="Seções de configurações" className="border-b border-border">
             {GRUPOS.map((g) => {
               const visibleSubs = g.subs.filter(s => s.id !== "seguranca" || isSuperAdmin);
               if (visibleSubs.length === 0) return null;
 
               return (
-                <div key={g.id}>
-                  <div className="text-[10px] font-semibold tracking-widest text-muted-foreground/80 mb-2 px-2 uppercase">
-                    {g.title}
-                  </div>
-                  <ul className="space-y-0.5">
+                  <ul key={g.id} className="flex flex-wrap gap-x-2 gap-y-1">
                     {visibleSubs.map((s) => {
                       const active = sub === s.id;
                       return (
                         <li key={s.id}>
                           <button
+                            type="button"
+                            aria-current={active ? "true" : undefined}
                             onClick={() => { setGroup(g.id); setSub(s.id); }}
                             className={cn(
-                              "w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md text-left text-sm transition-colors",
+                              "flex min-h-11 items-center gap-2 border-b-2 px-3 text-sm transition-colors",
                               active
-                                ? "bg-primary/10 text-primary font-medium"
-                                : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
+                                ? "border-primary font-semibold text-primary"
+                                : "border-transparent text-muted-foreground hover:bg-muted/50 hover:text-foreground",
                             )}
                           >
-                            <s.icon className="w-4 h-4 shrink-0" />
+                            <s.icon className="size-4 shrink-0" aria-hidden="true" />
                             <span className="truncate">{s.title}</span>
                           </button>
                         </li>
                       );
                     })}
                   </ul>
-                </div>
               );
             })}
-          </aside>
+          </nav>
 
           <section className="min-w-0 space-y-6">
             <header className="space-y-1">
-              <h1 className="text-xl font-semibold tracking-tight">{currentSub.title}</h1>
+              <h2 className="text-xl font-semibold tracking-tight">{currentSub.title}</h2>
               <p className="text-sm text-muted-foreground">{currentSub.sub}</p>
             </header>
 
@@ -214,7 +213,7 @@ function ConfigPage() {
 
 
       {toast && (
-        <div className={cn("fixed bottom-6 right-6 z-50 rounded-md px-4 py-2.5 text-sm shadow-lg flex items-center gap-2",
+        <div className={cn("fixed bottom-[calc(var(--vanessa-navigation-height)+1rem)] right-6 z-50 rounded-md px-4 py-2.5 text-sm shadow-lg flex items-center gap-2",
           toast.tone === "err" ? "bg-destructive text-destructive-foreground" : "bg-foreground text-background")}>
           <Check className="w-4 h-4" /> {toast.msg}
         </div>

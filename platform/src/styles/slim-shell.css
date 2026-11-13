@@ -19,9 +19,9 @@ body[data-app-shell="1"] [data-chat-surface] {
   position: fixed;
   inset: auto 0 0;
   z-index: var(--slim-layer-sidebar);
-  background: linear-gradient(180deg, #29282d, #1b1a1f);
+  background: linear-gradient(180deg, #30272b, #211b20);
   color: #fff;
-  border-top: 1px solid #49464d;
+  border-top: 1px solid #59454e;
   padding-inline: max(.25rem, env(safe-area-inset-left, 0px)) max(.25rem, env(safe-area-inset-right, 0px));
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
@@ -59,14 +59,14 @@ body[data-app-shell="1"] [data-chat-surface] {
 }
 
 .vanessa-module-trigger:is([aria-expanded="true"], [data-active="true"]) svg {
-  color: #ff6065;
+  color: #ff9b9d;
 }
 
 .vanessa-module-trigger:is([aria-expanded="true"], [data-active="true"])::after {
   position: absolute;
   inset: 0 0 auto;
   height: 2px;
-  background: #e42931;
+  background: #e76573;
   content: "";
 }
 
@@ -77,8 +77,8 @@ body[data-app-shell="1"] [data-chat-surface] {
   overflow: auto;
   overscroll-behavior: contain;
   padding: .55rem max(.6rem, calc((100% - 62rem) / 2));
-  background: #19181c;
-  border-top: 1px solid #49464d;
+  background: #211b20;
+  border-top: 1px solid #59454e;
   box-shadow: 0 -10px 28px #0004;
   animation: vanessa-menu-rise .16s ease-out;
 }
