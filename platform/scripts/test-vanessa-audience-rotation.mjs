@@ -10,7 +10,9 @@ assert.throws(() => parseBroadcastRotation("A", Array(51).fill("1").join("\n")))
 for (const interval of ["0", "-1", "30", "1e1", "1,0009"]) assert.throws(() => parseBroadcastRotation("A", interval));
 
 const uuid = (n) => `bbbbbbbb-bbbb-4bbb-8bbb-${String(n).padStart(12, "0")}`;
-const ids = [21, 22, 23, 24, 25, 26, 27].map(uuid);
+const ids = [21, 22, 23, 24, 25, 26, 27, 28].map(uuid);
+const primarySession = uuid(4);
+const alternateSession = uuid(7);
 const db = new PGlite({ extensions: { pgcrypto } });
 const migration = name => readFileSync(new URL(`../supabase/migrations/${name}`, import.meta.url), "utf8");
 try {
@@ -27,16 +29,22 @@ try {
     CREATE TABLE public.whatsapp_web_sessions (id uuid PRIMARY KEY, workspace_id uuid, provider text, status text, metadata jsonb);
     CREATE TABLE public.conversation_ai_agents (id uuid PRIMARY KEY, workspace_id uuid, enabled boolean);
     CREATE TABLE public.salesbots (id uuid PRIMARY KEY, workspace_id uuid, is_active boolean);
-    CREATE TABLE public.leads (id uuid PRIMARY KEY, workspace_id uuid, name text, status text, custom_data jsonb, phone text, merged_into_id uuid);
+    CREATE TABLE public.leads (id uuid PRIMARY KEY, workspace_id uuid, name text, status text, custom_data jsonb, phone text, merged_into_id uuid, phone_normalized text, source text);
+    CREATE UNIQUE INDEX leads_wa_workspace_phone_active_unique ON public.leads (workspace_id, phone_normalized);
+    CREATE TABLE public.whatsapp_web_messages (id uuid PRIMARY KEY, session_id uuid, workspace_id uuid);
     CREATE TABLE public.crm_automation_jobs (id uuid PRIMARY KEY, status text, started_at timestamptz, due_at timestamptz);
     INSERT INTO auth.users VALUES ('${uuid(1)}'); INSERT INTO workspaces VALUES ('${uuid(2)}'), ('${uuid(9)}');
     INSERT INTO crm_lead_audiences VALUES ('${uuid(3)}','${uuid(2)}','Público de teste');
-    INSERT INTO whatsapp_web_sessions VALUES ('${uuid(4)}','${uuid(2)}','evolution','conectado','{}');
+    INSERT INTO whatsapp_web_sessions VALUES
+      ('${primarySession}','${uuid(2)}','evolution','conectado','{}'),
+      ('${alternateSession}','${uuid(2)}','evolution','conectado','{}');
   `);
   await db.exec(migration("20261015120218_slim_durable_audience_delivery_queue.sql"));
+  await db.exec(migration("20261019190229_slim_whatsapp_origin.sql"));
   for (const [index, id] of ids.entries()) {
-    const phone = index === 6 ? "5511999000000" : `551199900000${index}`;
-    await db.query("INSERT INTO leads VALUES ($1,$2,$3,'active',$4,$5,NULL)", [id, uuid(2), `Contato ${index}`, JSON.stringify(index === 1 ? { opt_out: true } : {}), phone]);
+    const phone = index >= 6 ? "5511999000000" : `551199900000${index}`;
+    const customData = index === 1 ? { opt_out: true } : index === 7 ? { whatsapp_session_id: alternateSession } : {};
+    await db.query("INSERT INTO leads(id,workspace_id,name,status,custom_data,phone) VALUES ($1,$2,$3,'active',$4,$5)", [id, uuid(2), `Contato ${index}`, JSON.stringify(customData), phone]);
   }
   const payload = { id: uuid(3), workspaceId: uuid(2), requestId: uuid(5), sessionId: uuid(4), kind: "text", leadIds: [ids[2], ids[1], ids[0], ...ids.slice(3)], messages: ["Primeira", "Segunda", "Terceira"], intervalsMs: [500, 1200] };
   const legacy = { ...payload, requestId: uuid(6), leadIds: [ids[0]], message: "Mensagem antiga", delayMs: 1700 };
@@ -49,7 +57,7 @@ try {
   await db.query("UPDATE slim_audience_campaigns SET next_due_at=now()+interval '1 minute' WHERE id=$1", [existing.campaignId]);
 
   const result = await enqueue("public.vanessa_enqueue_rotating_audience", payload);
-  assert.equal(result.queued, 5);
+  assert.equal(result.queued, 6);
   assert.equal(result.skipped, 2);
   assert.equal((await enqueue("public.vanessa_enqueue_rotating_audience", payload)).campaignId, result.campaignId);
   await assert.rejects(() => enqueue("public.vanessa_enqueue_rotating_audience", { ...payload, messages: ["Outra"] }), /outro conteúdo/);
@@ -57,9 +65,10 @@ try {
   await assert.rejects(() => enqueue("public.vanessa_enqueue_rotating_audience", { ...payload, messages: ["A\nB"] }), /por linha/);
   await assert.rejects(() => enqueue("public.vanessa_enqueue_rotating_audience", { ...payload, intervalsMs: [300] }), /intervalos/);
   const claim = async () => (await db.query("SELECT public.slim_claim_audience_delivery() AS item")).rows[0].item;
-  for (const [index, lead] of [ids[2], ids[0], ids[3], ids[4], ids[5]].entries()) {
+  for (const [index, lead] of [ids[2], ids[0], ids[3], ids[4], ids[5], ids[7]].entries()) {
     const item = await claim();
     assert.equal(item.lead_id, lead);
+    assert.equal(item.origin_session_id, lead === ids[7] ? alternateSession : primarySession);
     assert.equal(item.message_variant, payload.messages[index % payload.messages.length]);
     const delay = payload.intervalsMs[index % payload.intervalsMs.length];
     assert.equal(item.interval_after_ms, delay);
