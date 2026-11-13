@@ -5,7 +5,9 @@ import {requireActiveWorkspace} from './workspace-resolver.server';
 export async function enqueueSlimAudience(sb:any,workspaceId:string,input:any,leads:Array<{id:string}>,kind:'text'|'agent'|'salesbot'){
  if(!leads.length)throw new Error('Nenhum cliente corresponde ao público.');
  if(kind==='agent'){const {resolveWorkspaceAiKey}=await import('./workspace-ai-key.server');await resolveWorkspaceAiKey(sb,workspaceId);}
- const {data,error}=await sb.rpc('slim_enqueue_audience_campaign',{_payload:{...input,workspaceId,kind,leadIds:leads.map(l=>l.id)}});
+ const rotates = kind === 'text' && Array.isArray(input.messages) && Array.isArray(input.intervalsMs);
+ const rpc = rotates ? 'vanessa_enqueue_rotating_audience' : 'slim_enqueue_audience_campaign';
+ const {data,error}=await sb.rpc(rpc,{_payload:{...input,workspaceId,kind,leadIds:leads.map(l=>l.id)}});
  if(error)throw new Error(error.message||'Não foi possível registrar o disparo.');
  if(!data?.campaignId||!Number.isFinite(data.queued))throw new Error('Resposta inválida ao registrar campanha.');
  const {kickSlimAudienceWorker}=await import('./slim-audience-runtime.server');kickSlimAudienceWorker();

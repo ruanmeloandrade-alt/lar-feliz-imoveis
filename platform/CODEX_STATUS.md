@@ -57,3 +57,11 @@ Arquivos: `src/components/crm/BrainAtlas.tsx`, `src/routes/crm.agente-ia.tsx`, `
 Gestor de CRM movido do Cérebro da IA para o Funil de Vendas, ao lado de Automações. Tracking e Analytics abre Visão geral, Fontes, Eventos e UTMs e campanhas pela sanfona inferior. Configurações gerais, Integrações e Tutoriais usam a mesma superfície branca. A troca de e-mail faz parte da seção Equipe. Tutoriais abre um player escuro somente ao iniciar o vídeo. A Dashboard detalhada apresenta os indicadores e gráficos, e o painel de VGV e comissões fica em Gestão imobiliária.
 
 Os botões de ação do sistema interno recebem reflexo sutil. Contornos e botões secundários usam uma superfície translúcida com desfoque. As cores de texto, ícones, foco e ações destrutivas mantêm os papéis existentes.
+
+### Públicos · rotação de disparos
+
+O formulário aceita até 50 frases e 50 intervalos em segundos, um por linha. As duas listas rodam em sequência independente. O intervalo histórico de 0,5 a 15 segundos segue disponível, com vírgula ou ponto para decimais. A fila atribui frase e intervalo a cada destinatário elegível na ordem do público, preserva a origem do WhatsApp, bloqueios de contato e deduplicação, e mantém o formato dos disparos antigos.
+
+O teste local em PostgreSQL confirmou a sequência, as permissões e a compatibilidade com a fila anterior. A publicação desta etapa depende da aplicação da migração no projeto exclusivo da Vanessa.
+
+Arquivos: `src/components/crm/SlimMassBroadcastPanel.tsx`, `src/components/crm/BroadcastRotationFields.tsx`, `src/lib/slim-broadcast-rotation.ts`, `src/lib/crm-audiences.functions.ts`, `src/lib/slim-audience-queue.functions.ts`, `src/lib/slim-audience-runtime.server.ts`, `supabase/migrations/20261113095700_vanessa_audience_rotation.sql`, `scripts/test-vanessa-audience-rotation.mjs` e este registro.

@@ -5,9 +5,20 @@ import { supabaseAdmin } from '@/integrations/supabase/client.server';
 import { deliverAudienceItem } from './slim-audience-delivery.core';
 import { normalizeInternationalPhone, directWhatsappJidFromCanonicalDigits } from './whatsapp-identity';
 const db = supabaseAdmin as any;
-const root=globalThis as typeof globalThis & {__slimAudienceWorker?:{timer?:ReturnType<typeof setInterval>;busy:boolean;stageBusy:boolean;lastStage:number}};
+const root=globalThis as typeof globalThis & {__slimAudienceWorker?:{timer?:ReturnType<typeof setInterval>;rotationWake?:ReturnType<typeof setTimeout>;rotationDue?:number;busy:boolean;stageBusy:boolean;lastStage:number}};
 const state=root.__slimAudienceWorker??={busy:false,stageBusy:false,lastStage:0};
 function report(){console.error('[slim-audience-worker] Falha operacional. Nenhuma credencial ou resposta do provedor foi registrada.');}
+function wakeForRotation(due: number) {
+ if (!Number.isFinite(due) || (state.rotationDue !== undefined && state.rotationDue <= due)) return;
+ clearTimeout(state.rotationWake);
+ state.rotationDue = due;
+ state.rotationWake = setTimeout(() => {
+  state.rotationDue = undefined;
+  state.rotationWake = undefined;
+  void processSlimAudienceQueue().catch(report);
+ }, Math.max(0, due - Date.now()));
+ state.rotationWake.unref?.();
+}
 function checked(r:any,label:string){if(r.error)throw new Error(label);return r.data;}
 async function authorMayContinue(c:any):Promise<boolean>{
  const [cr,wr,mr]=await Promise.all([
@@ -51,7 +62,7 @@ export async function processSlimAudienceQueue():Promise<void>{
   const c=item.campaign;
   let originSessionId=item.origin_session_id??c.session_id;
   const outcome=await deliverAudienceItem({
-   campaign:c,workspaceId:c.workspace_id,expectedPhone:item.phone,
+   campaign:{...c,message:item.message_variant??c.message},workspaceId:c.workspace_id,expectedPhone:item.phone,
    allowed:()=>authorMayContinue(c),
    lead:async()=>checked(await db.from('leads').select('id,workspace_id,name,email,phone,status,custom_data,merged_into_id,active_conversation_agent_id,active_conversation_agent_version,ai_paused').eq('id',item.lead_id).eq('workspace_id',c.workspace_id).maybeSingle(),'lead'),
    normalizePhone:(phone)=>normalizeInternationalPhone(phone,{allowTrustedBare:true}),
@@ -85,6 +96,7 @@ export async function processSlimAudienceQueue():Promise<void>{
   });
   checked(await db.from('slim_audience_deliveries').update({status:outcome.state,message_id:outcome.messageId??null,last_error:outcome.code??null,finished_at:new Date().toISOString()})
     .eq('id',item.id).eq('workspace_id',c.workspace_id).eq('status','running'),'delivery result');
+  if (typeof item.interval_after_ms === 'number') wakeForRotation(Date.parse(item.claimed_at) + item.interval_after_ms);
  }catch(error){recordDbError(error);throw error;}
  finally{state.busy=false;}
 }

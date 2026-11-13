@@ -9,12 +9,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
+import { BroadcastRotationFields } from "@/components/crm/BroadcastRotationFields";
 import { listCrmAudiences, broadcastCrmAudience } from "@/lib/crm-audiences.functions";
 import { listEvolutionSessions } from "@/lib/evolution.functions";
 import { cn } from "@/lib/utils";
 
 import {createAudienceRequestTracker} from "@/lib/slim-audience-request";
+import { parseBroadcastRotation } from "@/lib/slim-broadcast-rotation";
 import type {AudienceReportScope} from "@/lib/slim-audience-report.core";
 type AudienceRow = {
   id: string;
@@ -41,9 +42,9 @@ export function SlimMassBroadcastPanel({active,scope,onPendingChange,onOpenLists
   const [query, setQuery] = useState("");
   const [selectedAudienceId, setSelectedAudienceId] = useState<string | null>(null);
   const [sessionId, setSessionId] = useState("");
-  const [message, setMessage] = useState("Oi {{nome}}, tudo bem? Passando para falar com você sobre a Vanessa Simoni.");
+  const [message, setMessage] = useState("");
   const [limit, setLimit] = useState(200);
-  const [delayMs, setDelayMs] = useState(1500);
+  const [intervals, setIntervals] = useState("1,5");
   const [sending, setSending] = useState(false);
   const pendingRef=useRef(false),mounted=useRef(true);
   const scopeKey=scope?`${scope.workspaceId}:${scope.actorId}`:'';
@@ -54,8 +55,8 @@ export function SlimMassBroadcastPanel({active,scope,onPendingChange,onOpenLists
   useEffect(() => {
     pendingRef.current=false;setSending(false);onPendingChange(false);
     if(scopeKey&&draftScope.current!==scopeKey){
-      requestTracker.reset();setSelectedAudienceId(null);setSessionId('');setQuery('');setLimit(200);setDelayMs(1500);
-      setMessage('Oi {{nome}}, tudo bem? Passando para falar com você sobre a Vanessa Simoni.');draftScope.current=scopeKey;
+      requestTracker.reset();setSelectedAudienceId(null);setSessionId('');setQuery('');setLimit(200);setIntervals("1,5");
+      setMessage("");draftScope.current=scopeKey;
     }
   },[scopeKey,requestTracker,onPendingChange]);
 
@@ -96,9 +97,10 @@ export function SlimMassBroadcastPanel({active,scope,onPendingChange,onOpenLists
       toast.error("Selecione um WhatsApp conectado.");
       return;
     }
-    const text = message.trim();
-    if (!text) {
-      toast.error("Escreva a mensagem do disparo.");
+    let rotation;
+    try { rotation = parseBroadcastRotation(message, intervals); }
+    catch (error) {
+      toast.error(error instanceof Error ? error.message : "Confira as frases e os intervalos.");
       return;
     }
     if (!confirm(`Enviar disparo para "${selectedAudience?.name ?? "público selecionado"}"?`)) return;
@@ -107,9 +109,9 @@ export function SlimMassBroadcastPanel({active,scope,onPendingChange,onOpenLists
     pendingRef.current=true;setSending(true);onPendingChange(true);
     let registeredId:string|null=null;
     try {
-      const result = await sendBroadcast({
-        data: { id: selectedAudienceId, sessionId, message: text, limit, delayMs, requestId:requestTracker({id:selectedAudienceId,sessionId,message:text,limit,delayMs}) },
-      });
+      const payload = { id: selectedAudienceId, sessionId, limit,
+        message: rotation.messages[0], delayMs: rotation.intervalsMs[0], ...rotation };
+      const result = await sendBroadcast({ data: { ...payload, requestId:requestTracker(payload) } });
       if(!current())return;
       if(typeof result.campaignId!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(result.campaignId)||!Number.isInteger(result.queued)||result.queued<0)throw new Error('Não foi possível confirmar o registro do disparo. Confira novamente usando esta mesma tentativa.');
       requestTracker.reset();
@@ -133,7 +135,7 @@ export function SlimMassBroadcastPanel({active,scope,onPendingChange,onOpenLists
                 </div>
                 <h1 className="mt-1 text-2xl font-semibold tracking-tight">Disparo em massa</h1>
                 <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-                  Selecione um público já criado e envie uma mensagem usando um WhatsApp conectado.
+                  Selecione um público e prepare as frases que serão alternadas nos envios por WhatsApp.
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-2">
@@ -192,7 +194,7 @@ export function SlimMassBroadcastPanel({active,scope,onPendingChange,onOpenLists
                               <span className="flex flex-wrap items-center gap-2">
                                 <span className="truncate text-sm font-semibold">{audience.name}</span>
                                 <Badge variant="outline" className="h-5 px-1.5 text-[10px]">
-                                  {(audience.cached_count ?? 0).toLocaleString("pt-BR")} leads
+                                    {(audience.cached_count ?? 0).toLocaleString("pt-BR")} contatos
                                 </Badge>
                               </span>
                               {audience.description ? (
@@ -218,7 +220,7 @@ export function SlimMassBroadcastPanel({active,scope,onPendingChange,onOpenLists
                     <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">Público selecionado</div>
                     <div className="mt-1 text-sm font-semibold">{selectedAudience?.name ?? "Nenhum público selecionado"}</div>
                     <div className="mt-1 text-xs text-muted-foreground">
-                      {selectedAudience ? `${(selectedAudience.cached_count ?? 0).toLocaleString("pt-BR")} leads na última contagem` : "Escolha uma lista à esquerda para continuar."}
+                      {selectedAudience ? `${(selectedAudience.cached_count ?? 0).toLocaleString("pt-BR")} contatos na última contagem` : "Escolha um público para continuar."}
                     </div>
                   </div>
 
@@ -244,23 +246,11 @@ export function SlimMassBroadcastPanel({active,scope,onPendingChange,onOpenLists
                     ) : null}
                   </div>
 
-                  <div className="grid gap-2">
-                    <Label className="text-xs">Mensagem</Label>
-                    <Textarea value={message} onChange={(event) => setMessage(event.target.value)} rows={8} maxLength={4096} />
-                    <p className="text-[11px] text-muted-foreground">
-                      Variáveis disponíveis: {"{{nome}}"}, {"{{name}}"} e {"{{email}}"}.
-                    </p>
-                  </div>
+                  <BroadcastRotationFields phrases={message} intervals={intervals} setPhrases={setMessage} setIntervals={setIntervals} disabled={sending} />
 
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <div className="grid gap-2">
-                      <Label className="text-xs">Limite de envios</Label>
-                      <Input type="number" min={1} max={500} value={limit} onChange={(event) => setLimit(Number(event.target.value || 1))} />
-                    </div>
-                    <div className="grid gap-2">
-                      <Label className="text-xs">Intervalo entre envios (ms)</Label>
-                      <Input type="number" min={500} max={15000} step={500} value={delayMs} onChange={(event) => setDelayMs(Number(event.target.value || 1500))} />
-                    </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="vanessa-broadcast-limit" className="text-xs">Limite de envios</Label>
+                    <Input id="vanessa-broadcast-limit" type="number" min={1} max={500} value={limit} onChange={(event) => setLimit(Number(event.target.value || 1))} />
                   </div>
 
                   <Button onClick={handleSend} disabled={sending || !scope || !!audiencesQuery.error || !!sessionsQuery.error || !selectedAudienceId || !sessionId || !message.trim()}>

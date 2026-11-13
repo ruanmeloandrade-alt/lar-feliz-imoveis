@@ -394,6 +394,10 @@ export const broadcastCrmAudience = createServerFn({ method: "POST" })
     message: z.string().min(1).max(4096),
     limit: z.number().int().min(1).max(500).default(200),
     delayMs: z.number().int().min(500).max(15000).default(1500),
+    messages: z.array(z.string().trim().min(1).max(4096).regex(/^[^\r\n]+$/)).min(1).max(50).optional(),
+    intervalsMs: z.array(z.number().int().min(500).max(15000)).min(1).max(50).optional(),
+  }).refine(data => Boolean(data.messages) === Boolean(data.intervalsMs), {
+    message: "Informe as duas listas de rotação.",
   }).parse(d))
   .handler(async ({ data, context }) => {
     const sb = context.supabase as unknown as AnySb;
