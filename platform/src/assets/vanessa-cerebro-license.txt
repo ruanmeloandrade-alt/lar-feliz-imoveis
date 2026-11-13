@@ -1,0 +1,9 @@
+Malha anatômica 3D do Cérebro da IA
+
+Original: Nevit Dilmen, 3DPX-003765 3DModel of Brain Nevit Dilmen.stl.
+https://commons.wikimedia.org/wiki/File:3DPX-003765_3DModel_of_Brain_Nevit_Dilmen.stl
+
+Licença da malha original e da adaptação: Creative Commons Atribuição-CompartilhaIgual 3.0 Não Adaptada (CC BY-SA 3.0).
+https://creativecommons.org/licenses/by-sa/3.0/
+
+Adaptação: malha reduzida, reorientada, dividida em regiões e colorida.

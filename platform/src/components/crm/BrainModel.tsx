@@ -17,6 +17,37 @@ const regionMap = [0, 1, 2, 3, 4, 3, 0] as const;
 const colors = new Float32Array(brainRegions.flatMap(region => region.rgb));
 const initialYaw = -0.18;
 const initialPitch = 0.14;
+export const brainPinsPerView = 12;
+
+export type BrainPin = { id: string; title: string };
+type Point = [number, number, number];
+type View = { yaw: number; pitch: number };
+type Anchor = { point: Point; normal: Point };
+
+function transform([x, y, z]: Point, { yaw, pitch }: View): Point {
+  const cy = Math.cos(yaw), sy = Math.sin(yaw);
+  const cx = Math.cos(pitch), sx = Math.sin(pitch);
+  const depth = -sy * x + cy * z;
+  return [cy * x + sy * z, cx * y - sx * depth, sx * y + cx * depth];
+}
+
+function findPinAnchors(mesh: Float32Array): Anchor[] {
+  const start = { yaw: initialYaw, pitch: initialPitch };
+  const targets = [0.56, 0.27, -0.03].flatMap(y => [-0.55, -0.26, 0.04, 0.33].map(x => [x, y]));
+  const anchors = targets.map(() => ({ score: Infinity, anchor: null as Anchor | null }));
+
+  for (let i = 0; i < mesh.length; i += 21) {
+    const point: Point = [mesh[i], mesh[i + 1], mesh[i + 2]];
+    const normal: Point = [mesh[i + 3], mesh[i + 4], mesh[i + 5]];
+    const [x, y, depth] = transform(point, start);
+    if (depth < 0.1 || transform(normal, start)[2] < 0.5) continue;
+    targets.forEach(([tx, ty], index) => {
+      const score = (x - tx) ** 2 + (y - ty) ** 2;
+      if (score < anchors[index].score) anchors[index] = { score, anchor: { point, normal } };
+    });
+  }
+  return anchors.flatMap(entry => entry.anchor ? [entry.anchor] : []);
+}
 
 const vertexSource = [
   "attribute vec3 point; attribute vec3 normal; attribute float region;",
@@ -101,9 +132,13 @@ function makeProgram(gl: WebGLRenderingContext) {
 export function BrainModel({
   selected,
   onSelect,
+  pins,
+  onOpenPin,
 }: {
   selected: BrainRegion;
   onSelect: (region: BrainRegion) => void;
+  pins: BrainPin[];
+  onOpenPin: (pin: BrainPin) => void;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const scene = useRef<{
@@ -115,6 +150,7 @@ export function BrainModel({
   const selectedRef = useRef(brainRegions.findIndex(region => region.id === selected));
   const selectRef = useRef(onSelect);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [pinPositions, setPinPositions] = useState<Array<{ left: number; top: number; visible: boolean }>>([]);
 
   useEffect(() => {
     selectedRef.current = brainRegions.findIndex(region => region.id === selected);
@@ -140,6 +176,7 @@ export function BrainModel({
         if (!response.ok) throw new Error("Modelo indisponível");
         const mesh = readMesh(await response.arrayBuffer());
         if (controller.signal.aborted) return;
+        const anchors = findPinAnchors(mesh);
         const program = makeProgram(gl);
         const geometry = gl.createBuffer();
         if (!geometry) throw new Error("Modelo indisponível");
@@ -174,6 +211,18 @@ export function BrainModel({
           if (pick) gl.disable(gl.DITHER);
           gl.drawArrays(gl.TRIANGLES, 0, mesh.length / 7);
           if (pick) gl.enable(gl.DITHER);
+          if (!pick) {
+            const aspectRatio = canvas.width / canvas.height;
+            const heightScale = Math.min(1, aspectRatio);
+            setPinPositions(anchors.map(({ point, normal }) => {
+              const [x, y, depth] = transform(point, view.current);
+              return {
+                left: 50 + 50 * x * heightScale / aspectRatio,
+                top: 50 - 50 * y * heightScale,
+                visible: depth > 0 && transform(normal, view.current)[2] > 0.2,
+              };
+            }));
+          }
         };
         const pick = (x: number, y: number) => {
           const rect = canvas.getBoundingClientRect();
@@ -221,12 +270,13 @@ export function BrainModel({
 
   return (
     <div className="relative isolate overflow-hidden rounded-3xl bg-[radial-gradient(ellipse_at_50%_42%,#643747,#26131e_74%)] text-white">
+      <div className="relative">
       <canvas
         ref={canvasRef}
         aria-label="Modelo giratório do cérebro"
         aria-describedby="vanessa-brain-controls"
         tabIndex={status === "ready" ? 0 : -1}
-        className="block h-[clamp(255px,40vw,440px)] w-full touch-none cursor-grab outline-offset-[-6px] focus-visible:outline-2 focus-visible:outline-[#ffc0ce] active:cursor-grabbing"
+        className="block h-[clamp(300px,54vw,520px)] w-full touch-none cursor-grab outline-offset-[-6px] focus-visible:outline-2 focus-visible:outline-[#ffc0ce] active:cursor-grabbing"
         onKeyDown={(event) => {
           const arrows: Record<string, [number, number]> = {
             ArrowLeft: [-0.14, 0],
@@ -267,6 +317,25 @@ export function BrainModel({
           drag.current = null;
         }}
       />
+      {status === "ready" && pins.map((pin, index) => {
+        const position = pinPositions[index];
+        if (!position?.visible) return null;
+        return (
+          <button
+            key={pin.id}
+            type="button"
+            aria-label={`Abrir registro: ${pin.title}`}
+            className="group absolute z-10 grid size-7 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-[#ffc1d2] bg-[#811a44]/90 shadow-[0_0_14px_#f76caa] outline-offset-4 hover:z-20 hover:bg-[#b82960] focus-visible:z-20 focus-visible:outline-2 focus-visible:outline-white"
+            style={{ left: `${position.left}%`, top: `${position.top}%` }}
+            onClick={() => onOpenPin(pin)}
+          >
+            <span aria-hidden="true" className="size-2 rounded-full bg-[#fff4f7] shadow-[0_0_6px_white]" />
+            <span aria-hidden="true" className="pointer-events-none absolute bottom-full left-1/2 mb-2 hidden w-max max-w-[9rem] -translate-x-1/2 rounded-md bg-[#27131e] px-2 py-1 text-center text-xs text-white shadow-lg group-hover:block group-focus-visible:block">
+              {pin.title}
+            </span>
+          </button>
+        );
+      })}
       {status !== "ready" && (
         <p
           role="status"
@@ -277,9 +346,10 @@ export function BrainModel({
             : "Visualização 3D indisponível. Escolha uma região na lista."}
         </p>
       )}
+      </div>
       <div className="flex items-center justify-between gap-3 px-4 pb-4 text-xs text-[#fff0f4]">
         <p id="vanessa-brain-controls">
-          Arraste ou use as setas para girar. Clique em uma região para abrir.
+          Arraste ou use as setas para girar. Abra um registro pelo pino.
         </p>
         <button
           type="button"
@@ -296,31 +366,5 @@ export function BrainModel({
         </button>
       </div>
     </div>
-  );
-}
-
-export function BrainModelCredit() {
-  return (
-    <p className="text-xs text-muted-foreground">
-      Malha anatômica reduzida, reorientada e dividida em regiões. Original de{" "}
-      <a
-        className="underline"
-        href="https://commons.wikimedia.org/wiki/File:3DPX-003765_3DModel_of_Brain_Nevit_Dilmen.stl"
-        target="_blank"
-        rel="noreferrer"
-      >
-        Nevit Dilmen
-      </a>
-      .{" "}
-      <a
-        className="underline"
-        href="https://creativecommons.org/licenses/by-sa/3.0/"
-        target="_blank"
-        rel="noreferrer"
-      >
-        CC BY-SA 3.0
-      </a>
-      .
-    </p>
   );
 }
