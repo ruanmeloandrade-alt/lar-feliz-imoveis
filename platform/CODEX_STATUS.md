@@ -82,4 +82,4 @@ A visualização 3D usa a malha anatômica licenciada do Cérebro da FG Tech, co
 
 Seis públicos foram cadastrados com filtros por etapa e telefone. Os seis novos campos são opcionais. As novas tags ficam no catálogo da operação e aparecem nos seletores de Público e SalesBot antes de serem aplicadas a contatos. Não houve disparos nem alterações nos leads.
 
-Arquivos: `src/components/crm/BrainAtlas.tsx`, `src/components/crm/BrainModel.tsx`, `src/routes/crm.agente-ia.tsx`, `public/brand/vanessa-cerebro.bin`, `src/lib/crm-tag-catalog.server.ts`, `src/lib/slim-audience-options.server.ts`, `src/lib/leads.functions.legacy.ts` e este registro.
+Arquivos: `src/components/crm/BrainAtlas.tsx`, `src/components/crm/BrainModel.tsx`, `src/routes/crm.agente-ia.tsx`, `src/assets/vanessa-cerebro.bin`, `src/lib/crm-tag-catalog.server.ts`, `src/lib/slim-audience-options.server.ts`, `src/lib/leads.functions.legacy.ts` e este registro.

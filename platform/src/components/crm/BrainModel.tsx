@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { RotateCcw } from "lucide-react";
+import meshUrl from "@/assets/vanessa-cerebro.bin?url";
 
-const meshUrl = "/brand/vanessa-cerebro.bin";
 export const brainRegions = [
   { id: "text", label: "Informações", color: "#fb5679", rgb: [0.98, 0.34, 0.47] },
   { id: "document", label: "Documentos", color: "#ffc174", rgb: [1, 0.76, 0.45] },
