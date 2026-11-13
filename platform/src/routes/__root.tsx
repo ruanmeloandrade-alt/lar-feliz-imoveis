@@ -22,6 +22,7 @@ import { WorkflowSalesbotBillingEnhancer } from "../components/system/WorkflowSa
 import { syncWorkspaceRegionalCache } from "../lib/workspace-currency-cache";
 
 import { SlimSessionGate } from "../components/auth/SlimSessionGate";
+import { PasswordRecoveryContext } from "../components/auth/VanessaAccessCard";
 import { isSlimRecoveryLocation } from "../lib/slim-auth-gate.core";
 
 import appCss from "../styles.css?url";
@@ -228,7 +229,7 @@ function AuthGate({ children }: { children: ReactNode }) {
   if (isPublicRoute && !recoveryRoute && !invitationRoute) return <>{children}</>;
   return <SlimSessionGate allowSignedOut={recoveryRoute || invitationRoute} onReady={recoveryRoute ? undefined : ready}>
     {!isPublicRoute && !SAUDE_SLIM_MIGRATED_PATHS.has(path) && <><DeviceApprovalGate /><WorkflowSalesbotBillingEnhancer /></>}
-    {children}
+    <PasswordRecoveryContext.Provider value={recoveryEvent}>{children}</PasswordRecoveryContext.Provider>
   </SlimSessionGate>;
 }
 
