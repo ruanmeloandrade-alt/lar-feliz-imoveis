@@ -712,7 +712,7 @@
 
 
 
-body:has([data-vanessa-inbox]) {
+body:has([data-vanessa-inbox], [data-vanessa-brain]) {
  --background: #fff;
  --card: #fff;
  --foreground: #252126;

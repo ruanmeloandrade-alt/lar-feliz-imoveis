@@ -45,3 +45,9 @@ Arquivos: `src/components/auth/SlimSessionGate.tsx`, `src/components/auth/Vaness
 Inbox em branco, vinho e malva, incluindo lista, mensagens, controles, não lidos e cores das etiquetas legadas na tela. As conversas e atribuições continuam nos mesmos registros. O Gestor de CRM abre no Cérebro da IA e usa o serviço existente e o CRM da empresa ativa, com linguagem imobiliária. O modo Consultor disponibiliza apenas ferramentas de consulta.
 
 Arquivos: `src/routes/inbox.tsx`, `src/styles.css`, `src/components/inbox/InboxPage.legacy.tsx`, `src/components/inbox/LeadProfilePanel.tsx`, `src/components/inbox/LeadWhatsappOrigin.tsx`, `src/routes/crm.agente-ia.tsx`, `src/components/ai-agent/AiAgentChat.tsx`, `src/lib/ai-agent/prompts.ts`, `src/lib/ai-agent/crm-tools.server.ts`, `src/routes/api/ai-agent/chat.ts` e este registro.
+
+### Cérebro da IA em 3D
+
+Modelo original inspirado nas referências de silhueta, volume e divisão por regiões. Arrastar gira o modelo e tocar uma região abre seu editor. Os botões das regiões também operam por teclado. Cada região é preenchida a partir das fontes ativas e palavras cadastradas. Os rascunhos de texto são independentes por região. As fontes e os termos usam o armazenamento que já existia.
+
+Arquivos: `src/components/crm/BrainAtlas.tsx`, `src/routes/crm.agente-ia.tsx`, `src/styles.css` e este registro.

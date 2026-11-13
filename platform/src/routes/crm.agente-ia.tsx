@@ -1,12 +1,13 @@
 // SLIM_APPROVED_UI_COMMERCE_V1
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AppSidebar } from "@/components/dashboard/AppSidebar";
 import { supabase } from "@/integrations/supabase/client";
 import { BrainSourceActions, BrainBlockedTermEditor } from "@/components/crm/BrainSourceEditors";
+import { BrainAtlas, brainRegions, type BrainRegion } from "@/components/crm/BrainAtlas";
 import { AiAgentChat } from "@/components/ai-agent/AiAgentChat";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { BrainCircuit, FileText, Link2, Megaphone, Plus, Trash2, Upload } from "lucide-react";
+import { BrainCircuit, Plus, Trash2 } from "lucide-react";
 
 type Source = {
   id: string;
@@ -20,6 +21,8 @@ type Source = {
   updated_at: string;
 };
 type SourceType = Source["source_type"];
+type SourceDraft = { title: string; content: string; url: string; file: File | null };
+const emptyDraft: SourceDraft = { title: "", content: "", url: "", file: null };
 
 export const Route = createFileRoute("/crm/agente-ia")({
   head: () => ({ meta: [{ title: "Cérebro IA · Vanessa Simoni" }] }),
@@ -31,14 +34,33 @@ function BrainPage() {
   const [sources, setSources] = useState<Source[]>([]);
   const [blockedTerms, setBlockedTerms] = useState<Array<{id:string;term:string}>>([]);
   const [newBlockedTerm, setNewBlockedTerm] = useState("");
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [url, setUrl] = useState("");
-  const [kind, setKind] = useState<SourceType | "blocked">("text");
-  const [file, setFile] = useState<File | null>(null);
+  const [drafts, setDrafts] = useState<Partial<Record<SourceType, SourceDraft>>>({});
+  const [kind, setKind] = useState<BrainRegion>("text");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [documentInputVersion, setDocumentInputVersion] = useState(0);
+  const counts = useMemo(() => {
+    const result = { text: 0, document: 0, url: 0, promotion: 0, blocked: blockedTerms.length };
+    for (const source of sources) if (source.enabled) result[source.source_type]++;
+    return result;
+  }, [sources, blockedTerms.length]);
+  const visibleSources = sources.filter(source => source.source_type === kind);
+  const currentRegion = brainRegions.find(region => region.id === kind)!;
+  const { title, content, url, file } = kind === "blocked" ? emptyDraft : drafts[kind] ?? emptyDraft;
+
+  function updateDraft(patch: Partial<SourceDraft>) {
+    if (kind === "blocked") return;
+    setDrafts(previous => ({ ...previous, [kind]: { ...emptyDraft, ...previous[kind], ...patch } }));
+  }
+
+  function selectRegion(region: BrainRegion) {
+    if (region === kind || busy) return;
+    setKind(region);
+    setError("");
+    setNotice("");
+    if (kind === "document") updateDraft({ file: null });
+  }
 
   async function reload(wid: string) {
     const { data, error: err } = await supabase.from("ai_brain_sources")
@@ -85,7 +107,7 @@ function BrainPage() {
   }
 
   async function addSource() {
-    if (!workspaceId || !title.trim()) return setError("Informe o título da fonte.");
+    if (!workspaceId || kind === "blocked" || !title.trim()) return setError("Informe o título da fonte.");
     if (kind === "document" && !file) return setError("Selecione um documento.");
     if (kind === "url" && !/^https?:\/\//i.test(url.trim())) return setError("Informe uma URL válida.");
     setError(""); setNotice(""); setBusy(true);
@@ -110,7 +132,8 @@ function BrainPage() {
         storage_path: uploadedPath, enabled: true,
       });
       if (insertErr) throw insertErr;
-      setTitle(""); setContent(""); setUrl(""); setFile(null);
+      updateDraft(emptyDraft);
+      if (kind === "document") setDocumentInputVersion(version => version + 1);
       setNotice("Fonte adicionada. A indexação semântica ainda precisa ser ativada para consultas dos agentes.");
       await reload(workspaceId);
     } catch (e) {
@@ -135,9 +158,9 @@ function BrainPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-background text-foreground">
+    <div data-vanessa-brain className="flex min-h-screen bg-background text-foreground">
       <AppSidebar />
-      <main className="min-w-0 flex-1 space-y-6 p-4 md:p-6">
+      <main className="mx-auto w-full min-w-0 max-w-6xl space-y-5 p-4 md:p-6">
         <header className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h1 className="flex items-center gap-2 text-2xl font-bold"><BrainCircuit aria-hidden="true" /> Cérebro da IA</h1>
@@ -157,18 +180,11 @@ function BrainPage() {
             </DialogContent>
           </Dialog>
         </header>
-        <section className="w-full rounded-lg border bg-card p-5">
-          <h2 className="mb-4 font-semibold">Adicionar conhecimento</h2>
-          <div className="mb-4 flex flex-wrap gap-2">
-            {([{ id: "text", label: "Informação", icon: FileText }, { id: "document", label: "Documento", icon: Upload }, { id: "url", label: "Link", icon: Link2 }, { id: "promotion", label: "Promoção", icon: Megaphone }, { id: "blocked", label: "Palavras proibidas", icon: FileText }] as const).map(option => (
-              <button key={option.id} type="button" onClick={() => setKind(option.id)}
-                className={`flex items-center gap-2 rounded-md border px-3 py-2 text-sm ${kind === option.id ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>
-                <option.icon size={15} />{option.label}
-              </button>
-            ))}
-          </div>
-          {kind === "blocked" ? (<div className="mt-4 rounded-lg border bg-muted/20 p-4">
-          <h2 className="mb-2 font-semibold">Palavras proibidas</h2>{error && <p role="alert" className="mb-3 text-sm text-destructive">{error}</p>}
+        <BrainAtlas selected={kind} counts={counts} onSelect={selectRegion} />
+        <section id="brain-region-editor" aria-labelledby="brain-region-title" className="w-full rounded-xl border bg-card p-4 md:p-5">
+          <h2 id="brain-region-title" className="mb-4 font-semibold">{currentRegion.label}</h2>
+          {kind === "blocked" ? (<div>
+          {error && <p role="alert" className="mb-3 text-sm text-destructive">{error}</p>}
           <p className="mb-3 text-xs text-muted-foreground">Termos que os agentes não devem usar. O bloqueio automático antes do envio ainda precisa ser integrado ao backend.</p>
           <div className="flex gap-2">
             <input aria-label="Nova palavra proibida" className="min-w-0 flex-1 rounded-md border bg-background p-2 text-sm" placeholder="Digite uma palavra ou expressão" value={newBlockedTerm} onChange={e=>setNewBlockedTerm(e.target.value)}/>
@@ -177,31 +193,25 @@ function BrainPage() {
           <ul className="mt-3 space-y-2">{blockedTerms.map(item=><li key={item.id} className="flex items-center justify-between rounded-md border px-3 py-2 text-sm"><span className="min-w-0 flex-1 break-words">{item.term}</span><BrainBlockedTermEditor item={item} workspaceId={workspaceId} onSaved={() => reload(workspaceId!)} /><button type="button" aria-label={`Remover ${item.term}`} onClick={()=>removeBlockedTerm(item.id)}><Trash2 size={15}/></button></li>)}</ul>
         </div>
           ) : (<>
-          <label className="block text-sm">Título<input className="mt-1 mb-3 w-full rounded-md border bg-background p-2" value={title} onChange={e => setTitle(e.target.value)} placeholder="Ex.: Política comercial" /></label>
-          {(kind === "text" || kind === "promotion") && <label className="block text-sm">Conteúdo<textarea className="mt-1 mb-3 min-h-36 w-full rounded-md border bg-background p-2" value={content} onChange={e => setContent(e.target.value)} /></label>}
-          {kind === "url" && <label className="block text-sm">Endereço da página<input className="mt-1 mb-3 w-full rounded-md border bg-background p-2" value={url} onChange={e => setUrl(e.target.value)} placeholder="https://..." /></label>}
-          {kind === "document" && <label className="block text-sm">PDF, DOCX, TXT ou Markdown (até 20 MB)<input type="file" accept=".pdf,.docx,.txt,.md" className="mt-2 mb-3 block" onChange={e => setFile(e.target.files?.[0] ?? null)} /></label>}
+          <label className="block text-sm">Título<input className="mt-1 mb-3 w-full rounded-md border bg-background p-2" value={title} onChange={e => updateDraft({ title: e.target.value })} placeholder="Ex.: Orientações para agendar visitas" /></label>
+          {(kind === "text" || kind === "promotion") && <label className="block text-sm">Conteúdo<textarea className="mt-1 mb-3 min-h-36 w-full rounded-md border bg-background p-2" value={content} onChange={e => updateDraft({ content: e.target.value })} /></label>}
+          {kind === "url" && <label className="block text-sm">Endereço da página<input className="mt-1 mb-3 w-full rounded-md border bg-background p-2" value={url} onChange={e => updateDraft({ url: e.target.value })} placeholder="https://..." /></label>}
+          {kind === "document" && <label className="block text-sm">PDF, DOCX, TXT ou Markdown (até 20 MB)<input key={documentInputVersion} type="file" accept=".pdf,.docx,.txt,.md" className="mt-2 mb-3 block w-full" onChange={e => updateDraft({ file: e.target.files?.[0] ?? null })} /></label>}
           <button type="button" disabled={busy || !workspaceId} onClick={addSource} className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"><Plus size={16} /> {busy ? "Salvando..." : "Adicionar fonte"}</button>
           {error && <p role="alert" className="mt-3 text-sm text-destructive">{error}</p>}
           {notice && <p className="mt-3 text-sm text-muted-foreground">{notice}</p>}
           </>)}
         </section>
-        <section className="w-full rounded-lg border bg-card p-5">
-          <h2 className="mb-2 font-semibold">Links autorizados</h2>
-          <p className="text-sm text-muted-foreground">Somente links ativos cadastrados abaixo poderão ser enviados pelos agentes. Links não cadastrados deverão ser bloqueados na etapa de envio. Cadastre-os em Adicionar conhecimento → Link.</p>
-          <ul className="mt-3 space-y-2">{sources.filter(source=>source.source_type==="url").map(source=><li key={source.id} className="rounded-md border p-3 text-sm"><strong>{source.title}</strong><div className="break-all text-xs text-muted-foreground">{source.url}</div><span className="text-xs">{source.enabled ? "Autorizado" : "Desativado"}</span></li>)}</ul>
-        </section>
-        <section className="w-full rounded-lg border bg-card p-5">
-          <h2 className="mb-2 font-semibold">Fontes cadastradas ({sources.length})</h2>
-          <p className="mb-4 text-xs text-muted-foreground">Armazenamento disponível. Indexação e busca RAG pelos agentes ainda estão em implementação.</p>
-          {sources.length === 0 && <p className="py-4 text-sm text-muted-foreground">Nenhuma fonte adicionada.</p>}
-          <ul className="divide-y">{sources.map(source => <li key={source.id} className="flex flex-wrap items-center gap-3 py-3">
+        {kind !== "blocked" && <section className="w-full rounded-xl border bg-card p-4 md:p-5">
+          <h2 className="mb-2 font-semibold">Registros em {currentRegion.label.toLocaleLowerCase("pt-BR")} ({visibleSources.length})</h2>
+          {visibleSources.length === 0 && <p className="py-4 text-sm text-muted-foreground">Nenhum registro nesta região.</p>}
+          <ul className="divide-y">{visibleSources.map(source => <li key={source.id} className="flex flex-wrap items-center gap-3 py-3">
             <div className="min-w-0 flex-1"><strong className="block break-words text-sm">{source.title}</strong><p className="mt-1 line-clamp-3 whitespace-pre-wrap break-words text-sm text-muted-foreground">{source.content || source.url || source.file_name || "Sem conteúdo complementar"}</p><span className="text-xs text-muted-foreground">{source.source_type === "promotion" ? "Promoção" : source.source_type === "document" ? "Documento" : source.source_type === "url" ? "Link" : "Texto"}{source.file_name ? ` · ${source.file_name}` : ""}</span></div>
             <BrainSourceActions source={source} workspaceId={workspaceId} onSaved={() => reload(workspaceId!)} />
             <button type="button" onClick={() => toggle(source)} className="rounded border px-3 py-1.5 text-xs">{source.enabled ? "Ativo" : "Pausado"}</button>
             <button type="button" aria-label={`Excluir ${source.title}`} onClick={() => remove(source)} className="rounded border p-2 text-destructive"><Trash2 size={14} /></button>
           </li>)}</ul>
-        </section>
+        </section>}
       </main>
     </div>
   );
